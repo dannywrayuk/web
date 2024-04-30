@@ -1,0 +1,61 @@
+---
+import Basic from "./basic.astro"
+import WithJS from "./withJS.astro"
+import WithSlot from "./withSlot.astro"
+
+import {ReactBasic} from "./reactBasic.tsx"
+import {ReactWithJs} from "./reactWithJs.tsx"
+import {ReactWithChildren} from "./reactWithChildren.tsx"
+import {ReactWithState} from "./reactWithState.tsx"
+import {TheProvider} from "./TheContext.tsx"
+import {UsesTheContext} from "./contexter.tsx" 
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1>Astro</h1>
+        <hr/>
+        <TheProvider client:load>
+        <Basic />
+        <hr/>
+        <WithJS />
+        <hr/>
+        <WithSlot name="plain with props">
+            <p>astro child</p>
+        </WithSlot>
+        <hr/>
+        <ReactBasic/>
+        <hr/>
+        <ReactWithJs/>
+        <hr/>
+        <UsesTheContext client:load/>
+        <hr/>
+        <ReactWithChildren name="astro child">
+            <p>astro child<p/>
+        </ReactWithChildren>
+        <hr/>
+        <ReactWithChildren name="react child">
+            <ReactBasic/>
+        </ReactWithChildren>
+        <hr/>
+        <ReactWithChildren name="both children">
+            <ReactBasic/>
+            <p>astro child</p>
+        </ReactWithChildren>
+        <hr/>
+        <ReactWithState />
+        <hr/>
+        <h2>Using client:load<h2/>
+        <hr/>
+        <ReactBasic client:load/>
+        <hr/>
+        </TheProvider>
+	</body>
+</html>
