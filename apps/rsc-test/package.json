@@ -23,7 +23,7 @@
     "react": "18.3.0-next-1308e49a6-20230330",
     "react-dom": "18.3.0-next-1308e49a6-20230330",
     "react-error-boundary": "^3.1.4",
-    "react-server-dom-webpack": "18.3.0-next-1308e49a6-20230330",
+    "react-server-dom-webpack": "0.0.0-experimental-41b4714f1-20230328",
     "resolve": "1.22.1",
     "rimraf": "^4.4.0",
     "sanitize-html": "^2.10.0",
@@ -46,5 +46,8 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "es-module-lexer": "^1.5.2"
   }
 }
