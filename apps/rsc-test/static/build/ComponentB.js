@@ -83,6 +83,5 @@ react/cjs/react-jsx-runtime.production.min.js:
    *)
 */
 
-ComponentB.$$id = "/Users/danny/proj/web/apps/rsc-test/build/ComponentB.jsComponentB";
+ComponentB.$$id = "./ComponentB.jsComponentB";
 ComponentB.$$typeof = Symbol.for("react.client.reference");
-			

@@ -31,9 +31,11 @@ const rscPlugin = (entryPoints: Set<string>): esbuild.Plugin => {
     setup(build) {
       build.onResolve(
         { filter: reactComponentRegex },
-        async ({ path: relativePath }) => {
+        ({ path: relativePath }) => {
+          console.log("hello");
           const fullPath = path.join("src/webapp", relativePath);
-          const contents = await Bun.file(fullPath).text();
+          const contents = Bun.file(fullPath).toString();
+          console.log("hello", contents);
           if (
             contents.startsWith('"use client"') ||
             contents.startsWith("'use client'")

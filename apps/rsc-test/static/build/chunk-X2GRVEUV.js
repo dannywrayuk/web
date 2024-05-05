@@ -419,12 +419,11 @@ react/cjs/react.production.min.js:
    *)
 */
 
-__commonJS.$$id = "/Users/danny/proj/web/apps/rsc-test/build/chunk-X2GRVEUV.js__commonJS";
+__commonJS.$$id = "./chunk-X2GRVEUV.js__commonJS";
 __commonJS.$$typeof = Symbol.for("react.client.reference");
-			
-__toESM.$$id = "/Users/danny/proj/web/apps/rsc-test/build/chunk-X2GRVEUV.js__toESM";
+
+__toESM.$$id = "./chunk-X2GRVEUV.js__toESM";
 __toESM.$$typeof = Symbol.for("react.client.reference");
-			
-require_react.$$id = "/Users/danny/proj/web/apps/rsc-test/build/chunk-X2GRVEUV.jsrequire_react";
+
+require_react.$$id = "./chunk-X2GRVEUV.jsrequire_react";
 require_react.$$typeof = Symbol.for("react.client.reference");
-			

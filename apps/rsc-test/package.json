@@ -34,8 +34,7 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "start:server": "bun --watch ./src/server.ts",
-    "start:bundler": "bun ./script/build.js"
+    "start:server": "BUN_CONFIG_NO_CLEAR_TERMINAL_ON_RELOAD=true bun --hot ./src/server2.ts"
   },
   "babel": {
     "presets": [
