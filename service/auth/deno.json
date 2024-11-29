@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "cdk-deploy": "cdk deploy"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1",
+    "aws-cdk": "npm:aws-cdk@^2.171.1",
+    "aws-cdk-lib": "npm:aws-cdk-lib@^2.171.1",
+    "constructs": "npm:constructs@^10.4.2"
+  }
+}

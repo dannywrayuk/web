@@ -1,9 +1,0 @@
-{
-  "name": "web",
-  "private": true,
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ]
-}
-
