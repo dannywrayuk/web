@@ -1,5 +1,5 @@
 {
-  "app": "deno run -A cdk/App.ts",
+  "app": "pnpm dlx ts-node --prefer-ts-exts cdk/App.ts",
   "watch": {
     "include": ["**"],
     "exclude": [
@@ -7,8 +7,8 @@
       "cdk*.json",
       "**/*.d.ts",
       "**/*.js",
-      "deno.json",
-      "deno.lock"
+      "package.json",
+      "pnpm-lock.yaml"
     ]
   },
   "context": {
