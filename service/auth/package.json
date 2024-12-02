@@ -1,8 +1,11 @@
 {
   "scripts": {
-    "cdk": "cdk deploy"
+    "cdk-deploy": "cdk deploy",
+    "cdk-destroy": "cdk destroy"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.10.1",
     "aws-cdk": "^2.171.1",
     "aws-cdk-lib": "^2.171.1",
     "constructs": "^10.4.2",

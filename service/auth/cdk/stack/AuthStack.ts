@@ -1,21 +1,30 @@
-import {
-  Stack,
-  aws_lambda_nodejs as nodeLambda,
-  aws_lambda as lambda,
-} from "aws-cdk-lib";
+import { Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
+import config from "../config";
+import { apiBuilder } from "../lib/apiBuilder";
+import { lambdaBuilder } from "../lib/lambdaBuilder";
 
 export class AuthStack extends Stack {
   constructor(scope: Construct) {
     super(scope, "AuthStack");
+    const lambda = lambdaBuilder(this, { ...config });
+    const api = apiBuilder(this, { ...config });
 
-    const myFunction = new nodeLambda.NodejsFunction(
-      this,
-      "HelloWorldFunction",
-      {
-        runtime: lambda.Runtime.NODEJS_22_X, // Provide any supported Node.js runtime
-        entry: "./src/helloWorld/helloWorld.handler.ts",
+    const verify = lambda({ name: "helloWorld" });
+    const authApi = api({
+      name: "auth",
+      resources: {
+        "user/{userId}": {
+          auth: {
+            all: { GET: verify },
+            "{rewardId}": {
+              GET: verify,
+              sdf: { POST: verify },
+            },
+          },
+          "user/login": { GET: { handler: verify } },
+        },
       },
-    );
+    });
   }
 }
