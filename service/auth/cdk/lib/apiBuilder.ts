@@ -57,8 +57,11 @@ const insertWithin = (
 const expandFlattenedRoutes = (routes: object) => {
   return Object.entries(routes).reduce((result, [key, value]) => {
     if (key in apiGw.HttpMethod) {
-      //@ts-ignore
-      result[key] = "handler";
+      if (value?.handler) {
+        result[key] = value;
+      } else {
+        result[key] = { handler: value };
+      }
       return result;
     }
     insertWithin(result, key.split("/"), expandFlattenedRoutes(value));
