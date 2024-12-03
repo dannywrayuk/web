@@ -26,14 +26,14 @@ type ApiConfig = {
   routes: Routes;
 } & apiGw.HttpApiProps;
 
-type JsonLike = object & {
-  [k: string]: JsonLike;
+type NestedStringRecord = object & {
+  [k: string]: NestedStringRecord;
 };
 
 const insertWithin = (
-  startObject: JsonLike,
+  startObject: NestedStringRecord,
   keys: string[],
-  insertObject: JsonLike,
+  insertObject: NestedStringRecord,
 ) =>
   Object.assign(
     keys.reduce((currentObject, nextKey) => {
@@ -63,7 +63,7 @@ const expandFlattenedRoutes = (routes: object) => {
     }
     insertWithin(result, key.split("/"), expandFlattenedRoutes(value));
     return result;
-  }, {} as JsonLike);
+  }, {} as NestedStringRecord);
 };
 
 export const apiBuilder =
