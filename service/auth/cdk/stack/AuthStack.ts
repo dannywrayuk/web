@@ -13,7 +13,7 @@ export class AuthStack extends Stack {
     const verify = lambda({ name: "helloWorld" });
     const authApi = api({
       name: "auth",
-      resources: {
+      routes: {
         "user/{userId}": {
           auth: {
             all: { GET: verify },
@@ -22,8 +22,8 @@ export class AuthStack extends Stack {
               sdf: { POST: verify },
             },
           },
-          "user/login": { GET: { handler: verify } },
         },
+        "user/login": { GET: { handler: verify } },
       },
     });
   }
