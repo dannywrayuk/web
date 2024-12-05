@@ -1,24 +1,24 @@
 import {
   Stack,
   aws_apigatewayv2 as apiGw,
+  aws_apigatewayv2_integrations as apiGwIntegrations,
   aws_lambda as lambda,
 } from "aws-cdk-lib";
+import { HashMap, hashMapBuilder } from "./hashMapBuilder";
 
 type ServiceConfig = {
   name: string;
   stage: string;
 } & apiGw.HttpApiProps;
 
-type Method =
-  | {
-      handler: lambda.IFunction;
-    }
-  | lambda.IFunction;
+type Method = {
+  handler: lambda.IFunction;
+} & apiGwIntegrations.HttpLambdaIntegrationProps;
 
 export type Routes = {
-  [K in keyof typeof apiGw.HttpMethod]?: Method;
+  [K in keyof typeof apiGw.HttpMethod]?: Method | lambda.IFunction;
 } & {
-  [K: string]: Routes | Method;
+  [K: string]: Routes | Method | lambda.IFunction;
 };
 
 type ApiConfig = {
@@ -69,13 +69,50 @@ const expandFlattenedRoutes = (routes: object) => {
   }, {} as NestedStringRecord);
 };
 
-export const apiBuilder =
+const createRoutes = (
+  httpApi: apiGw.HttpApi,
+  routes: Routes,
+  integrations: HashMap,
+  parentRoute?: string,
+) => {
+  Object.entries(routes).forEach(([key, value]) => {
+    if (key in apiGw.HttpMethod) {
+      console.log(`${parentRoute} ${key}`);
+      const { handler, ...options } = value as Method;
+      httpApi.addRoutes({
+        path: parentRoute || "/",
+        methods: [key as apiGw.HttpMethod],
+        integration: integrations.asCache(
+          { functionName: handler.node.id, options },
+          () =>
+            new apiGwIntegrations.HttpLambdaIntegration(
+              `Integration-${handler.node.id}`,
+              handler,
+              options,
+            ),
+        ),
+      });
+    } else {
+      createRoutes(
+        httpApi,
+        value as Routes,
+        integrations,
+        `${parentRoute || ""}/${key}`,
+      );
+    }
+  });
+};
+
+export const httpApiBuilder =
   (stack: Stack, serviceConfig: ServiceConfig) => (apiConfig: ApiConfig) => {
     const httpApi = new apiGw.HttpApi(
       stack,
       `${serviceConfig.name}-${apiConfig.name}-HttpApi-${serviceConfig.stage}`,
       {},
     );
-    const routes = expandFlattenedRoutes(apiConfig.routes);
-    return { api: httpApi, routes };
+
+    const routeTree = expandFlattenedRoutes(apiConfig.routes);
+    const integrations = hashMapBuilder();
+    createRoutes(httpApi, routeTree, integrations);
+    return { api: httpApi };
   };

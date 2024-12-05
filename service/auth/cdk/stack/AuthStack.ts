@@ -1,14 +1,14 @@
-import { Stack } from "aws-cdk-lib";
+import { Duration, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import config from "../config";
-import { apiBuilder } from "../lib/apiBuilder";
+import { httpApiBuilder } from "../lib/httpApiBuilder";
 import { lambdaBuilder } from "../lib/lambdaBuilder";
 
 export class AuthStack extends Stack {
   constructor(scope: Construct) {
     super(scope, "AuthStack");
     const lambda = lambdaBuilder(this, { ...config });
-    const api = apiBuilder(this, { ...config });
+    const api = httpApiBuilder(this, { ...config });
 
     const verify = lambda({ name: "helloWorld" });
     const authApi = api({
@@ -16,7 +16,7 @@ export class AuthStack extends Stack {
       routes: {
         "user/{userId}": {
           auth: {
-            all: { GET: verify },
+            all: { GET: { handler: verify, timeout: Duration.seconds(10) } },
             "{rewardId}": {
               GET: verify,
               sdf: { POST: verify },
