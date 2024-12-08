@@ -1,5 +1,6 @@
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 cdk.out
+cdk.context.json
 # Logs
 
 logs

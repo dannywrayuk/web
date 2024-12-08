@@ -3,13 +3,25 @@ import {
   aws_apigatewayv2 as apiGw,
   aws_apigatewayv2_integrations as apiGwIntegrations,
   aws_lambda as lambda,
+  aws_route53 as r53,
+  aws_route53_targets as r53Targets,
+  aws_certificatemanager as certMan,
 } from "aws-cdk-lib";
 import { HashMap, hashMapBuilder } from "./hashMapBuilder";
+import { domainMapping } from "./domainMapping";
+
+type ApiConfig = {
+  routes: Routes;
+  name?: string;
+  domainName?: string;
+  subDomain?: string;
+} & apiGw.HttpApiProps;
 
 type ServiceConfig = {
   name: string;
   stage: string;
-} & apiGw.HttpApiProps;
+  removeStageSubdomain?: boolean;
+} & Partial<ApiConfig>;
 
 type Method = {
   handler: lambda.IFunction;
@@ -20,11 +32,6 @@ export type Routes = {
 } & {
   [K: string]: Routes | Method | lambda.IFunction;
 };
-
-type ApiConfig = {
-  name: string;
-  routes: Routes;
-} & apiGw.HttpApiProps;
 
 type NestedStringRecord = object & {
   [k: string]: NestedStringRecord;
@@ -77,7 +84,6 @@ const createRoutes = (
 ) => {
   Object.entries(routes).forEach(([key, value]) => {
     if (key in apiGw.HttpMethod) {
-      console.log(`${parentRoute} ${key}`);
       const { handler, ...options } = value as Method;
       httpApi.addRoutes({
         path: parentRoute || "/",
@@ -105,11 +111,29 @@ const createRoutes = (
 
 export const httpApiBuilder =
   (stack: Stack, serviceConfig: ServiceConfig) => (apiConfig: ApiConfig) => {
+    const apiName = apiConfig.name ? `${apiConfig.name}-api` : "api";
     const httpApi = new apiGw.HttpApi(
       stack,
-      `${serviceConfig.name}-${apiConfig.name}-HttpApi-${serviceConfig.stage}`,
+      `${serviceConfig.name}-${apiName}-${serviceConfig.stage}`,
       {},
     );
+
+    const domainName = serviceConfig.domainName || apiConfig.domainName;
+    const subDomain = serviceConfig.subDomain || apiConfig.subDomain;
+
+    if (domainName) {
+      domainMapping(stack, httpApi, {
+        serviceName: serviceConfig.name,
+        stage: serviceConfig.stage,
+        apiName,
+        domainName,
+        subDomain: serviceConfig.removeStageSubdomain
+          ? subDomain
+          : subDomain
+            ? `${serviceConfig.stage}.${subDomain}`
+            : serviceConfig.stage,
+      });
+    }
 
     const routeTree = expandFlattenedRoutes(apiConfig.routes);
     const integrations = hashMapBuilder();

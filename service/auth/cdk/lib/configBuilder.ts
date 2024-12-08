@@ -11,5 +11,13 @@ export const configBuilder = <CommonConfig, StageConfigs>(
   if (!stageConfig) {
     throw new Error(`[ConfigError] No config for stage ${stageConfig}.`);
   }
-  return { ...commonConfig, ...stageConfig, stage } as const;
+  return {
+    awsEnv: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+    ...commonConfig,
+    ...stageConfig,
+    stage,
+  } as const;
 };

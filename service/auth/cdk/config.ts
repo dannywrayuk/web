@@ -1,9 +1,14 @@
 import { configBuilder } from "./lib/configBuilder";
 
 export default configBuilder(
-  { name: "auth" },
+  {
+    name: "auth",
+    domainName: "dannywray.co.uk",
+  },
   {
     dev: {},
-    prod: {},
+    prod: {
+      removeStageSubdomain: true,
+    },
   },
 );
