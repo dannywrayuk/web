@@ -1,6 +1,7 @@
 import {
   aws_lambda_nodejs as nodeLambda,
   aws_lambda as awsLambda,
+  aws_logs as logs,
   Stack,
 } from "aws-cdk-lib";
 
@@ -26,6 +27,7 @@ export const lambdaBuilder =
         runtime: awsLambda.Runtime.NODEJS_22_X,
         functionName: `${namespace}-${serviceConfig.stage}`,
         entry: `./src/${lambdaConfig.name}/index.ts`,
+        logRetention: logs.RetentionDays.TWO_WEEKS,
         ...serviceConfig,
         ...lambdaConfig,
         environment: {

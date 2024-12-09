@@ -1,4 +1,7 @@
-export const configBuilder = <CommonConfig, StageConfigs>(
+export const configBuilder = <
+  CommonConfig extends object,
+  StageConfigs extends Record<string, object>,
+>(
   commonConfig: CommonConfig,
   stageConfigs: StageConfigs,
 ) => {
