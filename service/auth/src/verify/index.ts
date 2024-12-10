@@ -1,8 +1,9 @@
 import { getSecrets } from "../lib/getSecrets";
 
 export const handler = async () => {
-  const secrets = await getSecrets({ test: "/path/yes" });
+  const secrets = await getSecrets({ test: "yes" });
   if (secrets) {
-    console.log("hello world");
+    console.log(secrets);
   }
+  return "Hello!";
 };

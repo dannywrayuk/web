@@ -7,8 +7,10 @@ export const getSecrets = async <ParameterNames extends Record<string, string>>(
   try {
     const reversedParams = Object.entries(parameterNames).reduce(
       (result, [parameterName, parameterPath]) => {
-        // auto add the stage into the path?
-        result[parameterPath] = parameterName;
+        const path = parameterPath.startsWith("/")
+          ? parameterPath
+          : `/${process.env.STAGE}/${parameterPath}`;
+        result[path] = parameterName;
         return result;
       },
       {} as Record<string, string>,
@@ -20,9 +22,10 @@ export const getSecrets = async <ParameterNames extends Record<string, string>>(
         WithDecryption: true,
       }),
     );
+
     if (
-      !response.Parameters ||
-      response.InvalidParameters ||
+      !response.Parameters?.length ||
+      response.InvalidParameters?.length ||
       response.$metadata.httpStatusCode !== 200
     ) {
       throw new Error("Error retrieving secrets");

@@ -3,6 +3,7 @@ import {
   aws_lambda as awsLambda,
   aws_logs as logs,
   Stack,
+  RemovalPolicy,
 } from "aws-cdk-lib";
 
 type ServiceConfig = {
@@ -18,6 +19,13 @@ export const lambdaBuilder =
   (stack: Stack, serviceConfig: ServiceConfig) =>
   (lambdaConfig: LambdaConfig) => {
     const namespace = `${serviceConfig.name}-${lambdaConfig.name}`;
+    const functionName = `${namespace}-${serviceConfig.stage}`;
+
+    new logs.LogGroup(stack, `${namespace}-LogGroup-${serviceConfig.stage}`, {
+      logGroupName: `/aws/lambda/${functionName}`,
+      retention: logs.RetentionDays.TWO_WEEKS,
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
 
     return new nodeLambda.NodejsFunction(
       stack,
@@ -25,9 +33,8 @@ export const lambdaBuilder =
       {
         architecture: awsLambda.Architecture.ARM_64,
         runtime: awsLambda.Runtime.NODEJS_22_X,
-        functionName: `${namespace}-${serviceConfig.stage}`,
+        functionName,
         entry: `./src/${lambdaConfig.name}/index.ts`,
-        logRetention: logs.RetentionDays.TWO_WEEKS,
         ...serviceConfig,
         ...lambdaConfig,
         environment: {
