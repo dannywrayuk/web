@@ -1,8 +1,8 @@
 import { getSecrets } from "../lib/getSecrets";
 import * as jwt from "jsonwebtoken";
-import { safely } from "../lib/safely";
+import { safe } from "../lib/safe/safe";
 
-export const handler = async (event) => {
+export const handler = async (event: any) => {
   const secrets = await getSecrets({
     accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
     refreshTokenSigningKey: "AUTH_REFRESH_TOKEN_SIGNING_KEY",
@@ -15,19 +15,27 @@ export const handler = async (event) => {
   }
 
   const test = async () => await fetch("https://api.example.com/user");
-  const testing2 = await safely(test)();
-  if (!testing2.success) {
-    return testing2.error;
+  const safeTest = safe(test);
+  const testing2 = await safeTest();
+  if (testing2.error) {
+    return;
   }
-  const d = testing2.data;
-  const testing = safely(() =>
-    jwt.verify(accessToken, secrets.accessTokenSigningKey),
+  const d = testing2.result;
+  const testing = safe(
+    () => jwt.verify(accessToken, secrets.accessTokenSigningKey),
+    "hello",
   )<TypeError>();
-  if (!testing.success) {
+  if (testing.error) {
     return testing.error.message;
   }
 
-  const x = testing.data;
+  const x = testing.result;
+
+  const test3 = await safe(test, undefined)();
+  test3.result;
+  if (test3.error) {
+    return;
+  }
   const refreshTokenData = jwt.verify(
     refreshToken,
     secrets.refreshTokenSigningKey,
