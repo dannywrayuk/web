@@ -9,6 +9,7 @@ export default configBuilder(
     dev: {},
     prod: {
       removeStageSubdomain: true,
+      deletionProtection: true,
     },
   },
 );
