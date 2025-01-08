@@ -5,14 +5,17 @@ import {
   Stack,
   RemovalPolicy,
 } from "aws-cdk-lib";
+import * as fs from "node:fs";
 
 type ServiceConfig = {
   name: string;
   stage: string;
+  generateEnvTypes?: boolean;
 } & nodeLambda.NodejsFunctionProps;
 
 type LambdaConfig = {
   name: string;
+  generateEnvTypes?: boolean;
 } & nodeLambda.NodejsFunctionProps;
 
 export const lambdaBuilder =
@@ -27,6 +30,35 @@ export const lambdaBuilder =
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    const environment = {
+      ...serviceConfig.environment,
+      ...lambdaConfig.environment,
+      SERVICE_NAME: serviceConfig.name,
+      STAGE: serviceConfig.stage,
+      FUNCTION_NAME: lambdaConfig.name,
+      REGION: Stack.of(stack).region,
+    } as const;
+
+    const generateEnvTypes =
+      lambdaConfig.generateEnvTypes !== undefined
+        ? lambdaConfig.generateEnvTypes
+        : serviceConfig.generateEnvTypes !== undefined
+          ? serviceConfig.generateEnvTypes
+          : true;
+
+    if (generateEnvTypes) {
+      const envTypeDef = `declare namespace NodeJS { interface ProcessEnv {${Object.entries(
+        environment,
+      )
+        .map(([envKey, envVal]) => `${envKey}: "${typeof envVal}"`)
+        .join(";")}}}`;
+
+      fs.writeFileSync(
+        `./src/${lambdaConfig.name}/process.gen.d.ts`,
+        envTypeDef,
+      );
+    }
+
     return new nodeLambda.NodejsFunction(
       stack,
       `${namespace}-NodejsFunction-${serviceConfig.stage}`,
@@ -37,14 +69,7 @@ export const lambdaBuilder =
         entry: `./src/${lambdaConfig.name}/index.ts`,
         ...serviceConfig,
         ...lambdaConfig,
-        environment: {
-          ...serviceConfig.environment,
-          ...lambdaConfig.environment,
-          SERVICE_NAME: serviceConfig.name,
-          STAGE: serviceConfig.stage,
-          FUNCTION_NAME: lambdaConfig.name,
-          REGION: Stack.of(stack).region,
-        },
+        environment,
       },
     );
   };

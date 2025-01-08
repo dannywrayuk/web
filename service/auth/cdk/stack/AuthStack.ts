@@ -20,7 +20,11 @@ export class AuthStack extends Stack {
     const userTable = table({ name: "users" });
 
     const verify = lambda({ name: "verify" });
-    const login = lambda({ name: "login", timeout: Duration.seconds(10) });
+    const login = lambda({
+      name: "login",
+      timeout: Duration.seconds(10),
+      environment: { USER_TABLE_NAME: userTable.tableName },
+    });
 
     api({
       subDomain: "auth",

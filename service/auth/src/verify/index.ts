@@ -1,4 +1,4 @@
-import { getSecrets } from "../lib/getSecrets";
+import { getSecrets } from "../lib/aws/getSecrets";
 import { failure, success } from "../lib/results";
 
 export const handler = async (event: any) => {

@@ -25,7 +25,12 @@ type PutProps = {
 
 export const dynamoDBPut = async ({ tableName, data }: PutProps) => {
   const response = await dynamoDBClient.send(
-    new PutCommand({ TableName: tableName, Item: data }),
+    new PutCommand({
+      TableName: tableName,
+      Item: data,
+      ConditionExpression:
+        "attribute_exists(PK) " + data.SK ? "AND attribute_exists(SK)" : "",
+    }),
   );
 
   if (response.$metadata.httpStatusCode !== 200) {
@@ -36,15 +41,15 @@ export const dynamoDBPut = async ({ tableName, data }: PutProps) => {
 type QueryProps = {
   tableName: string;
   PK: string;
-  SK: string;
+  SK?: string;
 };
 
 export const dynamoDBQuery = async ({ tableName, PK, SK }: QueryProps) => {
   const response = await dynamoDBClient.send(
     new QueryCommand({
       TableName: tableName,
-      KeyConditionExpression: "PK = :pk, SK = :sk",
-      ExpressionAttributeValues: { ":pk": { S: PK }, ":sk": { S: SK } },
+      KeyConditionExpression: "PK = :pk," + SK ? "SK = :sk" : "",
+      ExpressionAttributeValues: { ":pk": PK, ":sk": SK },
     }),
   );
 
@@ -108,7 +113,7 @@ export const dynamoDBTableCRUD = (tableName: string) => {
   return {
     create: (PK: string, SK: string, data: DynamoDBElement) =>
       dynamoDBPut({ tableName, PK, SK, data }),
-    read: (PK: string, SK: string) => dynamoDBQuery({ tableName, PK, SK }),
+    read: (PK: string, SK?: string) => dynamoDBQuery({ tableName, PK, SK }),
     update: (PK: string, SK: string, data: DynamoDBElement) =>
       dynamoDBUpdate({ tableName, PK, SK, data }),
     delete: (PK: string, SK: string) => dynamoDBDelete({ tableName, PK, SK }),

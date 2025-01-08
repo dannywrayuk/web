@@ -5,7 +5,7 @@ import { getAccessToken } from "./getAccessToken";
 import { getGithubUserInfo } from "./getGithubUserInfo";
 import { getUserPrimaryVerifiedEmail } from "./getUserPrimaryVerifiedEmail";
 
-const userTable = dynamoDBTableCRUD(process.env.USERS_TABLE_NAME);
+const userTable = dynamoDBTableCRUD(process.env.USER_TABLE_NAME);
 
 export const handler = async (event: any) => {
   const { client_id, client_secret } = await getSecrets({
@@ -41,11 +41,19 @@ export const handler = async (event: any) => {
   }
   console.log("End getGithubUserInfo");
 
-  const user = getGithubUserInfoCall.result;
+  const githubUserInfo = getGithubUserInfoCall.result;
 
   // Check if the user already has an account
   // If the user has an account, return auth tokens
-  const userData = await userTable.read("GITHUB_ID#" + user.id, "USER_ID");
+  const userData = await userTable.read(
+    "GITHUB_ID#" + githubUserInfo.id,
+    "USER_ID",
+  );
+
+  if (userData?.length) {
+    console.log("user already exists");
+    return success();
+  }
 
   console.log("Begin getEmail");
   const getUserPrimaryVerifiedEmailCall =
