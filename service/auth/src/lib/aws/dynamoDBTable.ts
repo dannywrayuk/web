@@ -42,13 +42,25 @@ type QueryProps = {
   tableName: string;
   PK: string;
   SK?: string;
+  rangeExpression?: string;
 };
 
-export const dynamoDBQuery = async ({ tableName, PK, SK }: QueryProps) => {
+export const dynamoDBQuery = async ({
+  tableName,
+  PK,
+  SK,
+  rangeExpression,
+}: QueryProps) => {
   const response = await dynamoDBClient.send(
     new QueryCommand({
       TableName: tableName,
-      KeyConditionExpression: "PK = :pk," + SK ? "SK = :sk" : "",
+      KeyConditionExpression:
+        "PK = :pk" +
+        (SK
+          ? rangeExpression
+            ? ` and ${rangeExpression}`
+            : " and begins_with(SK, :sk)"
+          : ""),
       ExpressionAttributeValues: { ":pk": PK, ":sk": SK },
     }),
   );
@@ -113,7 +125,8 @@ export const dynamoDBTableCRUD = (tableName: string) => {
   return {
     create: (PK: string, SK: string, data: DynamoDBElement) =>
       dynamoDBPut({ tableName, PK, SK, data }),
-    read: (PK: string, SK?: string) => dynamoDBQuery({ tableName, PK, SK }),
+    read: (PK: string, SK?: string, rangeExpression?: string) =>
+      dynamoDBQuery({ tableName, PK, SK, rangeExpression }),
     update: (PK: string, SK: string, data: DynamoDBElement) =>
       dynamoDBUpdate({ tableName, PK, SK, data }),
     delete: (PK: string, SK: string) => dynamoDBDelete({ tableName, PK, SK }),

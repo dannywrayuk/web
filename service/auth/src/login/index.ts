@@ -1,6 +1,7 @@
 import { dynamoDBTableCRUD } from "../lib/aws/dynamoDBTable";
 import { getSecrets } from "../lib/aws/getSecrets";
 import { failure, success } from "../lib/results";
+import { generateAuthTokens } from "./generateAuthTokens";
 import { getAccessToken } from "./getAccessToken";
 import { getGithubUserInfo } from "./getGithubUserInfo";
 import { getUserPrimaryVerifiedEmail } from "./getUserPrimaryVerifiedEmail";
@@ -52,7 +53,32 @@ export const handler = async (event: any) => {
 
   if (userData?.length) {
     console.log("user already exists");
-    return success();
+    const authTokens = generateAuthTokens(userData[0].USER_ID);
+    const cookieSettings = [
+      "HttpOnly",
+      "Secure",
+      "SameSite=Strict",
+      "Domain=dannywray.co.uk",
+    ];
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: "success" }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cookies: [
+        [
+          `access_token=${authTokens.access_token}`,
+          `Max-Age=${authTokens.access_token_max_age}`,
+          ...cookieSettings,
+        ].join("; "),
+        [
+          `refresh_token=${authTokens.refresh_token}`,
+          `Max-Age=${authTokens.refresh_token_max_age}`,
+          ...cookieSettings,
+        ].join("; "),
+      ],
+    };
   }
 
   console.log("Begin getEmail");
