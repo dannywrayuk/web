@@ -1,4 +1,4 @@
-import { safe } from "../lib/safe/safe";
+import { safe } from "../../lib/safe/safe";
 
 export const getGithubUserInfo = safe(async (access_token: string) => {
   const userResponse = await fetch("https://api.github.com/user", {

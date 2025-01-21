@@ -47,17 +47,27 @@ export const lambdaBuilder =
           : true;
 
     if (generateEnvTypes) {
-      const envTypeDef = `declare namespace NodeJS { interface ProcessEnv {${Object.entries(
-        environment,
-      )
+      const envTypeDef = `export type LambdaEnv = {${Object.entries(environment)
         .map(([envKey, envVal]) => `${envKey}: "${typeof envVal}"`)
-        .join(";")}}}`;
+        .join(";")}}`;
 
-      fs.writeFileSync(
-        `./src/${lambdaConfig.name}/process.gen.d.ts`,
-        envTypeDef,
-      );
+      if (fs.existsSync(`./src/functions/${lambdaConfig.name}/`)) {
+        fs.writeFileSync(
+          `./src/functions/${lambdaConfig.name}/LambdaEnv.gen.ts`,
+          envTypeDef,
+        );
+      } else {
+        fs.writeFileSync(
+          `./src/functions/${lambdaConfig.name}.gen.ts`,
+          envTypeDef,
+        );
+      }
     }
+    const entry = fs.existsSync(
+      `./src/functions/${lambdaConfig.name}/handler.ts`,
+    )
+      ? `./src/functions/${lambdaConfig.name}/handler.ts`
+      : `./src/functions/${lambdaConfig.name}.ts`;
 
     return new nodeLambda.NodejsFunction(
       stack,
@@ -66,7 +76,7 @@ export const lambdaBuilder =
         architecture: awsLambda.Architecture.ARM_64,
         runtime: awsLambda.Runtime.NODEJS_22_X,
         functionName,
-        entry: `./src/${lambdaConfig.name}/index.ts`,
+        entry,
         ...serviceConfig,
         ...lambdaConfig,
         environment,

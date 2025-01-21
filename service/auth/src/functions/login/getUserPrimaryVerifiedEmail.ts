@@ -1,4 +1,4 @@
-import { safe } from "../lib/safe/safe";
+import { safe } from "../../lib/safe/safe";
 
 export const getUserPrimaryVerifiedEmail = safe(
   async (access_token: string) => {

@@ -1,12 +1,15 @@
 import { dynamoDBTableCRUD } from "../lib/aws/dynamoDBTable";
 import { getSecrets } from "../lib/aws/getSecrets";
 import { failure, success } from "../lib/results";
-import { generateAuthTokens } from "./generateAuthTokens";
-import { getAccessToken } from "./getAccessToken";
-import { getGithubUserInfo } from "./getGithubUserInfo";
-import { getUserPrimaryVerifiedEmail } from "./getUserPrimaryVerifiedEmail";
+import { LambdaEnv } from "./login/LambdaEnv.gen";
+import { generateAuthTokens } from "./login/generateAuthTokens";
+import { getAccessToken } from "./login/getAccessToken";
+import { getGithubUserInfo } from "./login/getGithubUserInfo";
+import { getUserPrimaryVerifiedEmail } from "./login/getUserPrimaryVerifiedEmail";
 
-const userTable = dynamoDBTableCRUD(process.env.USER_TABLE_NAME);
+const env = process.env as LambdaEnv;
+
+const userTable = dynamoDBTableCRUD(env.USER_TABLE_NAME);
 
 export const handler = async (event: any) => {
   const { client_id, client_secret } = await getSecrets({

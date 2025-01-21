@@ -1,14 +1,10 @@
-import {
-  Duration,
-  Stack,
-  aws_iam as iam,
-  aws_dynamodb as ddb,
-} from "aws-cdk-lib";
+import { Duration, Stack, aws_iam as iam } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import config from "../config";
 import { httpApiBuilder } from "../lib/httpApiBuilder";
 import { lambdaBuilder } from "../lib/lambdaBuilder";
 import { tableBuilder } from "../lib/tableBuilder";
+import { authFromLambda } from "../lib/authFromLambda";
 
 export class AuthStack extends Stack {
   constructor(scope: Construct) {
@@ -20,20 +16,27 @@ export class AuthStack extends Stack {
     const userTable = table({ name: "users" });
 
     const verify = lambda({ name: "verify" });
+    const authorizer = authFromLambda(verify);
+
     const login = lambda({
       name: "login",
       timeout: Duration.seconds(10),
       environment: { USER_TABLE_NAME: userTable.tableName },
     });
 
+    const refresh = lambda({ name: "refresh" });
+
     api({
       subDomain: "auth",
       routes: {
         verify: {
-          GET: verify,
+          GET: { handler: verify, authorizer },
         },
         login: {
           GET: login,
+        },
+        refresh: {
+          GET: refresh,
         },
       },
     });
@@ -43,11 +46,14 @@ export class AuthStack extends Stack {
       resources: [
         `arn:aws:ssm:${config.awsEnv.region}:${config.awsEnv.account}:parameter/${config.stage}/GITHUB_CLIENT_ID`,
         `arn:aws:ssm:${config.awsEnv.region}:${config.awsEnv.account}:parameter/${config.stage}/GITHUB_CLIENT_SECRET`,
+        `arn:aws:ssm:${config.awsEnv.region}:${config.awsEnv.account}:parameter/${config.stage}/AUTH_ACCESS_TOKEN_SIGNING_KEY`,
+        `arn:aws:ssm:${config.awsEnv.region}:${config.awsEnv.account}:parameter/${config.stage}/AUTH_REFRESH_TOKEN_SIGNING_KEY`,
       ],
     });
 
     verify.addToRolePolicy(policyStatement);
     login.addToRolePolicy(policyStatement);
+    refresh.addToRolePolicy(policyStatement);
     userTable.grantReadWriteData(login);
   }
 }

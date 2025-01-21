@@ -1,4 +1,4 @@
-import { safe } from "../lib/safe/safe";
+import { safe } from "../../lib/safe/safe";
 
 export const getAccessToken = safe(
   async (code: string, client_id: string, client_secret: string) => {

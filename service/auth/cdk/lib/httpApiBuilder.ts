@@ -2,10 +2,8 @@ import {
   Stack,
   aws_apigatewayv2 as apiGw,
   aws_apigatewayv2_integrations as apiGwIntegrations,
+  aws_apigatewayv2_authorizers as apiGwAuth,
   aws_lambda as lambda,
-  aws_route53 as r53,
-  aws_route53_targets as r53Targets,
-  aws_certificatemanager as certMan,
 } from "aws-cdk-lib";
 import { HashMap, hashMapBuilder } from "./hashMapBuilder";
 import { domainMapping } from "./domainMapping";
@@ -25,6 +23,8 @@ type ServiceConfig = {
 
 type Method = {
   handler: lambda.IFunction;
+  authorizer?: apiGw.IHttpRouteAuthorizer;
+  authorizationScopes?: string[];
 } & apiGwIntegrations.HttpLambdaIntegrationProps;
 
 export type Routes = {
@@ -84,10 +84,13 @@ const createRoutes = (
 ) => {
   Object.entries(routes).forEach(([key, value]) => {
     if (key in apiGw.HttpMethod) {
-      const { handler, ...options } = value as Method;
+      const { handler, authorizer, authorizationScopes, ...options } =
+        value as Method;
       httpApi.addRoutes({
         path: parentRoute || "/",
         methods: [key as apiGw.HttpMethod],
+        authorizer,
+        authorizationScopes,
         integration: integrations.asCache(
           { functionName: handler.node.id, options },
           () =>
