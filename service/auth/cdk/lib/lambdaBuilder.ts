@@ -6,6 +6,7 @@ import {
   RemovalPolicy,
 } from "aws-cdk-lib";
 import * as fs from "node:fs";
+import { variableToTypeString } from "./util/variableToTypeString";
 
 type ServiceConfig = {
   name: string;
@@ -17,6 +18,17 @@ type LambdaConfig = {
   name: string;
   generateEnvTypes?: boolean;
 } & nodeLambda.NodejsFunctionProps;
+
+const findHandler = (handlerName: string) => {
+  const basePath = `./src/functions/${handlerName}`;
+  if (fs.existsSync(`${basePath}/handler.ts`)) {
+    return `${basePath}/handler.ts`;
+  }
+  if (fs.existsSync(`${basePath}/${handlerName}.ts`)) {
+    return `${basePath}/${handlerName}.ts`;
+  }
+  return `${basePath}.ts`;
+};
 
 export const lambdaBuilder =
   (stack: Stack, serviceConfig: ServiceConfig) =>
@@ -47,27 +59,21 @@ export const lambdaBuilder =
           : true;
 
     if (generateEnvTypes) {
-      const envTypeDef = `export type LambdaEnv = {${Object.entries(environment)
-        .map(([envKey, envVal]) => `${envKey}: "${typeof envVal}"`)
-        .join(";")}}`;
-
-      if (fs.existsSync(`./src/functions/${lambdaConfig.name}/`)) {
-        fs.writeFileSync(
-          `./src/functions/${lambdaConfig.name}/LambdaEnv.gen.ts`,
-          envTypeDef,
-        );
+      const envTypeDef = `export type LambdaEnv = ${variableToTypeString(
+        environment,
+        {
+          humanReadable: true,
+        },
+      )};`;
+      const basePath = `./src/functions/${lambdaConfig.name}`;
+      if (fs.existsSync(`${basePath}/`)) {
+        fs.writeFileSync(`${basePath}/LambdaEnv.gen.ts`, envTypeDef);
       } else {
-        fs.writeFileSync(
-          `./src/functions/${lambdaConfig.name}.gen.ts`,
-          envTypeDef,
-        );
+        fs.writeFileSync(`${basePath}.gen.ts`, envTypeDef);
       }
     }
-    const entry = fs.existsSync(
-      `./src/functions/${lambdaConfig.name}/handler.ts`,
-    )
-      ? `./src/functions/${lambdaConfig.name}/handler.ts`
-      : `./src/functions/${lambdaConfig.name}.ts`;
+
+    const entry = findHandler(lambdaConfig.name);
 
     return new nodeLambda.NodejsFunction(
       stack,
