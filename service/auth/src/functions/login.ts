@@ -1,11 +1,11 @@
 import { dynamoDBTableCRUD } from "../lib/aws/dynamoDBTable";
 import { getSecrets } from "../lib/aws/getSecrets";
-import { failure, success } from "../lib/results";
-import { LambdaEnv } from "./login/LambdaEnv.gen";
-import { generateAuthTokens } from "./login/generateAuthTokens";
-import { getAccessToken } from "./login/getAccessToken";
-import { getGithubUserInfo } from "./login/getGithubUserInfo";
-import { getUserPrimaryVerifiedEmail } from "./login/getUserPrimaryVerifiedEmail";
+import { failure, success } from "./lib/results";
+import { getAccessToken } from "./lib/getAccessToken";
+import { getGithubUserInfo } from "./lib/getGithubUserInfo";
+import { getUserPrimaryVerifiedEmail } from "./lib/getUserPrimaryVerifiedEmail";
+import { LambdaEnv } from "./login-env.gen";
+import { buildAuthCookies } from "./lib/buildAuthCookies";
 
 const env = process.env as LambdaEnv;
 
@@ -56,32 +56,10 @@ export const handler = async (event: any) => {
 
   if (userData?.length) {
     console.log("user already exists");
-    const authTokens = generateAuthTokens(userData[0].USER_ID);
-    const cookieSettings = [
-      "HttpOnly",
-      "Secure",
-      "SameSite=Strict",
-      "Domain=dannywray.co.uk",
-    ];
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: "success" }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cookies: [
-        [
-          `access_token=${authTokens.access_token}`,
-          `Max-Age=${authTokens.access_token_max_age}`,
-          ...cookieSettings,
-        ].join("; "),
-        [
-          `refresh_token=${authTokens.refresh_token}`,
-          `Max-Age=${authTokens.refresh_token_max_age}`,
-          ...cookieSettings,
-        ].join("; "),
-      ],
-    };
+    const authCookies = buildAuthCookies(userData[0].SK.split("#")[1]);
+    return success("hello", {
+      cookies: authCookies,
+    });
   }
 
   console.log("Begin getEmail");

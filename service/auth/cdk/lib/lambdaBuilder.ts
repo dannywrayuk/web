@@ -67,9 +67,9 @@ export const lambdaBuilder =
       )};`;
       const basePath = `./src/functions/${lambdaConfig.name}`;
       if (fs.existsSync(`${basePath}/`)) {
-        fs.writeFileSync(`${basePath}/LambdaEnv.gen.ts`, envTypeDef);
+        fs.writeFileSync(`${basePath}/env.gen.ts`, envTypeDef);
       } else {
-        fs.writeFileSync(`${basePath}.gen.ts`, envTypeDef);
+        fs.writeFileSync(`${basePath}-env.gen.ts`, envTypeDef);
       }
     }
 

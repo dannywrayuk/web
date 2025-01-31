@@ -24,19 +24,24 @@ export class AuthStack extends Stack {
       environment: { USER_TABLE_NAME: userTable.tableName },
     });
 
-    const refresh = lambda({ name: "refresh" });
+    const refresh = lambda({
+      name: "refresh",
+      environment: { USER_TABLE_NAME: userTable.tableName },
+    });
+
+    const logout = lambda({ name: "logout" });
 
     api({
       subDomain: "auth",
       routes: {
-        verify: {
-          GET: { handler: verify, authorizer },
-        },
         login: {
           GET: login,
         },
         refresh: {
           GET: refresh,
+        },
+        logout: {
+          GET: logout,
         },
       },
     });
@@ -55,5 +60,6 @@ export class AuthStack extends Stack {
     login.addToRolePolicy(policyStatement);
     refresh.addToRolePolicy(policyStatement);
     userTable.grantReadWriteData(login);
+    userTable.grantReadWriteData(refresh);
   }
 }

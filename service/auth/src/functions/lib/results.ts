@@ -1,14 +1,21 @@
-export function success(data?: any) {
+export function success(
+  data?: any,
+  response?: { headers?: Record<string, string>; cookies?: string[] },
+) {
   if (!data)
     return {
       statusCode: 200,
+      headers: response?.headers,
+      cookies: response?.cookies,
     };
 
   return {
     statusCode: 200,
     headers: {
       "Content-Type": "application/json",
+      ...(response?.headers || {}),
     },
+    cookies: response?.cookies,
     body: JSON.stringify(data),
   };
 }

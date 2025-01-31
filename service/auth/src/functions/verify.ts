@@ -1,5 +1,5 @@
 import { getSecrets } from "../lib/aws/getSecrets";
-import { failure, success } from "../lib/results";
+import { failure, success } from "./lib/results";
 
 export const handler = async (event: any) => {
   // const secrets = await getSecrets({
