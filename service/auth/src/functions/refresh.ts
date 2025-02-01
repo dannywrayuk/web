@@ -45,15 +45,16 @@ export const handler = async (event: any) => {
 
   const refreshTokenData = refreshTokenVerified.result;
 
-  const user = await userTable.read(
+  const userQuery = await userTable.read(
     `USER_ID#${refreshTokenData.userId}`,
     "RECORD",
   );
-  if (user?.length !== 1) {
+  if (!userQuery?.length) {
     return failure();
   }
+  const user = userQuery[0];
 
-  const authCookies = buildAuthCookies(user[0].PK.split("#")[1]);
+  const authCookies = buildAuthCookies(user.USER_ID);
   return success("hello", {
     cookies: authCookies,
   });

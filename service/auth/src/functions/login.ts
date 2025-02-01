@@ -6,6 +6,8 @@ import { getGithubUserInfo } from "./lib/getGithubUserInfo";
 import { getUserPrimaryVerifiedEmail } from "./lib/getUserPrimaryVerifiedEmail";
 import { LambdaEnv } from "./login-env.gen";
 import { buildAuthCookies } from "./lib/buildAuthCookies";
+import { randomUUID } from "crypto";
+import { safe } from "../lib/safe/safe";
 
 const env = process.env as LambdaEnv;
 
@@ -49,14 +51,15 @@ export const handler = async (event: any) => {
 
   // Check if the user already has an account
   // If the user has an account, return auth tokens
-  const userData = await userTable.read(
+  const userIdQuery = await userTable.read(
     "GITHUB_ID#" + githubUserInfo.id,
     "USER_ID",
   );
 
-  if (userData?.length) {
+  if (userIdQuery?.length) {
     console.log("user already exists");
-    const authCookies = buildAuthCookies(userData[0].SK.split("#")[1]);
+    const userId = userIdQuery[0].USER_ID;
+    const authCookies = buildAuthCookies(userId);
     return success("hello", {
       cookies: authCookies,
     });
@@ -74,7 +77,43 @@ export const handler = async (event: any) => {
   const email = getUserPrimaryVerifiedEmailCall.result;
 
   // Create a new user in the database
-  // Create auth tokens and return them to the client
+  const userId = randomUUID();
 
-  return success();
+  const createUserRecordCall = await safe(userTable.create)(
+    `USER_ID#${userId}`,
+    "RECORD",
+    {
+      USER_ID: userId,
+      GITHUB_ID: githubUserInfo.id,
+      EMAIL: email,
+      USERNAME: githubUserInfo.login,
+      NAME: githubUserInfo.name,
+      AVATAR_URL: githubUserInfo.avatar_url,
+      CREATED_AT: new Date().toISOString(),
+    },
+  );
+
+  if (createUserRecordCall.error) {
+    console.log("createUserRecordCall.error", createUserRecordCall.error);
+    return failure();
+  }
+
+  const linkUserGithubCall = await safe(userTable.create)(
+    "GITHUB_ID#" + githubUserInfo.id,
+    "USER_ID#" + userId,
+    {
+      USER_ID: userId,
+      GITHUB_ID: githubUserInfo.id,
+    },
+  );
+
+  if (linkUserGithubCall.error) {
+    return failure();
+  }
+
+  // Create auth tokens and return them to the client
+  const authCookies = buildAuthCookies(userId);
+  return success("hello", {
+    cookies: authCookies,
+  });
 };

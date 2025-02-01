@@ -18,8 +18,6 @@ type DynamoDBElement = {
 
 type PutProps = {
   tableName: string;
-  PK: string;
-  SK: string;
   data: DynamoDBElement;
 };
 
@@ -29,7 +27,8 @@ export const dynamoDBPut = async ({ tableName, data }: PutProps) => {
       TableName: tableName,
       Item: data,
       ConditionExpression:
-        "attribute_exists(PK) " + data.SK ? "AND attribute_exists(SK)" : "",
+        "attribute_not_exists(PK) " +
+        (data.SK ? "AND attribute_not_exists(SK)" : ""),
     }),
   );
 
@@ -58,8 +57,8 @@ export const dynamoDBQuery = async ({
         "PK = :pk" +
         (SK
           ? rangeExpression
-            ? ` and ${rangeExpression}`
-            : " and begins_with(SK, :sk)"
+            ? ` AND ${rangeExpression}`
+            : " AND begins_with(SK, :sk)"
           : ""),
       ExpressionAttributeValues: { ":pk": PK, ":sk": SK },
     }),
@@ -124,7 +123,7 @@ export const dynamoDBDelete = async ({ tableName, PK, SK }: DeleteProps) => {
 export const dynamoDBTableCRUD = (tableName: string) => {
   return {
     create: (PK: string, SK: string, data: DynamoDBElement) =>
-      dynamoDBPut({ tableName, PK, SK, data }),
+      dynamoDBPut({ tableName, data: { ...data, PK, SK } }),
     read: (PK: string, SK?: string, rangeExpression?: string) =>
       dynamoDBQuery({ tableName, PK, SK, rangeExpression }),
     update: (PK: string, SK: string, data: DynamoDBElement) =>
