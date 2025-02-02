@@ -1,10 +1,11 @@
-import { Duration, Stack, aws_iam as iam } from "aws-cdk-lib";
+import { Duration, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import config from "../config";
 import { httpApiBuilder } from "../lib/httpApiBuilder";
 import { lambdaBuilder } from "../lib/lambdaBuilder";
 import { tableBuilder } from "../lib/tableBuilder";
 import { authFromLambda } from "../lib/authFromLambda";
+import { grantSecretRead } from "../lib/grantSecretRead";
 
 export class AuthStack extends Stack {
   constructor(scope: Construct) {
@@ -46,19 +47,18 @@ export class AuthStack extends Stack {
       },
     });
 
-    const policyStatement = new iam.PolicyStatement({
-      actions: ["ssm:GetParameters"],
-      resources: [
-        `arn:aws:ssm:${config.awsEnv.region}:${config.awsEnv.account}:parameter/${config.stage}/GITHUB_CLIENT_ID`,
-        `arn:aws:ssm:${config.awsEnv.region}:${config.awsEnv.account}:parameter/${config.stage}/GITHUB_CLIENT_SECRET`,
-        `arn:aws:ssm:${config.awsEnv.region}:${config.awsEnv.account}:parameter/${config.stage}/AUTH_ACCESS_TOKEN_SIGNING_KEY`,
-        `arn:aws:ssm:${config.awsEnv.region}:${config.awsEnv.account}:parameter/${config.stage}/AUTH_REFRESH_TOKEN_SIGNING_KEY`,
-      ],
-    });
+    grantSecretRead(
+      config,
+      [login, refresh, verify],
+      ["AUTH_ACCESS_TOKEN_SIGNING_KEY", "AUTH_REFRESH_TOKEN_SIGNING_KEY"],
+    );
 
-    verify.addToRolePolicy(policyStatement);
-    login.addToRolePolicy(policyStatement);
-    refresh.addToRolePolicy(policyStatement);
+    grantSecretRead(
+      config,
+      [login],
+      ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"],
+    );
+
     userTable.grantReadWriteData(login);
     userTable.grantReadWriteData(refresh);
   }
