@@ -1,4 +1,4 @@
-import { configBuilder } from "./lib/configBuilder";
+import { configBuilder } from "@dannywrayuk/cdk";
 
 export default configBuilder(
   {

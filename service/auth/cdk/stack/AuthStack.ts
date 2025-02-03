@@ -1,11 +1,13 @@
+import {
+  authFromLambda,
+  grantSecretRead,
+  httpApiBuilder,
+  lambdaBuilder,
+  tableBuilder,
+} from "@dannywrayuk/cdk";
 import { Duration, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import config from "../config";
-import { httpApiBuilder } from "../lib/httpApiBuilder";
-import { lambdaBuilder } from "../lib/lambdaBuilder";
-import { tableBuilder } from "../lib/tableBuilder";
-import { authFromLambda } from "../lib/authFromLambda";
-import { grantSecretRead } from "../lib/grantSecretRead";
 
 export class AuthStack extends Stack {
   constructor(scope: Construct) {

@@ -1,13 +1,13 @@
-import { dynamoDBTableCRUD } from "../lib/aws/dynamoDBTable";
-import { getSecrets } from "../lib/aws/getSecrets";
-import { failure, success } from "./lib/results";
+import { dynamoDBTableCRUD } from "@dannywrayuk/aws/dynamoDBTable";
+import { getSecrets } from "@dannywrayuk/aws/getSecrets";
+import { randomUUID } from "crypto";
+import { safe } from "../lib/safe/safe";
+import { buildAuthCookies } from "./lib/buildAuthCookies";
 import { getAccessToken } from "./lib/getAccessToken";
 import { getGithubUserInfo } from "./lib/getGithubUserInfo";
 import { getUserPrimaryVerifiedEmail } from "./lib/getUserPrimaryVerifiedEmail";
+import { failure, success } from "./lib/results";
 import { LambdaEnv } from "./login-env.gen";
-import { buildAuthCookies } from "./lib/buildAuthCookies";
-import { randomUUID } from "crypto";
-import { safe } from "../lib/safe/safe";
 
 const env = process.env as LambdaEnv;
 

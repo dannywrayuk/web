@@ -2,7 +2,6 @@ import {
   Stack,
   aws_apigatewayv2 as apiGw,
   aws_apigatewayv2_integrations as apiGwIntegrations,
-  aws_apigatewayv2_authorizers as apiGwAuth,
   aws_lambda as lambda,
 } from "aws-cdk-lib";
 import { HashMap, hashMapBuilder } from "./hashMapBuilder";

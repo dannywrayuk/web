@@ -1,10 +1,10 @@
 import * as jwt from "jsonwebtoken";
-import { getSecrets } from "../lib/aws/getSecrets";
+import { getSecrets } from "@dannywrayuk/aws/getSecrets";
 import { failure, success } from "./lib/results";
 import { safe } from "../lib/safe/safe";
-import { getCookies } from "../lib/aws/getCookies";
+import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { buildAuthCookies } from "./lib/buildAuthCookies";
-import { dynamoDBTableCRUD } from "../lib/aws/dynamoDBTable";
+import { dynamoDBTableCRUD } from "@dannywrayuk/aws/dynamoDBTable";
 import { LambdaEnv } from "./refresh-env.gen";
 
 const env = process.env as LambdaEnv;

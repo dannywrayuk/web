@@ -1,7 +1,7 @@
 import * as jwt from "jsonwebtoken";
-import { getSecrets } from "../lib/aws/getSecrets";
+import { getSecrets } from "@dannywrayuk/aws/getSecrets";
 import { safe } from "../lib/safe/safe";
-import { getCookies } from "../lib/aws/getCookies";
+import { getCookies } from "@dannywrayuk/aws/getCookies";
 
 const unauthorized = { isAuthorized: false };
 
