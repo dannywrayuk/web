@@ -7,7 +7,7 @@ type Method = "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "ANY";
 type Mock = Partial<Record<Method, Response>>;
 type Mocks = Record<string, Mock>;
 
-const applicationJson = { ContentType: "application/json" };
+const applicationJson = { "Content-Type": "application/json" };
 
 export const fallback: Response = {
   statusCode: 404,
