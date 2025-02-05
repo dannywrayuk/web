@@ -84,7 +84,6 @@ export const handler = async (event: any) => {
     "RECORD",
     {
       USER_ID: userId,
-      GITHUB_ID: githubUserInfo.id,
       EMAIL: email,
       USERNAME: githubUserInfo.login,
       NAME: githubUserInfo.name,

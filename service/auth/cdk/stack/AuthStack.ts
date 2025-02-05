@@ -24,7 +24,10 @@ export class AuthStack extends Stack {
     const login = lambda({
       name: "login",
       timeout: Duration.seconds(10),
-      environment: { USER_TABLE_NAME: userTable.tableName },
+      environment: {
+        USER_TABLE_NAME: userTable.tableName,
+        mockUrl: config.mockUrl,
+      },
     });
 
     const refresh = lambda({

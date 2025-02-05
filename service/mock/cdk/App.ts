@@ -26,7 +26,7 @@ class MockStack extends Stack {
     api({
       subDomain: "mock",
       routes: {
-        "mock/{mockName+}": {
+        "{mockName+}": {
           ANY: lambda({ name: "responder" }),
         },
       },

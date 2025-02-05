@@ -6,8 +6,12 @@ export default configBuilder(
     domainName: "dannywray.co.uk",
   },
   {
-    dev: {},
+    dev: {
+      mockUrl: "mock.dannywray.co.uk/",
+    },
     prod: {
+      // would like to fix this so it isnt required
+      mockUrl: "",
       removeStageSubdomain: true,
       deletionProtection: true,
     },

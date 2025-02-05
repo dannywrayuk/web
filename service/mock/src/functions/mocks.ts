@@ -24,7 +24,7 @@ export const mocks: Mocks = {
     },
   },
   "github.com/login/oauth/access_token": {
-    GET: {
+    POST: {
       statusCode: 200,
       headers: applicationJson,
       body: JSON.stringify({
@@ -40,9 +40,9 @@ export const mocks: Mocks = {
       headers: applicationJson,
       body: JSON.stringify({
         login: "octocat",
-        id: 1,
+        id: 0,
         node_id: "MDQ6VXNlcjE=",
-        avatar_url: "https://github.com/images/error/octocat_happy.gif",
+        avatar_url: "https://avatars.githubusercontent.com/u/0?v=4",
         gravatar_id: "",
         url: "https://api.github.com/users/octocat",
         html_url: "https://github.com/octocat",
