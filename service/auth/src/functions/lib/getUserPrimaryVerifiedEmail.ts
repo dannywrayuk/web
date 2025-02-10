@@ -1,15 +1,12 @@
 import { safe } from "../../lib/safe/safe";
 
 export const getUserPrimaryVerifiedEmail = safe(
-  async (access_token: string) => {
-    const emailResponse = await fetch(
-      `https://${process.env.mockUrl || ""}api.github.com/user/emails`,
-      {
-        headers: {
-          Authorization: `token ${access_token}`,
-        },
+  async (githubApiUrl: string, accessToken: string) => {
+    const emailResponse = await fetch(`${githubApiUrl}/user/emails`, {
+      headers: {
+        Authorization: `token ${accessToken}`,
       },
-    );
+    });
 
     const emails = await emailResponse.json();
 

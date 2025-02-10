@@ -1,5 +1,5 @@
 import {
-  authFromLambda,
+  lambdaAuthorizer,
   configBuilder,
   grantSecretRead,
   httpApiBuilder,
@@ -22,11 +22,14 @@ const config = configBuilder(
   },
   {
     dev: {
-      mockUrl: "mock.dannywray.co.uk/",
+      githubUrl: "https://mock.dannywray.co.uk/github.com",
+      githubApiUrl: "https://mock.dannywray.co.uk/api.github.com",
     },
     prod: {
       removeStageSubdomain: true,
       deletionProtection: true,
+      githubUrl: "https://github.com",
+      githubApiUrl: "https://api.github.com",
     },
   },
 );
@@ -34,40 +37,43 @@ const config = configBuilder(
 class AuthStack extends Stack {
   constructor(scope: Construct) {
     super(scope, "AuthStack", { env: config.awsEnv });
-    const lambda = lambdaBuilder(this, { ...config });
+
+    const lambda = lambdaBuilder(this, {
+      ...config,
+      generateEnvTypes: true,
+    });
+
     const api = httpApiBuilder(this, { ...config });
+
     const table = tableBuilder(this, { ...config });
 
     const userTable = table({ name: "users" });
 
-    const verify = lambda({ name: "verify" });
-    const authorizer = authFromLambda(verify);
-
     const login = lambda({
       name: "login",
       timeout: Duration.seconds(10),
-      constants: {
-        MOCK_URL: "mockUrl" in config && config.mockUrl,
-        AUTH_TOKEN_TIMEOUTS: config.authTokenTimeouts,
-      },
       environment: {
-        USER_TABLE_NAME: userTable.tableName,
+        userTableName: userTable.tableName,
       },
     });
 
     const refresh = lambda({
       name: "refresh",
-      environment: { USER_TABLE_NAME: userTable.tableName },
-      constants: {
-        AUTH_TOKEN_TIMEOUTS: config.authTokenTimeouts,
+      environment: {
+        userTableName: userTable.tableName,
       },
     });
 
     const logout = lambda({ name: "logout" });
 
+    const verify = lambda({ name: "verify" });
+    const authorizer = lambdaAuthorizer(verify);
+
     const user = lambda({
       name: "user",
-      environment: { USER_TABLE_NAME: userTable.tableName },
+      environment: {
+        userTableName: userTable.tableName,
+      },
     });
 
     api({
@@ -82,7 +88,9 @@ class AuthStack extends Stack {
         logout: {
           GET: logout,
         },
-        user: { GET: { handler: user, authorizer } },
+        user: {
+          GET: { handler: user, authorizer },
+        },
       },
     });
 

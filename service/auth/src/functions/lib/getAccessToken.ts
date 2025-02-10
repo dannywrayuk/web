@@ -1,9 +1,14 @@
 import { safe } from "../../lib/safe/safe";
 
 export const getAccessToken = safe(
-  async (code: string, clientId: string, clientSecret: string) => {
+  async (
+    githubUrl: string,
+    code: string,
+    clientId: string,
+    clientSecret: string,
+  ) => {
     const accessResponse = await fetch(
-      `https://${process.env.mockUrl || ""}github.com/login/oauth/access_token`,
+      `${githubUrl}/login/oauth/access_token`,
       {
         method: "POST",
         headers: {

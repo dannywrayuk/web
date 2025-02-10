@@ -23,6 +23,7 @@ export const handler = async (event: any) => {
 
   console.log("Begin getAccessToken");
   const getAccessTokenCall = await getAccessToken(
+    env.githubUrl,
     code,
     secrets.clientId,
     secrets.clientSecret,
@@ -40,7 +41,10 @@ export const handler = async (event: any) => {
   }
 
   console.log("Begin getGithubUserInfo");
-  const getGithubUserInfoCall = await getGithubUserInfo(access_token);
+  const getGithubUserInfoCall = await getGithubUserInfo(
+    env.githubApiUrl,
+    access_token,
+  );
 
   if (getGithubUserInfoCall.error) {
     return failure();
@@ -62,11 +66,11 @@ export const handler = async (event: any) => {
     const authCookies = buildAuthCookies(userId, {
       accessToken: {
         signingKey: secrets.accessTokenSigningKey,
-        timeout: env.AUTH_TOKEN_TIMEOUTS.accessToken,
+        timeout: env.authTokenTimeouts.accessToken,
       },
       refreshToken: {
         signingKey: secrets.refreshTokenSigningKey,
-        timeout: env.AUTH_TOKEN_TIMEOUTS.refreshToken,
+        timeout: env.authTokenTimeouts.refreshToken,
       },
     });
     return success("hello", {
@@ -75,8 +79,10 @@ export const handler = async (event: any) => {
   }
 
   console.log("Begin getEmail");
-  const getUserPrimaryVerifiedEmailCall =
-    await getUserPrimaryVerifiedEmail(access_token);
+  const getUserPrimaryVerifiedEmailCall = await getUserPrimaryVerifiedEmail(
+    env.githubApiUrl,
+    access_token,
+  );
 
   if (getUserPrimaryVerifiedEmailCall.error) {
     return failure();
@@ -121,11 +127,11 @@ export const handler = async (event: any) => {
   const authCookies = buildAuthCookies(userId, {
     accessToken: {
       signingKey: secrets.accessTokenSigningKey,
-      timeout: env.AUTH_TOKEN_TIMEOUTS.accessToken,
+      timeout: env.authTokenTimeouts.accessToken,
     },
     refreshToken: {
       signingKey: secrets.refreshTokenSigningKey,
-      timeout: env.AUTH_TOKEN_TIMEOUTS.refreshToken,
+      timeout: env.authTokenTimeouts.refreshToken,
     },
   });
   return success("hello", {

@@ -12,7 +12,6 @@ type ServiceConfig = {
   name: string;
   stage: string;
   generateEnvTypes?: boolean;
-  constants?: Record<string, any>;
 } & nodeLambda.NodejsFunctionProps;
 
 type LambdaConfig = {
@@ -49,13 +48,12 @@ export const lambdaBuilder =
       ...lambdaConfig.environment,
     } as const;
 
+    const { name: _, ...narrowedServiceConfig } = serviceConfig;
     const constants = {
-      ...serviceConfig.constants,
+      ...narrowedServiceConfig,
+      serviceName: serviceConfig.name,
       ...lambdaConfig.constants,
-      SERVICE_NAME: serviceConfig.name,
-      STAGE: serviceConfig.stage,
-      FUNCTION_NAME: lambdaConfig.name,
-      REGION: Stack.of(stack).region,
+      functionName: lambdaConfig.name,
     } as const;
 
     const generateEnvTypes =
