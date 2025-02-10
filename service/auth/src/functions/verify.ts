@@ -1,20 +1,11 @@
-import * as jwt from "jsonwebtoken";
-import { getSecrets } from "@dannywrayuk/aws/getSecrets";
-import { safe } from "../lib/safe/safe";
 import { getCookies } from "@dannywrayuk/aws/getCookies";
+import { getSecrets } from "@dannywrayuk/aws/getSecrets";
+import { verifyToken } from "./lib/verifyToken";
 
 const unauthorized = { isAuthorized: false };
 
-const verifyToken = safe((token: string, signingKey: string) => {
-  const decoded = jwt.verify(token, signingKey);
-  if (typeof decoded === "string") {
-    throw new Error("Invalid token");
-  }
-  return decoded;
-});
-
 export const handler = async (event: any) => {
-  const { accessTokenSigningKey } = await getSecrets({
+  const secrets = await getSecrets({
     accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
   });
 
@@ -24,15 +15,17 @@ export const handler = async (event: any) => {
   });
 
   if (!cookies.accessToken || !cookies.refreshToken) {
+    console.log("No tokens found in cookies");
     return unauthorized;
   }
 
   const accessTokenVerified = verifyToken(
     cookies.accessToken,
-    accessTokenSigningKey,
+    secrets.accessTokenSigningKey,
   );
 
   if (accessTokenVerified.error) {
+    console.log("Error verifying access token", accessTokenVerified.error);
     return unauthorized;
   }
 

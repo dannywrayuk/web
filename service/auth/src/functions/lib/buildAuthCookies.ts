@@ -1,9 +1,4 @@
-import { generateAuthTokens } from "./generateAuthTokens";
-
-const authTokenExpiry = {
-  access_token: 60 * 60 * 6,
-  refresh_token: 60 * 60 * 24 * 30,
-} as const;
+import * as jwt from "jsonwebtoken";
 
 const cookieSettings = [
   "HttpOnly",
@@ -21,23 +16,36 @@ export const buildAuthCookie = (
     "; ",
   );
 
-export const buildAuthCookies = (userId: string) => {
+type TokenSettings = {
+  signingKey: string;
+  timeout: number;
+};
+
+const generateToken = (
+  data: Record<string, string>,
+  tokenSettings: TokenSettings,
+) =>
+  jwt.sign(data, tokenSettings.signingKey, {
+    expiresIn: tokenSettings.timeout,
+  });
+
+export const buildAuthCookies = (
+  userId: string,
+  authTokens: {
+    accessToken: TokenSettings;
+    refreshToken: TokenSettings;
+  },
+) => {
   const accessTokenCookie = buildAuthCookie(
     "access_token",
-    generateAuthTokens({
-      userId,
-      expiresIn: authTokenExpiry.access_token,
-    }),
-    authTokenExpiry.access_token,
+    generateToken({ userId }, authTokens.accessToken),
+    authTokens.accessToken.timeout,
   );
 
   const refreshTokenCookie = buildAuthCookie(
     "refresh_token",
-    generateAuthTokens({
-      userId,
-      expiresIn: authTokenExpiry.access_token,
-    }),
-    authTokenExpiry.access_token,
+    generateToken({ userId }, authTokens.refreshToken),
+    authTokens.refreshToken.timeout,
   );
   return [accessTokenCookie, refreshTokenCookie];
 };

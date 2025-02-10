@@ -1,7 +1,7 @@
 import { safe } from "../../lib/safe/safe";
 
 export const getAccessToken = safe(
-  async (code: string, client_id: string, client_secret: string) => {
+  async (code: string, clientId: string, clientSecret: string) => {
     const accessResponse = await fetch(
       `https://${process.env.mockUrl || ""}github.com/login/oauth/access_token`,
       {
@@ -10,7 +10,11 @@ export const getAccessToken = safe(
           "Content-Type": "application/json",
           accept: "application/json",
         },
-        body: JSON.stringify({ client_id, client_secret, code }),
+        body: JSON.stringify({
+          client_id: clientId,
+          client_secret: clientSecret,
+          code,
+        }),
       },
     );
 

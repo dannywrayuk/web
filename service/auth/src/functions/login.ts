@@ -7,16 +7,16 @@ import { getAccessToken } from "./lib/getAccessToken";
 import { getGithubUserInfo } from "./lib/getGithubUserInfo";
 import { getUserPrimaryVerifiedEmail } from "./lib/getUserPrimaryVerifiedEmail";
 import { failure, success } from "./lib/results";
-import { LambdaEnv } from "./login-env.gen";
-
-const env = process.env as LambdaEnv;
+import { env } from "./login-env.gen";
 
 const userTable = dynamoDBTableCRUD(env.USER_TABLE_NAME);
 
 export const handler = async (event: any) => {
-  const { client_id, client_secret } = await getSecrets({
-    client_id: "GITHUB_CLIENT_ID",
-    client_secret: "GITHUB_CLIENT_SECRET",
+  const secrets = await getSecrets({
+    clientId: "GITHUB_CLIENT_ID",
+    clientSecret: "GITHUB_CLIENT_SECRET",
+    accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
+    refreshTokenSigningKey: "AUTH_REFRESH_TOKEN_SIGNING_KEY",
   });
 
   const { code } = event.queryStringParameters;
@@ -24,8 +24,8 @@ export const handler = async (event: any) => {
   console.log("Begin getAccessToken");
   const getAccessTokenCall = await getAccessToken(
     code,
-    client_id,
-    client_secret,
+    secrets.clientId,
+    secrets.clientSecret,
   );
 
   if (getAccessTokenCall.error) {
@@ -59,7 +59,16 @@ export const handler = async (event: any) => {
   if (userIdQuery?.length) {
     console.log("user already exists");
     const userId = userIdQuery[0].USER_ID;
-    const authCookies = buildAuthCookies(userId);
+    const authCookies = buildAuthCookies(userId, {
+      accessToken: {
+        signingKey: secrets.accessTokenSigningKey,
+        timeout: env.AUTH_TOKEN_TIMEOUTS.accessToken,
+      },
+      refreshToken: {
+        signingKey: secrets.refreshTokenSigningKey,
+        timeout: env.AUTH_TOKEN_TIMEOUTS.refreshToken,
+      },
+    });
     return success("hello", {
       cookies: authCookies,
     });
@@ -76,7 +85,6 @@ export const handler = async (event: any) => {
 
   const email = getUserPrimaryVerifiedEmailCall.result;
 
-  // Create a new user in the database
   const userId = randomUUID();
 
   const createUserRecordCall = await safe(userTable.create)(
@@ -110,8 +118,16 @@ export const handler = async (event: any) => {
     return failure();
   }
 
-  // Create auth tokens and return them to the client
-  const authCookies = buildAuthCookies(userId);
+  const authCookies = buildAuthCookies(userId, {
+    accessToken: {
+      signingKey: secrets.accessTokenSigningKey,
+      timeout: env.AUTH_TOKEN_TIMEOUTS.accessToken,
+    },
+    refreshToken: {
+      signingKey: secrets.refreshTokenSigningKey,
+      timeout: env.AUTH_TOKEN_TIMEOUTS.refreshToken,
+    },
+  });
   return success("hello", {
     cookies: authCookies,
   });

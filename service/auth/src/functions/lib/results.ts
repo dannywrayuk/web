@@ -20,14 +20,14 @@ export function success(
   };
 }
 
-export function failure() {
+export function failure(message?: string) {
   return {
     statusCode: 500,
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      message: "There was an error",
+      message: message || "There was an error",
     }),
   };
 }

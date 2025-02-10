@@ -12,11 +12,13 @@ type ServiceConfig = {
   name: string;
   stage: string;
   generateEnvTypes?: boolean;
+  constants?: Record<string, any>;
 } & nodeLambda.NodejsFunctionProps;
 
 type LambdaConfig = {
   name: string;
   generateEnvTypes?: boolean;
+  constants?: Record<string, any>;
 } & nodeLambda.NodejsFunctionProps;
 
 const findHandler = (handlerName: string) => {
@@ -45,6 +47,11 @@ export const lambdaBuilder =
     const environment = {
       ...serviceConfig.environment,
       ...lambdaConfig.environment,
+    } as const;
+
+    const constants = {
+      ...serviceConfig.constants,
+      ...lambdaConfig.constants,
       SERVICE_NAME: serviceConfig.name,
       STAGE: serviceConfig.stage,
       FUNCTION_NAME: lambdaConfig.name,
@@ -59,12 +66,18 @@ export const lambdaBuilder =
           : true;
 
     if (generateEnvTypes) {
-      const envTypeDef = `export type LambdaEnv = ${variableToTypeString(
-        environment,
+      const envTypeDef = `export const env = {
+    ...process.env,
+    ...(process.env.constants as unknown as object)
+} as unknown as ${variableToTypeString(
+        { ...constants, ...environment },
         {
           humanReadable: true,
         },
-      )};`;
+      )};
+
+export type LambdaEnv = typeof env;
+`;
       const basePath = `./src/functions/${lambdaConfig.name}`;
       if (fs.existsSync(`${basePath}/`)) {
         fs.writeFileSync(`${basePath}/env.gen.ts`, envTypeDef);
@@ -86,6 +99,9 @@ export const lambdaBuilder =
         ...serviceConfig,
         ...lambdaConfig,
         environment,
+        bundling: {
+          define: { "process.env.constants": JSON.stringify(constants) },
+        },
       },
     );
   };

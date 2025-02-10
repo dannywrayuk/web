@@ -132,7 +132,7 @@ export const httpApiBuilder =
         subDomain: serviceConfig.removeStageSubdomain
           ? subDomain
           : subDomain
-            ? `${serviceConfig.stage}.${subDomain}`
+            ? `${subDomain}.${serviceConfig.stage}`
             : serviceConfig.stage,
       });
     }
