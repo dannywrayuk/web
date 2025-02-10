@@ -6,7 +6,7 @@ import { failure, success } from "./lib/results";
 import { env } from "./refresh-env.gen";
 import { verifyToken } from "./lib/verifyToken";
 
-const userTable = dynamoDBTableCRUD(env.USER_TABLE_NAME);
+const userTable = dynamoDBTableCRUD(env.userTableName);
 
 export const handler = async (event: any) => {
   const secrets = await getSecrets({
@@ -47,11 +47,11 @@ export const handler = async (event: any) => {
   const authCookies = buildAuthCookies(user.USER_ID, {
     accessToken: {
       signingKey: secrets.accessTokenSigningKey,
-      timeout: env.AUTH_TOKEN_TIMEOUTS.accessToken,
+      timeout: env.authTokenTimeouts.accessToken,
     },
     refreshToken: {
       signingKey: secrets.refreshTokenSigningKey,
-      timeout: env.AUTH_TOKEN_TIMEOUTS.refreshToken,
+      timeout: env.authTokenTimeouts.refreshToken,
     },
   });
 

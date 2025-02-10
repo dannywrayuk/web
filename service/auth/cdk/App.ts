@@ -1,6 +1,5 @@
 import {
   lambdaAuthorizer,
-  configBuilder,
   grantSecretRead,
   httpApiBuilder,
   lambdaBuilder,
@@ -8,31 +7,7 @@ import {
 } from "@dannywrayuk/cdk";
 import { App, Stack, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
-
-const app = new App();
-
-const config = configBuilder(
-  {
-    name: "auth",
-    domainName: "dannywray.co.uk",
-    authTokenTimeouts: {
-      accessToken: 60 * 60 * 6, // 6 hours
-      refreshToken: 60 * 60 * 24 * 30, // 30 days
-    },
-  },
-  {
-    dev: {
-      githubUrl: "https://mock.dannywray.co.uk/github.com",
-      githubApiUrl: "https://mock.dannywray.co.uk/api.github.com",
-    },
-    prod: {
-      removeStageSubdomain: true,
-      deletionProtection: true,
-      githubUrl: "https://github.com",
-      githubApiUrl: "https://api.github.com",
-    },
-  },
-);
+import { config, runtimeConfig } from "./config";
 
 class AuthStack extends Stack {
   constructor(scope: Construct) {
@@ -40,6 +15,7 @@ class AuthStack extends Stack {
 
     const lambda = lambdaBuilder(this, {
       ...config,
+      runtimeConfig,
       generateEnvTypes: true,
     });
 
@@ -111,5 +87,7 @@ class AuthStack extends Stack {
     userTable.grantReadWriteData(user);
   }
 }
+
+const app = new App();
 
 new AuthStack(app);

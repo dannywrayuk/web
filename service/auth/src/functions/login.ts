@@ -9,7 +9,7 @@ import { getUserPrimaryVerifiedEmail } from "./lib/getUserPrimaryVerifiedEmail";
 import { failure, success } from "./lib/results";
 import { env } from "./login-env.gen";
 
-const userTable = dynamoDBTableCRUD(env.USER_TABLE_NAME);
+const userTable = dynamoDBTableCRUD(env.userTableName);
 
 export const handler = async (event: any) => {
   const secrets = await getSecrets({

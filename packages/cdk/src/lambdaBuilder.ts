@@ -11,6 +11,7 @@ import { variableToTypeString } from "./util/variableToTypeString";
 type ServiceConfig = {
   name: string;
   stage: string;
+  runtimeConfig?: Record<string, any>;
   generateEnvTypes?: boolean;
 } & nodeLambda.NodejsFunctionProps;
 
@@ -48,9 +49,8 @@ export const lambdaBuilder =
       ...lambdaConfig.environment,
     } as const;
 
-    const { name: _, ...narrowedServiceConfig } = serviceConfig;
     const constants = {
-      ...narrowedServiceConfig,
+      ...serviceConfig.runtimeConfig,
       serviceName: serviceConfig.name,
       ...lambdaConfig.constants,
       functionName: lambdaConfig.name,

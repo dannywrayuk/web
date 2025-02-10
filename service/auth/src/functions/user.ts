@@ -2,7 +2,7 @@ import { dynamoDBTableCRUD } from "@dannywrayuk/aws/dynamoDBTable";
 import { env } from "./user-env.gen";
 import { success } from "./lib/results";
 
-const userTable = dynamoDBTableCRUD(env.USER_TABLE_NAME);
+const userTable = dynamoDBTableCRUD(env.userTableName);
 
 export const handler = async (event: any) => {
   const userId = event.requestContext.authorizer.lambda.userId;
