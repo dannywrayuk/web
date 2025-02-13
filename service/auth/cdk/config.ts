@@ -25,10 +25,12 @@ export const runtimeConfig = configBuilder(
     dev: {
       githubUrl: "https://mock.dannywray.co.uk/github.com",
       githubApiUrl: "https://mock.dannywray.co.uk/api.github.com",
+      cookieDomain: undefined,
     },
     prod: {
       githubUrl: "https://github.com",
       githubApiUrl: "https://api.github.com",
+      cookieDomain: "dannywray.co.uk",
     },
   },
 );

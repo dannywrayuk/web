@@ -14,6 +14,17 @@ export const handler = async (event: any) => {
     refreshTokenSigningKey: "AUTH_REFRESH_TOKEN_SIGNING_KEY",
   });
 
+  const tokenSettings = {
+    accessToken: {
+      signingKey: secrets.accessTokenSigningKey,
+      timeout: env.authTokenTimeouts.accessToken,
+    },
+    refreshToken: {
+      signingKey: secrets.refreshTokenSigningKey,
+      timeout: env.authTokenTimeouts.refreshToken,
+    },
+  };
+
   const cookies = getCookies(event, {
     accessToken: "access_token",
     refreshToken: "refresh_token",
@@ -44,16 +55,11 @@ export const handler = async (event: any) => {
   }
   const user = userQuery[0];
 
-  const authCookies = buildAuthCookies(user.USER_ID, {
-    accessToken: {
-      signingKey: secrets.accessTokenSigningKey,
-      timeout: env.authTokenTimeouts.accessToken,
-    },
-    refreshToken: {
-      signingKey: secrets.refreshTokenSigningKey,
-      timeout: env.authTokenTimeouts.refreshToken,
-    },
-  });
+  const authCookies = buildAuthCookies(
+    user.USER_ID,
+    tokenSettings,
+    env.cookieDomain,
+  );
 
   return success("hello", {
     cookies: authCookies,

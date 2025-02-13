@@ -7,6 +7,8 @@ import { getAccessToken } from "./lib/getAccessToken";
 import { getGithubUserInfo } from "./lib/getGithubUserInfo";
 import { getUserPrimaryVerifiedEmail } from "./lib/getUserPrimaryVerifiedEmail";
 import { failure, success } from "./lib/results";
+
+// this is now a runtime import and probs should be types only hmm
 import { env } from "./login-env.gen";
 
 const userTable = dynamoDBTableCRUD(env.userTableName);
@@ -18,6 +20,17 @@ export const handler = async (event: any) => {
     accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
     refreshTokenSigningKey: "AUTH_REFRESH_TOKEN_SIGNING_KEY",
   });
+
+  const tokenSettings = {
+    accessToken: {
+      signingKey: secrets.accessTokenSigningKey,
+      timeout: env.authTokenTimeouts.accessToken,
+    },
+    refreshToken: {
+      signingKey: secrets.refreshTokenSigningKey,
+      timeout: env.authTokenTimeouts.refreshToken,
+    },
+  };
 
   const { code } = event.queryStringParameters;
 
@@ -63,16 +76,11 @@ export const handler = async (event: any) => {
   if (userIdQuery?.length) {
     console.log("user already exists");
     const userId = userIdQuery[0].USER_ID;
-    const authCookies = buildAuthCookies(userId, {
-      accessToken: {
-        signingKey: secrets.accessTokenSigningKey,
-        timeout: env.authTokenTimeouts.accessToken,
-      },
-      refreshToken: {
-        signingKey: secrets.refreshTokenSigningKey,
-        timeout: env.authTokenTimeouts.refreshToken,
-      },
-    });
+    const authCookies = buildAuthCookies(
+      userId,
+      tokenSettings,
+      env.cookieDomain,
+    );
     return success("hello", {
       cookies: authCookies,
     });
@@ -124,16 +132,8 @@ export const handler = async (event: any) => {
     return failure();
   }
 
-  const authCookies = buildAuthCookies(userId, {
-    accessToken: {
-      signingKey: secrets.accessTokenSigningKey,
-      timeout: env.authTokenTimeouts.accessToken,
-    },
-    refreshToken: {
-      signingKey: secrets.refreshTokenSigningKey,
-      timeout: env.authTokenTimeouts.refreshToken,
-    },
-  });
+  const authCookies = buildAuthCookies(userId, tokenSettings, env.cookieDomain);
+
   return success("hello", {
     cookies: authCookies,
   });
