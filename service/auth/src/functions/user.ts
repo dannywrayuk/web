@@ -1,6 +1,9 @@
 import { dynamoDBTableCRUD } from "@dannywrayuk/aws/dynamoDBTable";
-import { env } from "./user-env.gen";
+import { LambdaEnv } from "./user-env.gen";
 import { success } from "./lib/results";
+import { getEnv } from "./lib/getEnv";
+
+const env = getEnv<LambdaEnv>();
 
 const userTable = dynamoDBTableCRUD(env.userTableName);
 

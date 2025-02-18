@@ -6,11 +6,12 @@ export const buildAuthCookie = (
   tokenName: "access_token" | "refresh_token",
   token: string,
   expiresIn: number,
-  domain: string | undefined,
+  domain: string,
 ) =>
   [
     `${tokenName}=${token}`,
-    `Max-Age=${expiresIn}` + domain ? `Domain=${domain}` : "",
+    `Max-Age=${expiresIn}`,
+    `Domain=${domain}`,
     ...cookieSettings,
   ].join("; ");
 
@@ -33,18 +34,18 @@ export const buildAuthCookies = (
     accessToken: TokenSettings;
     refreshToken: TokenSettings;
   },
-  cookieDomain: string | undefined,
+  cookieDomain: string,
 ) => {
   const accessTokenCookie = buildAuthCookie(
     "access_token",
-    generateToken({ userId }, authTokens.accessToken),
+    generateToken({ userId, domain: cookieDomain }, authTokens.accessToken),
     authTokens.accessToken.timeout,
     cookieDomain,
   );
 
   const refreshTokenCookie = buildAuthCookie(
     "refresh_token",
-    generateToken({ userId }, authTokens.refreshToken),
+    generateToken({ userId, domain: cookieDomain }, authTokens.refreshToken),
     authTokens.refreshToken.timeout,
     cookieDomain,
   );

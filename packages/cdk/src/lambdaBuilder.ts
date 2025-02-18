@@ -7,11 +7,12 @@ import {
 } from "aws-cdk-lib";
 import * as fs from "node:fs";
 import { variableToTypeString } from "./util/variableToTypeString";
+import { runtimeConfigBuilder } from "./runtimeConfigBuilder";
 
 type ServiceConfig = {
   name: string;
   stage: string;
-  runtimeConfig?: Record<string, any>;
+  runtimeConfig?: ReturnType<typeof runtimeConfigBuilder>;
   generateEnvTypes?: boolean;
 } & nodeLambda.NodejsFunctionProps;
 
@@ -50,7 +51,8 @@ export const lambdaBuilder =
     } as const;
 
     const constants = {
-      ...serviceConfig.runtimeConfig,
+      ...serviceConfig.runtimeConfig?.common,
+      ...serviceConfig.runtimeConfig?.current,
       serviceName: serviceConfig.name,
       ...lambdaConfig.constants,
       functionName: lambdaConfig.name,
@@ -64,18 +66,32 @@ export const lambdaBuilder =
           : true;
 
     if (generateEnvTypes) {
-      const envTypeDef = `export const env = {
-    ...process.env,
-    ...(process.env.constants as unknown as object)
-} as unknown as ${variableToTypeString(
-        { ...constants, ...environment },
+      let envTypeDef = `${
+        serviceConfig.runtimeConfig?.stages
+          .map((stageName) => {
+            return `export type LambdaEnv_${stageName} = ${variableToTypeString(
+              serviceConfig.runtimeConfig?.byStage(stageName),
+              {
+                humanReadable: true,
+              },
+            )} & { stage: "${stageName}" };`;
+          })
+          .join("\n\n") || ""
+      }
+
+export type CommonEnv = ${variableToTypeString(
+        { ...(serviceConfig.runtimeConfig?.common || {}), ...environment },
         {
           humanReadable: true,
         },
       )};
 
-export type LambdaEnv = typeof env;
-`;
+export type LambdaEnv = CommonEnv & (${
+        serviceConfig.runtimeConfig?.stages
+          .map((stageName) => `LambdaEnv_${stageName}`)
+          .join(" | ") || ""
+      });`;
+
       const basePath = `./src/functions/${lambdaConfig.name}`;
       if (fs.existsSync(`${basePath}/`)) {
         fs.writeFileSync(`${basePath}/env.gen.ts`, envTypeDef);

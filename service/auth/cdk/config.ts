@@ -1,4 +1,4 @@
-import { configBuilder } from "@dannywrayuk/cdk";
+import { configBuilder, runtimeConfigBuilder } from "@dannywrayuk/cdk";
 
 export const config = configBuilder(
   {
@@ -14,23 +14,24 @@ export const config = configBuilder(
   },
 );
 
-export const runtimeConfig = configBuilder(
+export const runtimeConfig = runtimeConfigBuilder(
   {
     authTokenTimeouts: {
       accessToken: 60 * 60 * 6, // 6 hours
       refreshToken: 60 * 60 * 24 * 30, // 30 days
     },
+    domainName: "dannywray.co.uk",
   },
   {
     dev: {
       githubUrl: "https://mock.dannywray.co.uk/github.com",
       githubApiUrl: "https://mock.dannywray.co.uk/api.github.com",
-      cookieDomain: undefined,
+      cookieStages: ["dev"],
     },
     prod: {
       githubUrl: "https://github.com",
       githubApiUrl: "https://api.github.com",
-      cookieDomain: "dannywray.co.uk",
+      test: "test",
     },
   },
 );

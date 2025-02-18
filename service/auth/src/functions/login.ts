@@ -7,9 +7,11 @@ import { getAccessToken } from "./lib/getAccessToken";
 import { getGithubUserInfo } from "./lib/getGithubUserInfo";
 import { getUserPrimaryVerifiedEmail } from "./lib/getUserPrimaryVerifiedEmail";
 import { failure, success } from "./lib/results";
+import { calculateCookieDomain } from "./lib/calculateCookieDomain";
+import { getEnv } from "./lib/getEnv";
+import { LambdaEnv } from "./login-env.gen";
 
-// this is now a runtime import and probs should be types only hmm
-import { env } from "./login-env.gen";
+const env = getEnv<LambdaEnv>();
 
 const userTable = dynamoDBTableCRUD(env.userTableName);
 
@@ -73,14 +75,17 @@ export const handler = async (event: any) => {
     "USER_ID",
   );
 
+  const cookieDomain = calculateCookieDomain(
+    env.stage,
+    event.headers?.stage,
+    env.stage !== "prod" ? env.cookieStages : undefined,
+    env.domainName,
+  );
+
   if (userIdQuery?.length) {
     console.log("user already exists");
     const userId = userIdQuery[0].USER_ID;
-    const authCookies = buildAuthCookies(
-      userId,
-      tokenSettings,
-      env.cookieDomain,
-    );
+    const authCookies = buildAuthCookies(userId, tokenSettings, cookieDomain);
     return success("hello", {
       cookies: authCookies,
     });
@@ -132,7 +137,7 @@ export const handler = async (event: any) => {
     return failure();
   }
 
-  const authCookies = buildAuthCookies(userId, tokenSettings, env.cookieDomain);
+  const authCookies = buildAuthCookies(userId, tokenSettings, cookieDomain);
 
   return success("hello", {
     cookies: authCookies,
