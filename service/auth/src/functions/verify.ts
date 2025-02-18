@@ -1,13 +1,20 @@
 import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { getSecrets } from "@dannywrayuk/aws/getSecrets";
 import { verifyToken } from "./lib/verifyToken";
+import { getEnv } from "./lib/getEnv";
+import { LambdaEnv } from "./verify-env.gen";
+
+const env = getEnv<LambdaEnv>();
 
 const unauthorized = { isAuthorized: false };
 
 export const handler = async (event: any) => {
-  const secrets = await getSecrets({
-    accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
-  });
+  const secrets = await getSecrets(
+    { stage: env.stage },
+    {
+      accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
+    },
+  );
 
   const cookies = getCookies(event, {
     accessToken: "access_token",

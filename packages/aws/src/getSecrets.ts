@@ -1,7 +1,12 @@
 import { GetParametersCommand } from "@aws-sdk/client-ssm";
 import { ssmClient } from "./clients/ssm";
 
+type Options = {
+  stage: string;
+};
+
 export const getSecrets = async <ParameterNames extends Record<string, string>>(
+  { stage }: Options,
   parameterNames: ParameterNames,
 ) => {
   try {
@@ -9,7 +14,7 @@ export const getSecrets = async <ParameterNames extends Record<string, string>>(
       (result, [parameterName, parameterPath]) => {
         const path = parameterPath.startsWith("/")
           ? parameterPath
-          : `/${process.env.STAGE}/${parameterPath}`;
+          : `/${stage}/${parameterPath}`;
         result[path] = parameterName;
         return result;
       },

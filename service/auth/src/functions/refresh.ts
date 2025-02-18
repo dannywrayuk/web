@@ -13,10 +13,13 @@ const env = getEnv<LambdaEnv>();
 const userTable = dynamoDBTableCRUD(env.userTableName);
 
 export const handler = async (event: any) => {
-  const secrets = await getSecrets({
-    accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
-    refreshTokenSigningKey: "AUTH_REFRESH_TOKEN_SIGNING_KEY",
-  });
+  const secrets = await getSecrets(
+    { stage: env.stage },
+    {
+      accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
+      refreshTokenSigningKey: "AUTH_REFRESH_TOKEN_SIGNING_KEY",
+    },
+  );
 
   const tokenSettings = {
     accessToken: {

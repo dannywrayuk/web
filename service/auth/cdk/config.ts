@@ -31,7 +31,6 @@ export const runtimeConfig = runtimeConfigBuilder(
     prod: {
       githubUrl: "https://github.com",
       githubApiUrl: "https://api.github.com",
-      test: "test",
     },
   },
 );

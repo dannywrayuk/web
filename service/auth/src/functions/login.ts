@@ -16,12 +16,15 @@ const env = getEnv<LambdaEnv>();
 const userTable = dynamoDBTableCRUD(env.userTableName);
 
 export const handler = async (event: any) => {
-  const secrets = await getSecrets({
-    clientId: "GITHUB_CLIENT_ID",
-    clientSecret: "GITHUB_CLIENT_SECRET",
-    accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
-    refreshTokenSigningKey: "AUTH_REFRESH_TOKEN_SIGNING_KEY",
-  });
+  const secrets = await getSecrets(
+    { stage: env.stage },
+    {
+      clientId: "GITHUB_CLIENT_ID",
+      clientSecret: "GITHUB_CLIENT_SECRET",
+      accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
+      refreshTokenSigningKey: "AUTH_REFRESH_TOKEN_SIGNING_KEY",
+    },
+  );
 
   const tokenSettings = {
     accessToken: {
