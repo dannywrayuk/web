@@ -2,11 +2,11 @@ import { dynamoDBTableCRUD } from "@dannywrayuk/aws/dynamoDBTable";
 import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { getSecrets } from "@dannywrayuk/aws/getSecrets";
 import { buildAuthCookies } from "./lib/buildAuthCookies";
-import { failure, success } from "./lib/results";
-import { LambdaEnv } from "./refresh-env.gen";
-import { verifyToken } from "./lib/verifyToken";
-import { getEnv } from "./lib/getEnv";
 import { calculateCookieDomain } from "./lib/calculateCookieDomain";
+import { getEnv } from "./lib/getEnv";
+import { failure, success } from "./lib/results";
+import { verifyToken } from "./lib/verifyToken";
+import { LambdaEnv } from "./refresh-env.gen";
 
 const env = getEnv<LambdaEnv>();
 
@@ -70,9 +70,8 @@ export const handler = async (event: any) => {
   const user = userQuery[0];
 
   const authCookies = buildAuthCookies(
-    user.USER_ID,
+    { sub: user.USER_ID, iss: cookieDomain, iat: refreshTokenData.result.iat },
     tokenSettings,
-    cookieDomain,
   );
 
   return success("hello", {

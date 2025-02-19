@@ -88,7 +88,10 @@ export const handler = async (event: any) => {
   if (userIdQuery?.length) {
     console.log("user already exists");
     const userId = userIdQuery[0].USER_ID;
-    const authCookies = buildAuthCookies(userId, tokenSettings, cookieDomain);
+    const authCookies = buildAuthCookies(
+      { sub: userId, iss: cookieDomain, iat: new Date().toISOString() },
+      tokenSettings,
+    );
     return success("hello", {
       cookies: authCookies,
     });
@@ -140,7 +143,10 @@ export const handler = async (event: any) => {
     return failure();
   }
 
-  const authCookies = buildAuthCookies(userId, tokenSettings, cookieDomain);
+  const authCookies = buildAuthCookies(
+    { sub: userId, iss: cookieDomain, iat: new Date().toISOString() },
+    tokenSettings,
+  );
 
   return success("hello", {
     cookies: authCookies,

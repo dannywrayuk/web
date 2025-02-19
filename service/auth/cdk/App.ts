@@ -52,6 +52,13 @@ class AuthStack extends Stack {
       },
     });
 
+    const deleteUser = lambda({
+      name: "deleteUser",
+      environment: {
+        userTableName: userTable.tableName,
+      },
+    });
+
     api({
       subDomain: "auth",
       routes: {
@@ -64,8 +71,11 @@ class AuthStack extends Stack {
         logout: {
           GET: logout,
         },
+        // This should probably be its own user service, oh well its fine for now.
         user: {
-          GET: { handler: user, authorizer },
+          GET: user,
+          delete: { GET: deleteUser },
+          routeAuthorizer: authorizer,
         },
       },
     });

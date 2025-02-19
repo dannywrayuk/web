@@ -1,24 +1,14 @@
 import * as jwt from "jsonwebtoken";
 
-const cookieSettings = ["HttpOnly", "Secure", "SameSite=Strict"];
-
-export const buildAuthCookie = (
-  tokenName: "access_token" | "refresh_token",
-  token: string,
-  expiresIn: number,
-  domain: string,
-) =>
-  [
-    `${tokenName}=${token}`,
-    `Max-Age=${expiresIn}`,
-    `Domain=${domain}`,
-    ...cookieSettings,
-  ].join("; ");
-
 type TokenSettings = {
   signingKey: string;
   timeout: number;
 };
+
+type TokenPayload = {
+  sub: string;
+  iss: string;
+} & Record<string, string>;
 
 const generateToken = (
   data: Record<string, string>,
@@ -29,25 +19,28 @@ const generateToken = (
   });
 
 export const buildAuthCookies = (
-  userId: string,
+  payload: TokenPayload,
   authTokens: {
     accessToken: TokenSettings;
     refreshToken: TokenSettings;
   },
-  cookieDomain: string,
 ) => {
-  const accessTokenCookie = buildAuthCookie(
-    "access_token",
-    generateToken({ userId, domain: cookieDomain }, authTokens.accessToken),
-    authTokens.accessToken.timeout,
-    cookieDomain,
-  );
+  const accessTokenCookie = [
+    `access_token=${generateToken(payload, authTokens.accessToken)}`,
+    `Max-Age=${authTokens.accessToken.timeout}`,
+    `Domain=${payload.iss}`,
+    "HttpOnly",
+    "Secure",
+    "SameSite=Strict",
+  ].join("; ");
 
-  const refreshTokenCookie = buildAuthCookie(
-    "refresh_token",
-    generateToken({ userId, domain: cookieDomain }, authTokens.refreshToken),
-    authTokens.refreshToken.timeout,
-    cookieDomain,
-  );
+  const refreshTokenCookie = [
+    `refresh_token=${generateToken(payload, authTokens.accessToken)}`,
+    `Max-Age=${authTokens.accessToken.timeout}`,
+    "HttpOnly",
+    "Secure",
+    "SameSite=Strict",
+  ].join("; ");
+
   return [accessTokenCookie, refreshTokenCookie];
 };

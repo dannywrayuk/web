@@ -23,14 +23,28 @@ type ServiceConfig = {
 type Method = {
   handler: lambda.IFunction;
   authorizer?: apiGw.IHttpRouteAuthorizer;
-  authorizationScopes?: string[];
 } & apiGwIntegrations.HttpLambdaIntegrationProps;
 
-export type Routes = {
-  [K in keyof typeof apiGw.HttpMethod]?: Method | lambda.IFunction;
-} & {
-  [K: string]: Routes | Method | lambda.IFunction;
-};
+// still not sure if this is the best way to type this
+// apparently (string & {}) stops typescript from widening the type to string
+type Routes =
+  | {
+      [K in
+        | keyof typeof apiGw.HttpMethod
+        | "routeAuthorizer"
+        | (string & {})]?: K extends keyof typeof apiGw.HttpMethod
+        ? Method | lambda.IFunction
+        : K extends "routeAuthorizer"
+          ? apiGw.IHttpRouteAuthorizer
+          : Routes;
+    }
+  | {
+      [K in
+        | keyof typeof apiGw.HttpMethod
+        | "routeAuthorizer"]?: K extends keyof typeof apiGw.HttpMethod
+        ? Method | lambda.IFunction
+        : apiGw.IHttpRouteAuthorizer;
+    };
 
 type NestedStringRecord = object & {
   [k: string]: NestedStringRecord;
@@ -80,16 +94,15 @@ const createRoutes = (
   routes: Routes,
   integrations: HashMap,
   parentRoute?: string,
+  parentAuthorizer?: apiGw.IHttpRouteAuthorizer,
 ) => {
   Object.entries(routes).forEach(([key, value]) => {
     if (key in apiGw.HttpMethod) {
-      const { handler, authorizer, authorizationScopes, ...options } =
-        value as Method;
+      const { handler, authorizer, ...options } = value as Method;
       httpApi.addRoutes({
         path: parentRoute || "/",
         methods: [key as apiGw.HttpMethod],
-        authorizer,
-        authorizationScopes,
+        authorizer: authorizer || parentAuthorizer,
         integration: integrations.asCache(
           { functionName: handler.node.id, options },
           () =>
@@ -101,11 +114,13 @@ const createRoutes = (
         ),
       });
     } else {
+      const { routeAuthorizer, ...routes } = value as Routes;
       createRoutes(
         httpApi,
-        value as Routes,
+        routes,
         integrations,
         `${parentRoute || ""}/${key}`,
+        parentAuthorizer || routeAuthorizer,
       );
     }
   });
