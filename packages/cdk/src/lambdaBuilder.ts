@@ -38,6 +38,7 @@ export const lambdaBuilder =
   (lambdaConfig: LambdaConfig) => {
     const namespace = `${serviceConfig.name}-${lambdaConfig.name}`;
     const functionName = `${namespace}-${serviceConfig.stage}`;
+    const entry = findHandler(lambdaConfig.name);
 
     new logs.LogGroup(stack, `${namespace}-LogGroup-${serviceConfig.stage}`, {
       logGroupName: `/aws/lambda/${functionName}`,
@@ -93,14 +94,12 @@ export type LambdaEnv = CommonEnv & (${
       });`;
 
       const basePath = `./src/functions/${lambdaConfig.name}`;
-      if (fs.existsSync(`${basePath}/`)) {
-        fs.writeFileSync(`${basePath}/env.gen.ts`, envTypeDef);
-      } else {
+      if (entry === `${basePath}.ts`) {
         fs.writeFileSync(`${basePath}-env.gen.ts`, envTypeDef);
+      } else {
+        fs.writeFileSync(`${basePath}/env.gen.ts`, envTypeDef);
       }
     }
-
-    const entry = findHandler(lambdaConfig.name);
 
     return new nodeLambda.NodejsFunction(
       stack,

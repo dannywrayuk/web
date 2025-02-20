@@ -95,6 +95,7 @@ class AuthStack extends Stack {
     userTable.grantReadWriteData(login);
     userTable.grantReadWriteData(refresh);
     userTable.grantReadWriteData(user);
+    userTable.grantReadWriteData(deleteUser);
   }
 }
 
