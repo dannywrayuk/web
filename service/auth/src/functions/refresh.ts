@@ -13,6 +13,7 @@ const env = getEnv<LambdaEnv>();
 const userTable = dynamoDBTableCRUD(env.userTableName);
 
 export const handler = async (event: any) => {
+  console.log(event);
   const secrets = await getSecrets(
     { stage: env.stage },
     {
@@ -38,6 +39,7 @@ export const handler = async (event: any) => {
   });
 
   if (!cookies.refreshToken) {
+    console.log("No refresh token found in cookies");
     return failure();
   }
 
@@ -47,17 +49,19 @@ export const handler = async (event: any) => {
   );
 
   if (refreshTokenVerified.error) {
+    console.log("Error verifying refresh token", refreshTokenVerified.error);
     return failure();
   }
 
   const refreshTokenData = refreshTokenVerified.result;
 
   const userQuery = await userTable.read(
-    `USER_ID#${refreshTokenData.userId}`,
+    `USER_ID#${refreshTokenData.sub}`,
     "RECORD",
   );
 
   if (!userQuery?.length) {
+    console.log("User not found");
     return failure();
   }
 
@@ -73,7 +77,7 @@ export const handler = async (event: any) => {
     {
       sub: user.USER_ID,
       iss: cookieDomain,
-      sessionStarted: refreshTokenData.result.sessionStarted,
+      sessionStarted: refreshTokenData.sessionStarted,
     },
     tokenSettings,
   );

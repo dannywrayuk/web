@@ -8,6 +8,7 @@ type TokenSettings = {
 type TokenPayload = {
   sub: string;
   iss: string;
+  sessionStarted: number;
 } & Record<string, string | number | boolean>;
 
 const generateToken = (data: TokenPayload, tokenSettings: TokenSettings) =>
@@ -32,8 +33,8 @@ export const buildAuthCookies = (
   ].join("; ");
 
   const refreshTokenCookie = [
-    `refresh_token=${generateToken(payload, authTokens.accessToken)}`,
-    `Max-Age=${authTokens.accessToken.timeout}`,
+    `refresh_token=${generateToken({ sub: payload.sub, iss: payload.iss, sessionStarted: payload.sessionStarted }, authTokens.refreshToken)}`,
+    `Max-Age=${authTokens.refreshToken.timeout}`,
     "HttpOnly",
     "Secure",
     "SameSite=Strict",
