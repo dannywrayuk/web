@@ -68,7 +68,7 @@ export const handler = async (event: any) => {
   const cookieDomain = calculateCookieDomain(
     env.stage,
     event.headers?.stage,
-    env.stage !== "prod" ? env.cookieStages : undefined,
+    env.cookieStages,
     env.domainName,
   );
   const user = userQuery[0];

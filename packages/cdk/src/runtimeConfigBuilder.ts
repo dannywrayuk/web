@@ -9,13 +9,15 @@ export const runtimeConfigBuilder = <
   const stageFallback = commonConfig?.defaultStage || "dev";
   if (!stageVar) {
     console.warn(
-      `[ConfigWarn] Stage variable not defined. Defaulting to ${stageFallback}.`,
+      `[RuntimeConfigWarn] Stage variable not defined. Defaulting to ${stageFallback}.`,
     );
   }
   const stage = (stageVar || stageFallback) as keyof typeof stageConfigs;
   const stageConfig = stageConfigs[stage];
   if (!stageConfig) {
-    throw new Error(`[ConfigError] No config for stage ${String(stage)}.`);
+    throw new Error(
+      `[RuntimeConfigError] No config for stage ${String(stage)}.`,
+    );
   }
   return {
     common: {
