@@ -78,6 +78,7 @@ export const handler = async (event: any) => {
     "USER_ID",
   );
 
+  const sessionStarted = Math.round(Date.now() / 1000);
   const cookieDomain = calculateCookieDomain(
     env.stage,
     event.headers?.stage,
@@ -89,7 +90,11 @@ export const handler = async (event: any) => {
     console.log("user already exists");
     const userId = userIdQuery[0].USER_ID;
     const authCookies = buildAuthCookies(
-      { sub: userId, iss: cookieDomain, iat: new Date().toISOString() },
+      {
+        sub: userId,
+        iss: cookieDomain,
+        sessionStarted,
+      },
       tokenSettings,
     );
     return success("hello", {
@@ -144,7 +149,7 @@ export const handler = async (event: any) => {
   }
 
   const authCookies = buildAuthCookies(
-    { sub: userId, iss: cookieDomain, iat: new Date().toISOString() },
+    { sub: userId, iss: cookieDomain, sessionStarted },
     tokenSettings,
   );
 

@@ -12,12 +12,12 @@ export const handler = async (event: any) => {
   const refreshTokenData = readToken(cookies.refreshToken);
 
   const clearCookies = [];
-  if (!accessTokenData.error && accessTokenData.result?.domain) {
+  if (!accessTokenData.error && accessTokenData.result?.iss) {
     clearCookies.push(
       [
         `access_token=loggedOut`,
         `Max-Age=-1`,
-        `Domain=${accessTokenData.result?.domain}`,
+        `Domain=${accessTokenData.result?.iss}`,
         "HttpOnly",
         "Secure",
         "SameSite=Strict",
@@ -25,12 +25,11 @@ export const handler = async (event: any) => {
     );
   }
 
-  if (!refreshTokenData.error && refreshTokenData.result?.domain) {
+  if (!refreshTokenData.error && refreshTokenData.result?.iss) {
     clearCookies.push(
       [
         `refresh_token=loggedOut`,
         `Max-Age=-1`,
-        `Domain=${refreshTokenData.result?.domain}`,
         "HttpOnly",
         "Secure",
         "SameSite=Strict",

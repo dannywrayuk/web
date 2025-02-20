@@ -9,7 +9,6 @@ const env = getEnv<LambdaEnv>();
 const unauthorized = { isAuthorized: false };
 
 export const handler = async (event: any) => {
-  console.log(event);
   const secrets = await getSecrets(
     { stage: env.stage },
     {
@@ -40,7 +39,7 @@ export const handler = async (event: any) => {
   return {
     isAuthorized: true,
     context: {
-      ...accessTokenVerified.result,
+      tokenPayload: accessTokenVerified.result,
     },
   };
 };

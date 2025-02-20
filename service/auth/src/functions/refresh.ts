@@ -70,7 +70,11 @@ export const handler = async (event: any) => {
   const user = userQuery[0];
 
   const authCookies = buildAuthCookies(
-    { sub: user.USER_ID, iss: cookieDomain, iat: refreshTokenData.result.iat },
+    {
+      sub: user.USER_ID,
+      iss: cookieDomain,
+      sessionStarted: refreshTokenData.result.sessionStarted,
+    },
     tokenSettings,
   );
 

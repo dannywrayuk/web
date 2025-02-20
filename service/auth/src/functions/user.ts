@@ -8,7 +8,7 @@ const env = getEnv<LambdaEnv>();
 const userTable = dynamoDBTableCRUD(env.userTableName);
 
 export const handler = async (event: any) => {
-  const userId = event.requestContext.authorizer.lambda.userId;
+  const userId = event.requestContext.authorizer.lambda.tokenPayload.sub;
   const userData = await userTable.read("USER_ID#" + userId, "RECORD");
 
   if (userData?.length !== 1) {

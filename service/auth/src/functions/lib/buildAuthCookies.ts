@@ -8,12 +8,9 @@ type TokenSettings = {
 type TokenPayload = {
   sub: string;
   iss: string;
-} & Record<string, string>;
+} & Record<string, string | number | boolean>;
 
-const generateToken = (
-  data: Record<string, string>,
-  tokenSettings: TokenSettings,
-) =>
+const generateToken = (data: TokenPayload, tokenSettings: TokenSettings) =>
   jwt.sign(data, tokenSettings.signingKey, {
     expiresIn: tokenSettings.timeout,
   });

@@ -84,6 +84,10 @@ const expandFlattenedRoutes = (routes: object) => {
       }
       return result;
     }
+    if (key === "routeAuthorizer") {
+      result[key] = value;
+      return result;
+    }
     insertWithin(result, key.split("/"), expandFlattenedRoutes(value));
     return result;
   }, {} as NestedStringRecord);
