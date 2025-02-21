@@ -21,6 +21,7 @@ export const handler = async (event: any) => {
         "HttpOnly",
         "Secure",
         "SameSite=Strict",
+        "Path=/",
       ].join("; "),
     );
   }
@@ -33,6 +34,7 @@ export const handler = async (event: any) => {
         "HttpOnly",
         "Secure",
         "SameSite=Strict",
+        "Path=/",
       ].join("; "),
     );
   }

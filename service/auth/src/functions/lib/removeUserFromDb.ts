@@ -13,9 +13,9 @@ export const removeUserFromDb = async (tableName: string, userId: string) => {
   const userMappingEntries = await dynamoDBClient.send(
     new QueryCommand({
       TableName: tableName,
-      IndexName: "PKSKInverse",
-      KeyConditionExpression: "SK = :pk",
-      ExpressionAttributeValues: { ":pk": `USER_Id#${userId}` },
+      IndexName: "PartitionSortInverse",
+      KeyConditionExpression: "SK = :sk",
+      ExpressionAttributeValues: { ":sk": `USER_ID#${userId}` },
     }),
   );
 

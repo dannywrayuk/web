@@ -23,7 +23,10 @@ class AuthStack extends Stack {
 
     const table = tableBuilder(this, { ...config });
 
-    const userTable = table({ name: "users" });
+    const userTable = table({
+      name: "users",
+      gsi: [{ name: "PartitionSortInverse", PK: "SK", SK: "PK" }],
+    });
 
     const login = lambda({
       name: "login",
