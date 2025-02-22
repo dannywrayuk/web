@@ -1,8 +1,4 @@
-import {
-  tableBuilder,
-  fsRoutedApiBuilder,
-  httpApiBuilder,
-} from "@dannywrayuk/cdk";
+import { tableBuilder, httpApiBuilder, fsRouter } from "@dannywrayuk/cdk";
 import { App, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { config, runtimeConfig } from "./config";
@@ -10,7 +6,7 @@ import { config, runtimeConfig } from "./config";
 class UserStack extends Stack {
   constructor(scope: Construct) {
     super(scope, "UserStack", { env: config.awsEnv });
-    const fsRouting = fsRoutedApiBuilder(this, { ...config, runtimeConfig });
+    const api = httpApiBuilder(this, { ...config });
 
     const table = tableBuilder(this, { ...config });
 
@@ -18,9 +14,13 @@ class UserStack extends Stack {
       name: "users",
       gsi: [{ name: "PartitionSortInverse", PK: "SK", SK: "PK" }],
     });
-    const api = httpApiBuilder(this, { ...config });
 
-    fsRouting(api({ routes: {} }).api);
+    const routes = fsRouter(this, { ...config });
+
+    api({
+      subDomain: "user",
+      routes,
+    });
   }
 }
 

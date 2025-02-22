@@ -6,6 +6,7 @@ import {
 import { readFsRecursive } from "./util/readFsRecursive";
 import { hashMapBuilder } from "./hashMapBuilder";
 import { lambdaBuilder } from "./lambdaBuilder";
+import { Routes } from "./httpApiBuilder";
 
 const defaultRoot = "./src/functions";
 
@@ -43,10 +44,7 @@ const getHandlerName = (
   return config.name + "-" + finalName;
 };
 
-export const fsRoutedApiBuilder = (
-  stack: Stack,
-  serviceConfig: ServiceConfig,
-) => {
+export const fsRouter = (stack: Stack, serviceConfig: ServiceConfig) => {
   const root = serviceConfig.rootDir || defaultRoot;
   const getFunctions = readFsRecursive(root);
   if (getFunctions.error) {
@@ -70,27 +68,17 @@ export const fsRoutedApiBuilder = (
     })
     .filter(Boolean) as Endpoint[];
 
-  const integrations = hashMapBuilder();
   const handlerNames = hashMapBuilder();
   const lambda = lambdaBuilder(stack, serviceConfig);
 
-  return (api: apiGw.HttpApi) => {
-    endpoints.forEach((endpoint) => {
-      const handlerName = getHandlerName(endpoint, serviceConfig, handlerNames);
-      console.log({ handlerName, endpoint });
-      const handler = lambda({ name: handlerName, entry: endpoint.path });
-      api.addRoutes({
-        path: endpoint?.route,
-        methods: endpoint?.methods,
-        integration: integrations.asCache(
-          { functionName: handler.node.id },
-          () =>
-            new apiGwIntegrations.HttpLambdaIntegration(
-              `Integration-${handler.node.id}`,
-              handler,
-            ),
-        ),
-      });
-    });
-  };
+  return endpoints.reduce((routes, endpoint) => {
+    const handlerName = getHandlerName(endpoint, serviceConfig, handlerNames);
+    console.log({ handlerName, endpoint });
+    const handler = lambda({ name: handlerName, entry: endpoint.path });
+
+    routes[endpoint.route as keyof Routes] = Object.fromEntries(
+      endpoint.methods.map((method) => [method, handler]),
+    ) as any;
+    return routes;
+  }, {} as Routes);
 };

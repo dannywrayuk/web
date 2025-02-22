@@ -27,7 +27,7 @@ type Method = {
 
 // still not sure if this is the best way to type this
 // apparently (string & {}) stops typescript from widening the type to string
-type Routes =
+export type Routes =
   | {
       [K in
         | keyof typeof apiGw.HttpMethod
