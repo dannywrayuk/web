@@ -4,6 +4,7 @@ import {
   httpApiBuilder,
   lambdaBuilder,
   tableBuilder,
+  objectRouter,
 } from "@dannywrayuk/cdk";
 import { App, Stack, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
@@ -16,7 +17,6 @@ class AuthStack extends Stack {
     const lambda = lambdaBuilder(this, {
       ...config,
       runtimeConfig,
-      generateEnvTypes: true,
     });
 
     const api = httpApiBuilder(this, { ...config });
@@ -64,7 +64,7 @@ class AuthStack extends Stack {
 
     api({
       subDomain: "auth",
-      routes: {
+      endpoints: objectRouter({
         login: {
           GET: login,
         },
@@ -78,9 +78,9 @@ class AuthStack extends Stack {
         user: {
           GET: user,
           delete: { GET: deleteUser },
-          routeAuthorizer: authorizer,
+          routeOptions: { authorizer },
         },
-      },
+      }),
     });
 
     grantSecretRead(

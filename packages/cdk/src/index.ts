@@ -6,3 +6,4 @@ export { lambdaAuthorizer } from "./lambdaAuthorizer";
 export { grantSecretRead } from "./grantSecretRead";
 export { runtimeConfigBuilder } from "./runtimeConfigBuilder";
 export { fsRouter } from "./fsRouter";
+export { objectRouter } from "./objectRouter";

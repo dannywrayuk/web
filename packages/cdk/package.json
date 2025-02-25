@@ -7,6 +7,9 @@
     "./*": "./src/*.ts"
   },
   "scripts": {},
+  "dependencies": {
+    "@dannywrayuk/casing": "^1.0.4"
+  },
   "peerDependencies": {
     "aws-cdk-lib": "^2.171.1",
     "constructs": "^10.4.2"

@@ -12,14 +12,15 @@ import { runtimeConfigBuilder } from "./runtimeConfigBuilder";
 type ServiceConfig = {
   name: string;
   stage: string;
+  constants?: Record<string, string>;
   runtimeConfig?: ReturnType<typeof runtimeConfigBuilder>;
   generateEnvTypes?: boolean;
 } & nodeLambda.NodejsFunctionProps;
 
 type LambdaConfig = {
   name: string;
+  constants?: Record<string, string>;
   generateEnvTypes?: boolean;
-  constants?: Record<string, any>;
 } & nodeLambda.NodejsFunctionProps;
 
 const findHandler = (handlerName: string) => {
@@ -55,6 +56,7 @@ export const lambdaBuilder =
       ...serviceConfig.runtimeConfig?.common,
       ...serviceConfig.runtimeConfig?.current,
       serviceName: serviceConfig.name,
+      ...serviceConfig.constants,
       ...lambdaConfig.constants,
       functionName: lambdaConfig.name,
     } as const;
