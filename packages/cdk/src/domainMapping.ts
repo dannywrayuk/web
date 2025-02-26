@@ -11,7 +11,64 @@ type DomainMappingConfig = {
   apiName: string;
   stage: string;
   domainName: string;
+  domainExists?: boolean;
   subDomain?: string;
+  basePath?: string;
+};
+
+const getDomain = (
+  stack: Stack,
+  config: DomainMappingConfig,
+  domain: string,
+  hostedZone: r53.IHostedZone,
+) => {
+  return apiGw.DomainName.fromDomainNameAttributes(
+    stack,
+    `${config.serviceName}-${config.apiName}-DomainName-${config.stage}`,
+    {
+      name: domain,
+      regionalDomainName: domain,
+      regionalHostedZoneId: hostedZone.hostedZoneId,
+    },
+  );
+};
+
+const createDomain = (
+  stack: Stack,
+  config: DomainMappingConfig,
+  domain: string,
+  hostedZone: r53.IHostedZone,
+) => {
+  const certificate = new certMan.Certificate(
+    stack,
+    `${config.serviceName}-${config.apiName}-Certificate-${config.stage}`,
+    {
+      domainName: domain,
+      validation: certMan.CertificateValidation.fromDns(hostedZone),
+    },
+  );
+
+  const domainName = new apiGw.DomainName(
+    stack,
+    `${config.serviceName}-${config.apiName}-DomainName-${config.stage}`,
+    { domainName: domain, certificate },
+  );
+
+  new r53.ARecord(
+    stack,
+    `${config.serviceName}-${config.apiName}-ApiAliasRecord-${config.stage}`,
+    {
+      zone: hostedZone,
+      recordName: domain,
+      target: r53.RecordTarget.fromAlias(
+        new r53Targets.ApiGatewayv2DomainProperties(
+          domainName.regionalDomainName,
+          domainName.regionalHostedZoneId,
+        ),
+      ),
+    },
+  );
+  return domainName;
 };
 
 export const domainMapping = (
@@ -29,39 +86,17 @@ export const domainMapping = (
     ? `${config.subDomain}.${config.domainName}`
     : config.domainName;
 
-  const certificate = new certMan.Certificate(
-    stack,
-    `${config.serviceName}-${config.apiName}-Certificate-${config.stage}`,
-    {
-      domainName: fullDomain,
-      validation: certMan.CertificateValidation.fromDns(hostedZone),
-    },
-  );
-
-  const domainName = new apiGw.DomainName(
-    stack,
-    `${config.serviceName}-${config.apiName}-DomainName-${config.stage}`,
-    { domainName: fullDomain, certificate },
-  );
-
-  new r53.ARecord(
-    stack,
-    `${config.serviceName}-${config.apiName}-ApiAliasRecord-${config.stage}`,
-    {
-      zone: hostedZone,
-      recordName: fullDomain,
-      target: r53.RecordTarget.fromAlias(
-        new r53Targets.ApiGatewayv2DomainProperties(
-          domainName.regionalDomainName,
-          domainName.regionalHostedZoneId,
-        ),
-      ),
-    },
-  );
+  const domainName = config.domainExists
+    ? getDomain(stack, config, fullDomain, hostedZone)
+    : createDomain(stack, config, fullDomain, hostedZone);
 
   new apiGw.ApiMapping(
     stack,
     `${config.serviceName}-${config.apiName}-ApiMapping-${config.stage}`,
-    { api: httpApi, domainName },
+    {
+      api: httpApi,
+      domainName: domainName,
+      apiMappingKey: config.basePath,
+    },
   );
 };

@@ -26,7 +26,6 @@ const getHandlerName = (
   handlerNames: ReturnType<typeof hashMapBuilder>,
 ) => {
   const parts = endpoint.route.split("/");
-  parts.pop();
   parts.push(...endpoint.methods);
   const filtered = parts.filter(
     (part) => !!part && /^[0-9a-zA-Z]+$/.test(part),
@@ -46,8 +45,8 @@ const getHandlerName = (
   return casing.camel(finalName);
 };
 
-const toEndpoint = (path: string, parent: ParentOptions) => {
-  const ending = path.match(/\/([A-Z\-]+)\.ts$/);
+const toEndpoint = (handlerPath: string, parent: ParentOptions) => {
+  const ending = handlerPath.match(/\/([A-Z\-]+)\.ts$/);
   if (!ending || !ending[1]) {
     return null;
   }
@@ -56,9 +55,9 @@ const toEndpoint = (path: string, parent: ParentOptions) => {
     return null;
   }
   return {
-    entry: path,
+    entry: handlerPath,
     methods: methods as apiGw.HttpMethod[],
-    route: path.replace(parent.root, ""),
+    route: path.dirname(handlerPath.replace(parent.root, "")),
     authorizerName: parent.authorizerName,
     authorizationScopes: parent.authorizationScopes,
   };

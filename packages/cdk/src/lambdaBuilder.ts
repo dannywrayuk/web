@@ -6,6 +6,7 @@ import {
   RemovalPolicy,
 } from "aws-cdk-lib";
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { variableToTypeString } from "./util/variableToTypeString";
 import { runtimeConfigBuilder } from "./runtimeConfigBuilder";
 
@@ -39,7 +40,7 @@ export const lambdaBuilder =
   (lambdaConfig: LambdaConfig) => {
     const namespace = `${serviceConfig.name}-${lambdaConfig.name}`;
     const functionName = `${namespace}-${serviceConfig.stage}`;
-    const entry = findHandler(lambdaConfig.name);
+    const entry = lambdaConfig.entry || findHandler(lambdaConfig.name);
 
     new logs.LogGroup(stack, `${namespace}-LogGroup-${serviceConfig.stage}`, {
       logGroupName: `/aws/lambda/${functionName}`,
@@ -95,12 +96,11 @@ export type LambdaEnv = CommonEnv & (${
           .join(" | ") || ""
       });`;
 
-      const basePath = `./src/functions/${lambdaConfig.name}`;
-      if (entry === `${basePath}.ts`) {
-        fs.writeFileSync(`${basePath}-env.gen.ts`, envTypeDef);
-      } else {
-        fs.writeFileSync(`${basePath}/env.gen.ts`, envTypeDef);
-      }
+      const entryPath = path.parse(entry);
+      fs.writeFileSync(
+        `${entryPath.dir}/${entryPath.name}-env.gen.ts`,
+        envTypeDef,
+      );
     }
 
     return new nodeLambda.NodejsFunction(

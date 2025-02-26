@@ -29,8 +29,8 @@ export const tableBuilder =
         partitionKey: { name: "PK", type: ddb.AttributeType.STRING },
         sortKey: { name: "SK", type: ddb.AttributeType.STRING },
         removalPolicy: serviceConfig.deletionProtection
-          ? RemovalPolicy.DESTROY
-          : RemovalPolicy.RETAIN,
+          ? RemovalPolicy.RETAIN
+          : RemovalPolicy.DESTROY,
         deletionProtection: serviceConfig.deletionProtection,
         ...serviceConfig,
         ...tableConfig,

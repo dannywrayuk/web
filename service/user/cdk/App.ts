@@ -1,5 +1,15 @@
-import { fsRouter, httpApiBuilder, tableBuilder } from "@dannywrayuk/cdk";
-import { App, Stack } from "aws-cdk-lib";
+import {
+  fsRouter,
+  httpApiBuilder,
+  lambdaAuthorizer,
+  tableBuilder,
+} from "@dannywrayuk/cdk";
+import {
+  App,
+  Stack,
+  aws_apigatewayv2,
+  aws_lambda as lambda,
+} from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { config, runtimeConfig } from "./config";
 
@@ -10,12 +20,21 @@ class UserStack extends Stack {
     const table = tableBuilder(this, { ...config });
 
     const userTable = table({
-      name: "users",
+      name: "users-test",
       gsi: [{ name: "PartitionSortInverse", PK: "SK", SK: "PK" }],
     });
 
     const { endpoints } = api({
-      subDomain: "user",
+      subDomain: "auth",
+      basePath: "user",
+      domainExists: true,
+      defaultAuthorizer: lambdaAuthorizer(
+        lambda.Function.fromFunctionName(
+          this,
+          "apiAuthorizer",
+          "auth-verify-dev",
+        ),
+      ),
       endpoints: fsRouter(this, {
         ...config,
         runtimeConfig,

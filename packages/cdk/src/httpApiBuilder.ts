@@ -11,7 +11,9 @@ type ApiConfig = {
   endpoints: Endpoint[];
   name?: string;
   domainName?: string;
+  domainExists?: boolean;
   subDomain?: string;
+  basePath?: string;
 } & apiGw.HttpApiProps;
 
 type ServiceConfig = {
@@ -34,7 +36,10 @@ export const httpApiBuilder =
     const httpApi = new apiGw.HttpApi(
       stack,
       `${serviceConfig.name}-${apiName}-${serviceConfig.stage}`,
-      {},
+      {
+        defaultAuthorizer:
+          serviceConfig.defaultAuthorizer || apiConfig.defaultAuthorizer,
+      },
     );
 
     const domainName = serviceConfig.domainName || apiConfig.domainName;
@@ -42,8 +47,10 @@ export const httpApiBuilder =
 
     if (domainName) {
       domainMapping(stack, httpApi, {
+        basePath: apiConfig.basePath,
         serviceName: serviceConfig.name,
         stage: serviceConfig.stage,
+        domainExists: apiConfig.domainExists,
         apiName,
         domainName,
         subDomain: serviceConfig.removeStageSubdomain

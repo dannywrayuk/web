@@ -1,9 +1,8 @@
-import { safe } from "../lib/safe/safe";
-import { LambdaEnv } from "./deleteUser-env.gen";
-import { getEnv } from "./lib/getEnv";
-import { removeUserFromDb } from "./lib/removeUserFromDb";
-import { failure } from "./lib/results";
-import { handler as logoutHandler } from "./logout";
+import { safe } from "../../../../lib/safe/safe";
+import { LambdaEnv } from "./GET-env.gen";
+import { getEnv } from "@dannywrayuk/aws/getEnv";
+import { removeUserFromDb } from "../../../../lib/removeUserFromDb";
+import { failure } from "../../../../lib/results";
 
 const hourInSeconds = 60 * 60;
 const env = getEnv<LambdaEnv>();
@@ -32,5 +31,5 @@ export const handler = async (event: any) => {
   }
 
   // is this an anti-pattern?
-  return logoutHandler(event);
+  return;
 };
