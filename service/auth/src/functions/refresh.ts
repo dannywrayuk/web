@@ -3,7 +3,7 @@ import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { getSecrets } from "@dannywrayuk/aws/getSecrets";
 import { buildAuthCookies } from "./lib/buildAuthCookies";
 import { calculateCookieDomain } from "./lib/calculateCookieDomain";
-import { getEnv } from "./lib/getEnv";
+import { getEnv } from "@dannywrayuk/aws/getEnv";
 import { failure, success } from "./lib/results";
 import { verifyToken } from "./lib/verifyToken";
 import { LambdaEnv } from "./refresh-env.gen";

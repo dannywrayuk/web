@@ -1,7 +1,7 @@
 import { getCookies } from "@dannywrayuk/aws/getCookies";
+import { getEnv } from "@dannywrayuk/aws/getEnv";
 import { getSecrets } from "@dannywrayuk/aws/getSecrets";
 import { verifyToken } from "./lib/verifyToken";
-import { getEnv } from "./lib/getEnv";
 import { LambdaEnv } from "./verify-env.gen";
 
 const env = getEnv<LambdaEnv>();

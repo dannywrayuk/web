@@ -8,7 +8,7 @@ import { getGithubUserInfo } from "./lib/getGithubUserInfo";
 import { getUserPrimaryVerifiedEmail } from "./lib/getUserPrimaryVerifiedEmail";
 import { failure, success } from "./lib/results";
 import { calculateCookieDomain } from "./lib/calculateCookieDomain";
-import { getEnv } from "./lib/getEnv";
+import { getEnv } from "@dannywrayuk/aws/getEnv";
 import { LambdaEnv } from "./login-env.gen";
 
 const env = getEnv<LambdaEnv>();

@@ -1,18 +1,18 @@
 import {
-  lambdaAuthorizer,
   grantSecretRead,
   httpApiBuilder,
   lambdaBuilder,
-  tableBuilder,
   objectRouter,
 } from "@dannywrayuk/cdk";
-import { App, Stack, Duration } from "aws-cdk-lib";
+import { App, Duration, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
+import { CoreStack, ExternalResources } from "core/App";
 import { config, runtimeConfig } from "./config";
 
 class AuthStack extends Stack {
-  constructor(scope: Construct) {
+  constructor(scope: Construct, externalResources: ExternalResources) {
     super(scope, "AuthStack", { env: config.awsEnv });
+    const { userTable } = externalResources;
 
     const lambda = lambdaBuilder(this, {
       ...config,
@@ -20,13 +20,6 @@ class AuthStack extends Stack {
     });
 
     const api = httpApiBuilder(this, { ...config });
-
-    const table = tableBuilder(this, { ...config });
-
-    const userTable = table({
-      name: "users",
-      gsi: [{ name: "PartitionSortInverse", PK: "SK", SK: "PK" }],
-    });
 
     const login = lambda({
       name: "login",
@@ -45,23 +38,6 @@ class AuthStack extends Stack {
 
     const logout = lambda({ name: "logout" });
 
-    const verify = lambda({ name: "verify" });
-    const authorizer = lambdaAuthorizer(verify);
-
-    const user = lambda({
-      name: "user",
-      environment: {
-        userTableName: userTable.tableName,
-      },
-    });
-
-    const deleteUser = lambda({
-      name: "deleteUser",
-      environment: {
-        userTableName: userTable.tableName,
-      },
-    });
-
     api({
       subDomain: "auth",
       endpoints: objectRouter({
@@ -74,18 +50,12 @@ class AuthStack extends Stack {
         logout: {
           GET: logout,
         },
-        // This should probably be its own user service, oh well its fine for now.
-        user: {
-          GET: user,
-          delete: { GET: deleteUser },
-          routeOptions: { authorizer },
-        },
       }),
     });
 
     grantSecretRead(
       config,
-      [login, refresh, verify],
+      [login, refresh],
       ["AUTH_ACCESS_TOKEN_SIGNING_KEY", "AUTH_REFRESH_TOKEN_SIGNING_KEY"],
     );
 
@@ -97,11 +67,12 @@ class AuthStack extends Stack {
 
     userTable.grantReadWriteData(login);
     userTable.grantReadWriteData(refresh);
-    userTable.grantReadWriteData(user);
-    userTable.grantReadWriteData(deleteUser);
   }
 }
 
 const app = new App();
 
-new AuthStack(app);
+const core = new CoreStack(app);
+
+const auth = new AuthStack(app, core.externalResources);
+auth.addDependency(core);

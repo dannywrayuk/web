@@ -1,8 +1,8 @@
-import { safe } from "../../../../lib/safe/safe";
+import { safe } from "../../../lib/safe/safe";
 import { LambdaEnv } from "./GET-env.gen";
 import { getEnv } from "@dannywrayuk/aws/getEnv";
-import { removeUserFromDb } from "../../../../lib/removeUserFromDb";
-import { failure } from "../../../../lib/results";
+import { removeUserFromDb } from "../../../lib/removeUserFromDb";
+import { failure } from "../../../lib/results";
 
 const hourInSeconds = 60 * 60;
 const env = getEnv<LambdaEnv>();

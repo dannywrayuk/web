@@ -119,12 +119,13 @@ export const fsRouter = (stack: Stack, serviceConfig: ServiceConfig) => {
   const handlerNames = hashMapBuilder();
   const lambda = lambdaBuilder(stack, serviceConfig);
   return endpoints.map((endpoint) => {
-    const endpointOptions = getEndpointOptions(endpoint.entry);
     const handlerName = getHandlerName(endpoint, handlerNames);
     const handler = lambda({
       name: handlerName,
       entry: endpoint.entry,
     });
+    // I think this needs some work, dont like that i have to read the at buildtime
+    const endpointOptions = getEndpointOptions(endpoint.entry);
     return {
       route: endpoint.route,
       methods: endpoint.methods,

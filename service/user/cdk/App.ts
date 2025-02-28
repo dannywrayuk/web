@@ -4,12 +4,7 @@ import {
   lambdaAuthorizer,
   tableBuilder,
 } from "@dannywrayuk/cdk";
-import {
-  App,
-  Stack,
-  aws_apigatewayv2,
-  aws_lambda as lambda,
-} from "aws-cdk-lib";
+import { App, Stack, aws_lambda as lambda } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { config, runtimeConfig } from "./config";
 
@@ -25,9 +20,8 @@ class UserStack extends Stack {
     });
 
     const { endpoints } = api({
-      subDomain: "auth",
+      subDomain: "api",
       basePath: "user",
-      domainExists: true,
       defaultAuthorizer: lambdaAuthorizer(
         lambda.Function.fromFunctionName(
           this,

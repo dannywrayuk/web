@@ -16,6 +16,7 @@ type ServiceConfig = {
   constants?: Record<string, string>;
   runtimeConfig?: ReturnType<typeof runtimeConfigBuilder>;
   generateEnvTypes?: boolean;
+  basePath?: string;
 } & nodeLambda.NodejsFunctionProps;
 
 type LambdaConfig = {
@@ -24,8 +25,8 @@ type LambdaConfig = {
   generateEnvTypes?: boolean;
 } & nodeLambda.NodejsFunctionProps;
 
-const findHandler = (handlerName: string) => {
-  const basePath = `./src/functions/${handlerName}`;
+const findHandler = (handlerName: string, root?: string) => {
+  const basePath = path.join(root || "", `./src/functions/${handlerName}`);
   if (fs.existsSync(`${basePath}/handler.ts`)) {
     return `${basePath}/handler.ts`;
   }
@@ -40,7 +41,9 @@ export const lambdaBuilder =
   (lambdaConfig: LambdaConfig) => {
     const namespace = `${serviceConfig.name}-${lambdaConfig.name}`;
     const functionName = `${namespace}-${serviceConfig.stage}`;
-    const entry = lambdaConfig.entry || findHandler(lambdaConfig.name);
+    const entry =
+      lambdaConfig.entry ||
+      findHandler(lambdaConfig.name, serviceConfig.basePath);
 
     new logs.LogGroup(stack, `${namespace}-LogGroup-${serviceConfig.stage}`, {
       logGroupName: `/aws/lambda/${functionName}`,
@@ -93,7 +96,7 @@ export type CommonEnv = ${variableToTypeString(
 export type LambdaEnv = CommonEnv & (${
         serviceConfig.runtimeConfig?.stages
           .map((stageName) => `LambdaEnv_${stageName}`)
-          .join(" | ") || ""
+          .join(" | ") || "{}"
       });`;
 
       const entryPath = path.parse(entry);
