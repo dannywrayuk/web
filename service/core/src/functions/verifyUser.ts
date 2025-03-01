@@ -18,10 +18,9 @@ export const handler = async (event: any) => {
 
   const cookies = getCookies(event, {
     accessToken: "access_token",
-    refreshToken: "refresh_token",
   });
 
-  if (!cookies.accessToken || !cookies.refreshToken) {
+  if (!cookies.accessToken) {
     console.log("No tokens found in cookies");
     return unauthorized;
   }

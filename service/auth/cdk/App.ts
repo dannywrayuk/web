@@ -3,23 +3,26 @@ import {
   httpApiBuilder,
   lambdaBuilder,
   objectRouter,
+  sharedResourcesBuilder,
 } from "@dannywrayuk/cdk";
 import { App, Duration, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { CoreStack, ExternalResources } from "core/App";
 import { config, runtimeConfig } from "./config";
 
 class AuthStack extends Stack {
-  constructor(scope: Construct, externalResources: ExternalResources) {
+  constructor(scope: Construct) {
     super(scope, "AuthStack", { env: config.awsEnv });
-    const { userTable } = externalResources;
-
+    const api = httpApiBuilder(this, { ...config });
+    const coreStack = sharedResourcesBuilder(this, {
+      ...config,
+      fromStack: "CoreStack",
+    });
     const lambda = lambdaBuilder(this, {
       ...config,
       runtimeConfig,
     });
 
-    const api = httpApiBuilder(this, { ...config });
+    const userTable = coreStack.import.table("userTable");
 
     const login = lambda({
       name: "login",
@@ -72,7 +75,4 @@ class AuthStack extends Stack {
 
 const app = new App();
 
-const core = new CoreStack(app);
-
-const auth = new AuthStack(app, core.externalResources);
-auth.addDependency(core);
+new AuthStack(app);

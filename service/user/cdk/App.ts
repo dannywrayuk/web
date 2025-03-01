@@ -2,9 +2,9 @@ import {
   fsRouter,
   httpApiBuilder,
   lambdaAuthorizer,
-  tableBuilder,
+  sharedResourcesBuilder,
 } from "@dannywrayuk/cdk";
-import { App, Stack, aws_lambda as lambda } from "aws-cdk-lib";
+import { App, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { config, runtimeConfig } from "./config";
 
@@ -12,23 +12,20 @@ class UserStack extends Stack {
   constructor(scope: Construct) {
     super(scope, "UserStack", { env: config.awsEnv });
     const api = httpApiBuilder(this, { ...config });
-    const table = tableBuilder(this, { ...config });
-
-    const userTable = table({
-      name: "users-test",
-      gsi: [{ name: "PartitionSortInverse", PK: "SK", SK: "PK" }],
+    const coreStack = sharedResourcesBuilder(this, {
+      ...config,
+      fromStack: "CoreStack",
     });
+
+    const userTable = coreStack.import.table("userTable");
+    const userAuthorizer = lambdaAuthorizer(
+      coreStack.import.lambda("verifyUser"),
+    );
 
     const { endpoints } = api({
       subDomain: "api",
       basePath: "user",
-      defaultAuthorizer: lambdaAuthorizer(
-        lambda.Function.fromFunctionName(
-          this,
-          "apiAuthorizer",
-          "auth-verify-dev",
-        ),
-      ),
+      defaultAuthorizer: userAuthorizer,
       endpoints: fsRouter(this, {
         ...config,
         runtimeConfig,
