@@ -2,6 +2,7 @@ import {
   Stack,
   aws_dynamodb as ddb,
   aws_lambda as lambda,
+  aws_apigatewayv2 as apiGw,
   Fn,
 } from "aws-cdk-lib";
 
@@ -122,8 +123,55 @@ export const sharedResourcesBuilder = (stack: Stack, config: ServiceConfig) => {
     });
   };
 
+  const importHttpApi = (referenceName: string) => {
+    if (!config.fromStack)
+      throw new Error("fromStack is required to import an api");
+
+    const apiId = Fn.importValue(
+      exportName({
+        stackName: config.fromStack,
+        stage: config.fromStage || config.stage,
+        referenceName,
+        type: "HttpApi",
+      }),
+    );
+    return apiGw.HttpApi.fromHttpApiAttributes(
+      stack,
+      importId({
+        serviceName: config.name,
+        fromStack: config.fromStack,
+        referenceName,
+        fromStage: config.fromStage || config.stage,
+        stage: config.stage,
+        type: "HttpApi",
+      }),
+      {
+        httpApiId: apiId,
+      },
+    );
+  };
+
+  const exportHttpApi = (api: apiGw.HttpApi, referenceName: string) => {
+    stack.exportValue(api.httpApiId, {
+      name: exportName({
+        stackName: stack.stackName,
+        stage: config.stage,
+        referenceName,
+        type: "HttpApi",
+      }),
+    });
+  };
+
   return {
-    import: { table: importTable, lambda: importLambda },
-    export: { table: exportTable, lambda: exportLambda },
+    import: {
+      table: importTable,
+      lambda: importLambda,
+      httpApi: importHttpApi,
+    },
+    export: {
+      table: exportTable,
+      lambda: exportLambda,
+      httpApi: exportHttpApi,
+    },
   };
 };

@@ -1,14 +1,13 @@
 import {
   Stack,
   aws_apigatewayv2 as apiGw,
-  aws_apigatewayv2_integrations as apiGwIntegrations,
   aws_lambda as lambda,
 } from "aws-cdk-lib";
-import { hashMapBuilder } from "./hashMapBuilder";
 import { domainMapping } from "./domainMapping";
+import { addHttpApiEndpoints } from "./addHttpApiEndpoints";
 
 type ApiConfig = {
-  endpoints: Endpoint[];
+  endpoints?: Endpoint[];
   name?: string;
   domainName?: string;
   domainExists?: boolean;
@@ -60,23 +59,6 @@ export const httpApiBuilder =
             : serviceConfig.stage,
       });
     }
-    const integrationCache = hashMapBuilder();
-    apiConfig.endpoints.forEach((endpoint) => {
-      httpApi.addRoutes({
-        path: endpoint.route,
-        methods: endpoint.methods,
-        authorizer: endpoint.authorizer,
-        authorizationScopes: endpoint.authorizationScopes,
-        integration: integrationCache.asCache(
-          { functionName: endpoint.handler.node.id },
-          () =>
-            new apiGwIntegrations.HttpLambdaIntegration(
-              `Integration-${endpoint.handler.node.id}`,
-              endpoint.handler,
-            ),
-        ),
-      });
-    });
-
+    addHttpApiEndpoints(stack, httpApi, apiConfig.endpoints || []);
     return { api: httpApi, endpoints: apiConfig.endpoints };
   };

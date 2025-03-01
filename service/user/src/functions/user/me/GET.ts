@@ -1,7 +1,7 @@
 import { dynamoDBTableCRUD } from "@dannywrayuk/aws/dynamoDBTable";
 import { getEnv } from "@dannywrayuk/aws/getEnv";
 import { LambdaEnv } from "./GET-env.gen";
-import { success } from "../../lib/results";
+import { success } from "../../../lib/results";
 
 const env = getEnv<LambdaEnv>();
 

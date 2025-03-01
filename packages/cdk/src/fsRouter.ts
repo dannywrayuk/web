@@ -11,6 +11,8 @@ const defaultRoot = "./src/functions";
 type ServiceConfig = {
   rootDir?: string;
   authorizers?: Record<string, apiGw.IHttpRouteAuthorizer>;
+  defaultAuthorizer?: apiGw.IHttpRouteAuthorizer;
+  defaultAuthorizationScopes?: string[];
 } & Parameters<typeof lambdaBuilder>[1];
 
 type EndpointData = {
@@ -133,9 +135,11 @@ export const fsRouter = (stack: Stack, serviceConfig: ServiceConfig) => {
         serviceConfig?.authorizers?.[
           (endpointOptions.authorizerName ||
             endpoint.authorizerName) as keyof typeof serviceConfig.authorizers
-        ],
+        ] || serviceConfig.defaultAuthorizer,
       authorizationScopes:
-        endpointOptions.authorizationScopes || endpoint.authorizationScopes,
+        endpointOptions.authorizationScopes ||
+        endpoint.authorizationScopes ||
+        serviceConfig.defaultAuthorizationScopes,
       handler,
     };
   }) as Endpoint[];

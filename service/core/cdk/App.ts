@@ -4,6 +4,7 @@ import {
   lambdaBuilder,
   grantSecretRead,
   sharedResourcesBuilder,
+  httpApiBuilder,
 } from "@dannywrayuk/cdk";
 import {
   App,
@@ -16,6 +17,7 @@ import { Construct } from "constructs";
 export const config = configBuilder(
   {
     name: "core",
+    domainName: "dannywray.co.uk",
   },
   {
     dev: {},
@@ -37,23 +39,21 @@ class CoreStack extends Stack {
   constructor(scope: Construct) {
     super(scope, "CoreStack", { env: config.awsEnv });
     const table = tableBuilder(this, { ...config });
-    const coreStack = sharedResourcesBuilder(this, {
-      ...config,
-    });
-    const lambda = lambdaBuilder(this, {
-      ...config,
-    });
+    const api = httpApiBuilder(this, { ...config });
+    const lambda = lambdaBuilder(this, { ...config });
+    const coreStack = sharedResourcesBuilder(this, { ...config });
+
+    const coreApi = api({ subDomain: "api" });
+    coreStack.export.httpApi(coreApi.api, "coreApi");
 
     const userTable = table({
       name: "users",
       gsi: [{ name: "PartitionSortInverse", PK: "SK", SK: "PK" }],
     });
-
     coreStack.export.table(userTable, "userTable");
 
     const verifyUser = lambda({ name: "verifyUser" });
     grantSecretRead(config, [verifyUser], ["AUTH_ACCESS_TOKEN_SIGNING_KEY"]);
-
     coreStack.export.lambda(verifyUser, "verifyUser");
   }
 }
