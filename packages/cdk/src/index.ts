@@ -9,3 +9,4 @@ export { fsRouter } from "./fsRouter";
 export { objectRouter } from "./objectRouter";
 export { sharedResourcesBuilder } from "./sharedResourcesBuilder";
 export { addHttpApiEndpoints } from "./addHttpApiEndpoints";
+export { bucketBuilder } from "./bucketBuilder";

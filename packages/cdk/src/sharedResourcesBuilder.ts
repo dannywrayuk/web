@@ -3,6 +3,7 @@ import {
   aws_dynamodb as ddb,
   aws_lambda as lambda,
   aws_apigatewayv2 as apiGw,
+  aws_s3 as s3,
   Fn,
 } from "aws-cdk-lib";
 
@@ -162,16 +163,54 @@ export const sharedResourcesBuilder = (stack: Stack, config: ServiceConfig) => {
     });
   };
 
+  const importS3Bucket = (referenceName: string) => {
+    if (!config.fromStack)
+      throw new Error("fromStack is required to import an s3 bucket");
+
+    const bucketArn = Fn.importValue(
+      exportName({
+        stackName: config.fromStack,
+        stage: config.fromStage || config.stage,
+        referenceName,
+        type: "S3Bucket",
+      }),
+    );
+    return s3.Bucket.fromBucketArn(
+      stack,
+      importId({
+        serviceName: config.name,
+        fromStack: config.fromStack,
+        referenceName,
+        fromStage: config.fromStage || config.stage,
+        stage: config.stage,
+        type: "S3Bucket",
+      }),
+      bucketArn,
+    );
+  };
+
+  const exportS3Bucket = (bucket: s3.IBucket, referenceName: string) => {
+    stack.exportValue(bucket.bucketArn, {
+      name: exportName({
+        stackName: stack.stackName,
+        stage: config.stage,
+        referenceName,
+        type: "S3Bucket",
+      }),
+    });
+  };
   return {
     import: {
       table: importTable,
       lambda: importLambda,
       httpApi: importHttpApi,
+      s3Bucket: importS3Bucket,
     },
     export: {
       table: exportTable,
       lambda: exportLambda,
       httpApi: exportHttpApi,
+      s3Bucket: exportS3Bucket,
     },
   };
 };
