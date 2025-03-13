@@ -4,13 +4,13 @@
   "description": "",
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts"
+    "./*": "./src/*.ts",
+    "./v2": "./src/v2/index.ts"
   },
   "scripts": {},
-  "dependencies": {
-    "@dannywrayuk/casing": "^1.0.4"
-  },
+  "dependencies": {},
   "peerDependencies": {
+    "@dannywrayuk/casing": "^1.0.4",
     "aws-cdk-lib": "^2.171.1",
     "constructs": "^10.4.2"
   },

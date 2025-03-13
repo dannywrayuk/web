@@ -10,3 +10,5 @@ export { objectRouter } from "./objectRouter";
 export { sharedResourcesBuilder } from "./sharedResourcesBuilder";
 export { addHttpApiEndpoints } from "./addHttpApiEndpoints";
 export { bucketBuilder } from "./bucketBuilder";
+export { syncBuckets } from "./syncBuckets";
+export { cdnBuilder } from "./cdnBuilder";

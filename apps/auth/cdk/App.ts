@@ -1,5 +1,6 @@
-import { bucketBuilder, configBuilder } from "@dannywrayuk/cdk";
-import { App, Stack } from "aws-cdk-lib";
+import { configBuilder } from "@dannywrayuk/cdk";
+import { Bucket, Cdn, Stack } from "@dannywrayuk/cdk/v2";
+import { App, aws_certificatemanager as certMan } from "aws-cdk-lib";
 import { Construct } from "constructs";
 
 export const config = configBuilder(
@@ -18,12 +19,19 @@ export const config = configBuilder(
 
 class AuthUIStack extends Stack {
   constructor(scope: Construct) {
-    super(scope, "AuthUIStack", { env: config.awsEnv });
-    const bucket = bucketBuilder(this, {
-      ...config,
-    });
+    super(scope, config);
+    const certificate = certMan.Certificate.fromCertificateArn(
+      this,
+      "Certificate",
+      "arn:aws:acm:us-east-1:359810375642:certificate/60cf86ce-0124-486d-8ca4-cb3bee9cfa97",
+    );
+    const assets = new Bucket(this, { name: "assets", source: "./dist" });
 
-    bucket({ name: "assets" });
+    new Cdn(this, {
+      subdomain: "auth",
+      bucket: assets,
+      certificate,
+    });
   }
 }
 

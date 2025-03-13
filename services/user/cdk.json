@@ -1,5 +1,5 @@
 {
-  "app": "pnpm dlx ts-node --prefer-ts-exts cdk/App.ts",
+  "app": "ts-node cdk/App.ts",
   "watch": {
     "include": ["**"],
     "exclude": [

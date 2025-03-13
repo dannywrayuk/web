@@ -8,8 +8,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "cdk-synth": "cdk synth",
-    "cdk-deploy": "cdk deploy",
-    "cdk-destroy": "cdk destroy"
+    "cdk-deploy": "cdk deploy && pnpm cdk-bucket-sync",
+    "cdk-destroy": "cdk destroy",
+    "cdk-bucket-sync": "ts-node cdk/postDeploy.ts"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -31,6 +32,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
+    "ts-node": "^10.9.2",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0"

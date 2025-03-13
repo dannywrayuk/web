@@ -4,9 +4,9 @@ const hash = (key: any) => {
   const str = JSON.stringify(key);
   return crypto.createHash("md5").update(str).digest("hex");
 };
-export type HashMap = ReturnType<typeof hashMapBuilder>;
+export type HashMap = ReturnType<typeof hashMap>;
 
-export const hashMapBuilder = () => {
+export const hashMap = () => {
   const map = {} as Record<string, any>;
 
   const get = (key: any) => {

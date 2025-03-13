@@ -3,7 +3,7 @@ import {
   aws_lambda as lambda,
 } from "aws-cdk-lib";
 
-export const lambdaAuthorizer = (lambdaFunction: lambda.IFunction) => {
+export const authorizer = (lambdaFunction: lambda.IFunction) => {
   const authorizerName = `LambdaAuthorizer-${lambdaFunction.node.id}`;
   return new apiGwAuth.HttpLambdaAuthorizer(authorizerName, lambdaFunction, {
     authorizerName,
