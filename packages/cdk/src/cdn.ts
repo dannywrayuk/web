@@ -7,8 +7,8 @@ import {
   aws_route53_targets as r53Targets,
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { getConfig } from "./getConfig";
-import { calculateDomain } from "../util/calculateDomain";
+import { getStackConfig } from "./getStackConfig";
+import { calculateDomain } from "./util/calculateDomain";
 
 type CdnConfig = {
   bucket: s3.IBucket;
@@ -25,7 +25,7 @@ export class Cdn extends cf.Distribution {
   private fullDomain?: string;
 
   constructor(scope: Construct, cdnConfig: CdnConfig) {
-    const stackConfig = getConfig(scope);
+    const stackConfig = getStackConfig(scope);
     const config = { addDomainMapping: true, ...stackConfig, ...cdnConfig };
     const fullDomain = calculateDomain(
       config as typeof config & { domainName: string },

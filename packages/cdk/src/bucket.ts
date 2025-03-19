@@ -3,7 +3,7 @@ import { RemovalPolicy, aws_s3 as s3 } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import crypto from "node:crypto";
 import * as fs from "node:fs";
-import { getConfig } from "./getConfig";
+import { getStackConfig } from "./getStackConfig";
 
 type BucketConfig = {
   name: string;
@@ -25,7 +25,7 @@ const createBucketName = (bucketName: string) => {
 
 export class Bucket extends s3.Bucket {
   constructor(scope: Construct, bucketConfig: BucketConfig) {
-    const stackConfig = getConfig(scope);
+    const stackConfig = getStackConfig(scope);
     const config = { ...stackConfig, ...bucketConfig };
 
     const namespace = casing.kebab(`${stackConfig.name}-${bucketConfig.name}`);

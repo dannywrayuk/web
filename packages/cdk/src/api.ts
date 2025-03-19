@@ -1,15 +1,15 @@
 import {
   aws_apigatewayv2 as apiGw,
   aws_apigatewayv2_integrations as apiGwIntegrations,
+  aws_certificatemanager as certMan,
   aws_lambda as lambda,
   aws_route53 as r53,
   aws_route53_targets as r53Targets,
-  aws_certificatemanager as certMan,
 } from "aws-cdk-lib";
-import { getConfig } from "./getConfig";
 import { Construct } from "constructs";
-import { hashMap } from "../util/hashMap";
-import { calculateDomain } from "../util/calculateDomain";
+import { calculateDomain } from "./util/calculateDomain";
+import { hashMap } from "./util/hashMap";
+import { getStackConfig } from "./getStackConfig";
 
 type ApiConfig = {
   endpoints?: Endpoint[];
@@ -26,12 +26,12 @@ export type Endpoint = {
 
 export class Api extends apiGw.HttpApi {
   constructor(scope: Construct, apiConfig: ApiConfig) {
-    const stackConfig = getConfig(scope);
+    const stackConfig = getStackConfig(scope);
     const config = { ...stackConfig, ...apiConfig };
     const apiName = apiConfig.name ? `${apiConfig.name}-api` : "api";
     super(scope, `HttpApi-${apiConfig.name}`, {
       ...apiConfig,
-      apiName,
+      apiName: `${stackConfig.name}-${apiName}-${stackConfig.stage}`,
     });
     if (config.endpoints) {
       this.addEndpoints(config.endpoints);
@@ -66,7 +66,7 @@ export class Api extends apiGw.HttpApi {
     basePath?: string;
     removeStageSubdomain?: boolean;
   }) {
-    const stackConfig = getConfig(this);
+    const stackConfig = getStackConfig(this);
     const config = { ...stackConfig, ...domainMappingConfig };
     if (!config.domainName) {
       return;
@@ -103,7 +103,7 @@ export class Api extends apiGw.HttpApi {
     basePath?: string;
     removeStageSubdomain?: boolean;
   }) {
-    const stackConfig = getConfig(this);
+    const stackConfig = getStackConfig(this);
     const config = { ...stackConfig, ...domainMappingConfig };
     if (!config.domainName) {
       return;

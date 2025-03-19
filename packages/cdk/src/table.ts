@@ -1,6 +1,6 @@
-import { aws_dynamodb as ddb, RemovalPolicy, Stack } from "aws-cdk-lib";
+import { aws_dynamodb as ddb, RemovalPolicy } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { getConfig } from "./getConfig";
+import { getStackConfig } from "./getStackConfig";
 
 type TableConfig = {
   name: string;
@@ -14,7 +14,7 @@ type TableConfig = {
 
 export class Table extends ddb.TableV2 {
   constructor(scope: Construct, tableConfig: TableConfig) {
-    const stackConfig = getConfig(scope);
+    const stackConfig = getStackConfig(scope);
     const config = { ...stackConfig, ...tableConfig };
     const tableName = `${stackConfig.name}-${tableConfig.name}-${stackConfig.stage}`;
 

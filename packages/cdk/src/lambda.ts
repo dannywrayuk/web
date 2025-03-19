@@ -1,21 +1,24 @@
 import {
-  aws_lambda_nodejs as nodeLambda,
   aws_lambda as awsLambda,
+  Duration,
+  aws_iam as iam,
   aws_logs as logs,
+  aws_lambda_nodejs as nodeLambda,
   RemovalPolicy,
 } from "aws-cdk-lib";
-import * as fs from "node:fs";
-import { runtimeConfigBuilder } from "../runtimeConfigBuilder";
-import { generateLambdaTypes } from "../util/generateLambdaTypes";
-import { getConfig } from "./getConfig";
 import { Construct } from "constructs";
+import * as fs from "node:fs";
+import { Config } from "./config";
+import { getStackConfig } from "./getStackConfig";
+import { generateLambdaTypes } from "./util/generateLambdaTypes";
 
 type LambdaConfig = {
   name: string;
-  runtimeConfig?: ReturnType<typeof runtimeConfigBuilder>;
+  runtimeConfig?: Config<any, any>;
   constants?: Record<string, string>;
   generateEnvTypes?: boolean;
-} & nodeLambda.NodejsFunctionProps;
+  timeout?: number | Duration;
+} & Omit<nodeLambda.NodejsFunctionProps, "timeout">;
 
 const findHandler = (handlerName: string) => {
   const basePath = `./src/functions/${handlerName}`;
@@ -30,7 +33,7 @@ const findHandler = (handlerName: string) => {
 
 export class Lambda extends nodeLambda.NodejsFunction {
   constructor(scope: Construct, lambdaConfig: LambdaConfig) {
-    const stackConfig = getConfig(scope);
+    const stackConfig = getStackConfig(scope);
     const config = { ...stackConfig, ...lambdaConfig };
     const namespace = `${stackConfig.name}-${lambdaConfig.name}`;
     const functionName = `${namespace}-${stackConfig.stage}`;
@@ -51,6 +54,10 @@ export class Lambda extends nodeLambda.NodejsFunction {
       functionName,
       entry,
       ...config,
+      timeout:
+        typeof config.timeout === "number"
+          ? Duration.seconds(config.timeout)
+          : config.timeout,
       bundling: {
         define: { "process.env.constants": JSON.stringify(constants) },
       },
@@ -77,5 +84,18 @@ export class Lambda extends nodeLambda.NodejsFunction {
         environment: config.environment,
       });
     }
+  }
+
+  grantSecretRead(secretNames: string[]) {
+    const config = getStackConfig(this);
+    this.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["ssm:GetParameters"],
+        resources: secretNames.map(
+          (secretName) =>
+            `arn:aws:ssm:${config.awsEnv.region}:${config.awsEnv.account}:parameter/${config.stage}/${secretName}`,
+        ),
+      }),
+    );
   }
 }

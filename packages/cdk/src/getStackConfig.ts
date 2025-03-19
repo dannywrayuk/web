@@ -6,7 +6,7 @@ type StackConfig = {
   awsEnv: { account: string; region: string };
 };
 
-export const getConfig = (scope: Construct) => {
+export const getStackConfig = (scope: Construct) => {
   const stackConfig = scope.node.getContext("stackConfig");
   return stackConfig as StackConfig;
 };

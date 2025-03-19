@@ -4,8 +4,7 @@
   "description": "",
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts",
-    "./v2": "./src/v2/index.ts"
+    "./*": "./src/*.ts"
   },
   "scripts": {},
   "dependencies": {},
