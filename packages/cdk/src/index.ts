@@ -1,13 +1,11 @@
 export { Api } from "./api";
-export { authorizer } from "./authorizer";
 export { Bucket } from "./bucket";
 export { Cdn } from "./cdn";
 export { Config } from "./config";
-export { fsRouter } from "./fsRouter";
 export { getStackConfig } from "./getStackConfig";
-export { grantSecretRead } from "./grantSecretRead";
 export { Lambda } from "./lambda";
-export { objectRouter } from "./objectRouter";
 export { Stack } from "./stack";
-export { StackExport, StackReference } from "./stackReference";
+export { StackReference } from "./stackReference";
 export { Table } from "./table";
+export { bindConstructors } from "./util/bindConstructors";
+export { app } from "./app";

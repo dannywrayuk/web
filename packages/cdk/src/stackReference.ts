@@ -1,25 +1,7 @@
-import {
-  Fn,
-  Stack,
-  aws_apigatewayv2 as apiGw,
-  aws_dynamodb as ddb,
-  aws_lambda as lambda,
-  aws_s3 as s3,
-} from "aws-cdk-lib";
+import { Fn } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { getStackConfig } from "./getStackConfig";
-
-const exportName = ({
-  stackName,
-  referenceName,
-  type,
-}: {
-  stackName: string;
-  referenceName: string;
-  type: string;
-}) => {
-  return `Stack:${stackName}:Type:${type}:Ref:${referenceName}`;
-};
+import { exportName } from "./util/exportName";
 
 const importId = ({
   fromStack,
@@ -41,7 +23,7 @@ const createResource = <T>(
 ): T => {
   const referenceValue = Fn.importValue(
     exportName({
-      stackName: stackReference.fromStack,
+      stackName: stackReference.name,
       referenceName,
       type,
     }),
@@ -49,7 +31,7 @@ const createResource = <T>(
   return builder(
     stackReference.scope,
     importId({
-      fromStack: stackReference.fromStack,
+      fromStack: stackReference.name,
       referenceName,
       type,
     }),
@@ -57,105 +39,38 @@ const createResource = <T>(
   );
 };
 
+export type StackReferenceConfig = {
+  name: string;
+  stage?: string | null;
+};
 export class StackReference {
   scope: Construct;
-  fromStack: string;
-  constructor(
-    scope: Construct,
-    config: { fromStack: string; fromStage?: string | null },
-  ) {
+  name: string;
+  constructor(scope: Construct, config: StackReferenceConfig) {
     this.scope = scope;
-    if (config.fromStage === null) {
-      this.fromStack = config.fromStack;
+    if (config.stage === null) {
+      this.name = config.name;
       return;
     }
-    const stage = config.fromStage || getStackConfig(scope).stage;
-    this.fromStack = `${config.fromStack}-${stage}`;
+    const stage = config.stage || getStackConfig(scope).stage;
+    this.name = `${config.name}-${stage}`;
   }
 
-  table(referenceName: string) {
-    return createResource(
-      this,
-      "Table",
-      referenceName,
-      ddb.TableV2.fromTableArn,
+  import<
+    T extends {
+      new (...args: any[]): {
+        typeName: string;
+        fromArn: (
+          scope: Construct,
+          id: string,
+          referenceValue: string,
+        ) => InstanceType<T>;
+      };
+    },
+  >(BaseType: T, referenceName: string) {
+    const instance = new BaseType();
+    return createResource(this, instance.typeName, referenceName, (...args) =>
+      instance.fromArn(...args),
     );
-  }
-
-  lambda(referenceName: string) {
-    return createResource(
-      this,
-      "Lambda",
-      referenceName,
-      lambda.Function.fromFunctionArn,
-    );
-  }
-
-  bucket(referenceName: string) {
-    return createResource(
-      this,
-      "Bucket",
-      referenceName,
-      s3.Bucket.fromBucketArn,
-    );
-  }
-
-  api(referenceName: string) {
-    return createResource(
-      this,
-      "Api",
-      referenceName,
-      (scope: Construct, id: string, referenceValue: string) =>
-        apiGw.HttpApi.fromHttpApiAttributes(scope, id, {
-          httpApiId: referenceValue,
-        }),
-    );
-  }
-}
-
-export class StackExport {
-  stack: Stack;
-  constructor(stack: Stack) {
-    this.stack = stack;
-  }
-
-  table(referenceName: string, table: ddb.TableV2) {
-    this.stack.exportValue(table.tableArn, {
-      name: exportName({
-        stackName: this.stack.stackName,
-        referenceName,
-        type: "Table",
-      }),
-    });
-  }
-
-  lambda(referenceName: string, lambda: lambda.IFunction) {
-    this.stack.exportValue(lambda.functionArn, {
-      name: exportName({
-        stackName: this.stack.stackName,
-        referenceName,
-        type: "Lambda",
-      }),
-    });
-  }
-
-  api(referenceName: string, api: apiGw.HttpApi) {
-    this.stack.exportValue(api.httpApiId, {
-      name: exportName({
-        stackName: this.stack.stackName,
-        referenceName,
-        type: "Api",
-      }),
-    });
-  }
-
-  bucket(referenceName: string, bucket: s3.Bucket) {
-    this.stack.exportValue(bucket.bucketArn, {
-      name: exportName({
-        stackName: this.stack.stackName,
-        referenceName,
-        type: "Bucket",
-      }),
-    });
   }
 }

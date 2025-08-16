@@ -1,8 +1,9 @@
 import { aws_dynamodb as ddb, RemovalPolicy } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { getStackConfig } from "./getStackConfig";
+import { exportName } from "./util/exportName";
 
-type TableConfig = {
+export type TableConfig = {
   name: string;
   gsi?: {
     name: string;
@@ -12,13 +13,23 @@ type TableConfig = {
   }[];
 } & Partial<ddb.TablePropsV2>;
 
-export class Table extends ddb.TableV2 {
-  constructor(scope: Construct, tableConfig: TableConfig) {
+export class Table {
+  public construct: ddb.ITableV2;
+  public typeName = "Table";
+  public name: string;
+
+  constructor();
+  constructor(scope: Construct, tableConfig: TableConfig);
+  constructor(scope?: Construct, tableConfig?: TableConfig) {
+    if (!scope || !tableConfig) {
+      return this;
+    }
     const stackConfig = getStackConfig(scope);
     const config = { ...stackConfig, ...tableConfig };
+    this.name = config.name;
     const tableName = `${stackConfig.name}-${tableConfig.name}-${stackConfig.stage}`;
 
-    super(scope, `Table-${tableConfig.name}`, {
+    const construct = new ddb.TableV2(scope, `Table-${tableConfig.name}`, {
       ...tableConfig,
       tableName,
       partitionKey: { name: "PK", type: ddb.AttributeType.STRING },
@@ -30,7 +41,7 @@ export class Table extends ddb.TableV2 {
     });
 
     tableConfig.gsi?.forEach((index) => {
-      this.addGlobalSecondaryIndex({
+      construct.addGlobalSecondaryIndex({
         indexName: index.name,
         partitionKey: { name: index.PK, type: ddb.AttributeType.STRING },
         sortKey: index.SK
@@ -41,5 +52,30 @@ export class Table extends ddb.TableV2 {
           : ddb.ProjectionType.ALL,
       });
     });
+    this.construct = construct;
+  }
+
+  export(referenceName?: string) {
+    const currentStack = this.construct.stack;
+    currentStack.exportValue(this.construct.tableArn, {
+      name: exportName({
+        stackName: currentStack.stackName,
+        referenceName: referenceName || this.name,
+        type: this.typeName,
+      }),
+    });
+  }
+
+  from(table: ddb.ITableV2) {
+    if (!this.name) {
+      this.name = table.tableName;
+    }
+    this.construct = table;
+    return this;
+  }
+
+  fromArn(scope: Construct, id: string, referenceValue: string) {
+    this.name = referenceValue;
+    return this.from(ddb.TableV2.fromTableArn(scope, id, referenceValue));
   }
 }

@@ -10,7 +10,7 @@ import { Construct } from "constructs";
 import { getStackConfig } from "./getStackConfig";
 import { calculateDomain } from "./util/calculateDomain";
 
-type CdnConfig = {
+export type CdnConfig = {
   bucket: s3.IBucket;
   name?: string;
   domainName?: string;

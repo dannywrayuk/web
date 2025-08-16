@@ -1,11 +1,9 @@
-import {
-  aws_apigatewayv2_authorizers as apiGwAuth,
-  aws_lambda as lambda,
-} from "aws-cdk-lib";
+import { aws_apigatewayv2_authorizers as apiGwAuth } from "aws-cdk-lib";
+import { Lambda } from "./lambda";
 
-export const authorizer = (lambdaFunction: lambda.IFunction) => {
-  const authorizerName = `LambdaAuthorizer-${lambdaFunction.node.id}`;
-  return new apiGwAuth.HttpLambdaAuthorizer(authorizerName, lambdaFunction, {
+export const authorizer = (lambda: Lambda) => {
+  const authorizerName = `LambdaAuthorizer-${lambda.construct.node.id}`;
+  return new apiGwAuth.HttpLambdaAuthorizer(authorizerName, lambda.construct, {
     authorizerName,
     responseTypes: [apiGwAuth.HttpLambdaResponseType.SIMPLE],
     identitySource: ["$request.header.Cookie"],

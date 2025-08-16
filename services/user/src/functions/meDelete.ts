@@ -1,10 +1,10 @@
 import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { getEnv } from "@dannywrayuk/aws/getEnv";
-import { readToken } from "../../../../lib/readToken";
-import { removeUserFromDb } from "../../../../lib/removeUserFromDb";
-import { failure, success } from "../../../../lib/results";
-import { safe } from "../../../../lib/safe/safe";
-import { LambdaEnv } from "./GET-env.gen";
+import { readToken } from "../lib/readToken";
+import { removeUserFromDb } from "../lib/removeUserFromDb";
+import { failure, success } from "../lib/results";
+import { safe } from "../lib/safe/safe";
+import { LambdaEnv } from "./meDelete-env.gen";
 
 const hourInSeconds = 60 * 60;
 const env = getEnv<LambdaEnv>();

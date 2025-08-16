@@ -1,44 +1,60 @@
-import {
-  fsRouter,
-  lambdaAuthorizer,
-  sharedResourcesBuilder,
-  addHttpApiEndpoints,
-} from "@dannywrayuk/cdk";
-import { App, Stack } from "aws-cdk-lib";
-import { Construct } from "constructs";
-import { config, runtimeConfig } from "./config";
+import { app, Config } from "@dannywrayuk/cdk";
 
-class UserStack extends Stack {
-  constructor(scope: Construct) {
-    super(scope, "UserStack", { env: config.awsEnv });
-    const coreStack = sharedResourcesBuilder(this, {
-      ...config,
-      fromStack: "CoreStack",
-    });
+export const config = new Config(
+  {
+    name: "user",
+    domainName: "dannywray.co.uk",
+  },
+  {
+    dev: {},
+    prod: {
+      removeStageSubdomain: true,
+      deletionProtection: true,
+    },
+  },
+);
 
-    const userTable = coreStack.import.table("userTable");
-    const userAuthorizer = lambdaAuthorizer(
-      coreStack.import.lambda("verifyUser"),
-    );
+export const runtimeConfig = new Config(
+  {},
+  {
+    dev: {},
+    prod: {},
+  },
+);
 
-    const coreApi = coreStack.import.httpApi("coreApi");
-    const endpoints = fsRouter(this, {
-      ...config,
-      runtimeConfig,
-      defaultAuthorizer: userAuthorizer,
-      environment: {
-        userTableName: userTable.tableName,
-      },
-    });
+app(config, ({ Api, Lambda, Table, StackReference }) => {
+  const coreStack = new StackReference({ name: "core" });
 
-    addHttpApiEndpoints(this, coreApi, endpoints);
+  const userTable = coreStack.import(Table, "users");
+  const userAuthorizer = coreStack.import(Lambda, "verifyUser").asAuthorizer();
+  const coreApi = coreStack.import(Api, "main");
 
-    endpoints.forEach((endpoint) => {
-      userTable.grantReadWriteData(endpoint.handler);
-    });
-  }
-}
+  const endpoints = [
+    {
+      route: "/user/me",
+      methods: ["GET"],
+      authorizer: userAuthorizer,
+      handler: new Lambda({
+        name: "me",
+        runtimeConfig,
+        environment: {
+          userTableName: userTable.construct.tableName,
+        },
+      }).grantTableReadWrite(userTable),
+    },
+    {
+      route: "/user/me/delete",
+      methods: ["GET"],
+      authorizer: userAuthorizer,
+      handler: new Lambda({
+        name: "meDelete",
+        runtimeConfig,
+        environment: {
+          userTableName: userTable.construct.tableName,
+        },
+      }).grantTableReadWrite(userTable),
+    },
+  ];
 
-const app = new App();
-
-new UserStack(app);
+  coreApi.addEndpoints(endpoints);
+});

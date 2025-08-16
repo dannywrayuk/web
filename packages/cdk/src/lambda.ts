@@ -1,4 +1,5 @@
 import {
+  aws_dynamodb as ddb,
   aws_lambda as awsLambda,
   Duration,
   aws_iam as iam,
@@ -11,8 +12,11 @@ import * as fs from "node:fs";
 import { Config } from "./config";
 import { getStackConfig } from "./getStackConfig";
 import { generateLambdaTypes } from "./util/generateLambdaTypes";
+import { Table } from "./table";
+import { authorizer } from "./authorizer";
+import { exportName } from "./util/exportName";
 
-type LambdaConfig = {
+export type LambdaConfig = {
   name: string;
   runtimeConfig?: Config<any, any>;
   constants?: Record<string, string>;
@@ -31,53 +35,64 @@ const findHandler = (handlerName: string) => {
   return `${basePath}.ts`;
 };
 
-export class Lambda extends nodeLambda.NodejsFunction {
-  constructor(scope: Construct, lambdaConfig: LambdaConfig) {
+export class Lambda {
+  public construct: awsLambda.IFunction;
+  public typeName = "Lambda";
+  public name: string;
+
+  constructor();
+  constructor(scope: Construct, config: LambdaConfig);
+  constructor(scope?: Construct, config?: LambdaConfig) {
+    if (!scope || !config) {
+      return;
+    }
+    this.name = config.name;
     const stackConfig = getStackConfig(scope);
-    const config = { ...stackConfig, ...lambdaConfig };
-    const namespace = `${stackConfig.name}-${lambdaConfig.name}`;
+    const namespace = `${stackConfig.name}-${config.name}`;
     const functionName = `${namespace}-${stackConfig.stage}`;
     const entry = config.entry || findHandler(config.name);
 
     const constants = {
-      stage: config.stage,
+      stage: stackConfig.stage,
       ...config.runtimeConfig?.common,
       ...config.runtimeConfig?.current,
       serviceName: config.name,
       ...config.constants,
-      functionName: lambdaConfig.name,
+      functionName: config.name,
     } as const;
 
-    super(scope, `NodejsFunction-${config.name}`, {
-      architecture: awsLambda.Architecture.ARM_64,
-      runtime: awsLambda.Runtime.NODEJS_22_X,
-      functionName,
-      entry,
-      ...config,
-      timeout:
-        typeof config.timeout === "number"
-          ? Duration.seconds(config.timeout)
-          : config.timeout,
-      bundling: {
-        define: { "process.env.constants": JSON.stringify(constants) },
+    this.construct = new nodeLambda.NodejsFunction(
+      scope,
+      `NodejsFunction-${config.name}`,
+      {
+        architecture: awsLambda.Architecture.ARM_64,
+        runtime: awsLambda.Runtime.NODEJS_22_X,
+        functionName,
+        entry,
+        ...config,
+        timeout:
+          typeof config.timeout === "number"
+            ? Duration.seconds(config.timeout)
+            : config.timeout,
+        bundling: {
+          define: { "process.env.constants": JSON.stringify(constants) },
+        },
       },
-    });
+    );
 
-    new logs.LogGroup(this, `LogGroup-${config.name}`, {
+    new logs.LogGroup(this.construct, `LogGroup-${config.name}`, {
       logGroupName: `/aws/lambda/${functionName}`,
       retention: logs.RetentionDays.TWO_WEEKS,
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
     const generateEnvTypes =
-      config.generateEnvTypes !== undefined
-        ? lambdaConfig.generateEnvTypes
-        : true;
+      config.generateEnvTypes !== undefined ? config.generateEnvTypes : true;
 
     if (generateEnvTypes) {
       generateLambdaTypes({
         entry,
-        stage: config.stage,
+        stage: stackConfig.stage,
         functionName,
         serviceName: stackConfig.name,
         runtimeConfig: config.runtimeConfig,
@@ -86,9 +101,43 @@ export class Lambda extends nodeLambda.NodejsFunction {
     }
   }
 
+  export(referenceName?: string) {
+    const currentStack = this.construct.stack;
+    currentStack.exportValue(this.construct.functionArn, {
+      name: exportName({
+        stackName: currentStack.stackName,
+        referenceName: referenceName || this.name,
+        type: this.typeName,
+      }),
+    });
+  }
+
+  asAuthorizer() {
+    return authorizer(this);
+  }
+
+  from(construct: awsLambda.IFunction) {
+    if (!this.name) {
+      this.name = construct.functionName;
+    }
+    this.construct = construct;
+    return this;
+  }
+  fromArn(scope: Construct, id: string, referenceValue: string) {
+    this.name = referenceValue;
+    return this.from(
+      nodeLambda.NodejsFunction.fromFunctionArn(scope, id, referenceValue),
+    );
+  }
+
+  grantTableReadWrite(table: Table) {
+    table.construct.grantReadWriteData(this.construct);
+    return this;
+  }
+
   grantSecretRead(secretNames: string[]) {
-    const config = getStackConfig(this);
-    this.addToRolePolicy(
+    const config = getStackConfig(this.construct);
+    this.construct.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ["ssm:GetParameters"],
         resources: secretNames.map(
@@ -97,5 +146,6 @@ export class Lambda extends nodeLambda.NodejsFunction {
         ),
       }),
     );
+    return this;
   }
 }

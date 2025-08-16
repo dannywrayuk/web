@@ -18,10 +18,10 @@ export const generateLambdaTypes = ({
   environment?: Record<string, string>;
 }) => {
   let envTypeDef = `${
-    runtimeConfig?.stages
-      .map((stageName) => {
+    runtimeConfig?.stageNames
+      .map((stageName: any) => {
         return `export type LambdaEnv_${stageName} = ${variableToTypeString(
-          runtimeConfig?.byStage(stageName),
+          runtimeConfig?.fromStage(stageName),
           {
             humanReadable: true,
           },
@@ -44,8 +44,8 @@ export type CommonEnv = ${variableToTypeString(
   )};
 
 export type LambdaEnv = CommonEnv & (${
-    runtimeConfig?.stages
-      .map((stageName) => `LambdaEnv_${stageName}`)
+    runtimeConfig?.stageNames
+      .map((stageName: any) => `LambdaEnv_${stageName}`)
       .join(" | ") || "{}"
   });`;
 

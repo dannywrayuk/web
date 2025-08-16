@@ -5,7 +5,7 @@ import crypto from "node:crypto";
 import * as fs from "node:fs";
 import { getStackConfig } from "./getStackConfig";
 
-type BucketConfig = {
+export type BucketConfig = {
   name: string;
   source?: string;
   deletionProtection?: boolean;
