@@ -51,8 +51,13 @@ export class Api {
     this.construct = httpApi;
     return this;
   }
-  fromArn(scope: Construct, id: string, referenceValue: string) {
-    this.name = referenceValue;
+  fromArn(
+    scope: Construct,
+    id: string,
+    referenceValue: string,
+    referenceName: string,
+  ) {
+    this.name = referenceName;
     return this.from(
       apiGw.HttpApi.fromHttpApiAttributes(scope, id, {
         httpApiId: referenceValue,

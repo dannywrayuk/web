@@ -15,30 +15,6 @@ const importId = ({
   return `Imported-${type}-${referenceName}-${fromStack}`;
 };
 
-const createResource = <T>(
-  stackReference: StackReference,
-  type: string,
-  referenceName: string,
-  builder: (scope: Construct, id: string, referenceValue: string) => T,
-): T => {
-  const referenceValue = Fn.importValue(
-    exportName({
-      stackName: stackReference.name,
-      referenceName,
-      type,
-    }),
-  );
-  return builder(
-    stackReference.scope,
-    importId({
-      fromStack: stackReference.name,
-      referenceName,
-      type,
-    }),
-    referenceValue,
-  );
-};
-
 export type StackReferenceConfig = {
   name: string;
   stage?: string | null;
@@ -64,13 +40,28 @@ export class StackReference {
           scope: Construct,
           id: string,
           referenceValue: string,
+          referenceName: string,
         ) => InstanceType<T>;
       };
     },
   >(BaseType: T, referenceName: string) {
     const instance = new BaseType();
-    return createResource(this, instance.typeName, referenceName, (...args) =>
-      instance.fromArn(...args),
+    const referenceValue = Fn.importValue(
+      exportName({
+        stackName: this.name,
+        referenceName,
+        type: instance.typeName,
+      }),
+    );
+    return instance.fromArn(
+      this.scope,
+      importId({
+        fromStack: this.name,
+        referenceName,
+        type: instance.typeName,
+      }),
+      referenceValue,
+      referenceName,
     );
   }
 }

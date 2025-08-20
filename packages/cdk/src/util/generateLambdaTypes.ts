@@ -1,23 +1,19 @@
 import { variableToTypeString } from "./variableToTypeString";
-import * as fs from "node:fs";
-import * as path from "node:path";
 
 export const generateLambdaTypes = ({
-  entry,
   stage,
   functionName,
   serviceName,
   runtimeConfig,
   environment,
 }: {
-  entry: string;
   stage: string;
   functionName: string;
   serviceName: string;
   runtimeConfig: any;
   environment?: Record<string, string>;
 }) => {
-  let envTypeDef = `${
+  return `${
     runtimeConfig?.stageNames
       .map((stageName: any) => {
         return `export type LambdaEnv_${stageName} = ${variableToTypeString(
@@ -48,7 +44,4 @@ export type LambdaEnv = CommonEnv & (${
       .map((stageName: any) => `LambdaEnv_${stageName}`)
       .join(" | ") || "{}"
   });`;
-
-  const entryPath = path.parse(entry);
-  fs.writeFileSync(`${entryPath.dir}/${entryPath.name}-env.gen.ts`, envTypeDef);
 };

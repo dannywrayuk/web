@@ -1,5 +1,4 @@
 import {
-  aws_dynamodb as ddb,
   aws_lambda as awsLambda,
   Duration,
   aws_iam as iam,
@@ -15,6 +14,14 @@ import { generateLambdaTypes } from "./util/generateLambdaTypes";
 import { Table } from "./table";
 import { authorizer } from "./authorizer";
 import { exportName } from "./util/exportName";
+import path from "node:path";
+import {
+  generateTableReadFunctions,
+  generateTableWriteFunctions,
+} from "./util/generateTableFunctions";
+import { removeDuplicateImports } from "./util/removeDuplicateImports";
+import { generateSecretFunctions } from "./util/generateSecretFunctions";
+import { safe } from "./util/safe/safe";
 
 export type LambdaConfig = {
   name: string;
@@ -39,6 +46,7 @@ export class Lambda {
   public construct: awsLambda.IFunction;
   public typeName = "Lambda";
   public name: string;
+  public entry: string;
 
   constructor();
   constructor(scope: Construct, config: LambdaConfig);
@@ -50,7 +58,7 @@ export class Lambda {
     const stackConfig = getStackConfig(scope);
     const namespace = `${stackConfig.name}-${config.name}`;
     const functionName = `${namespace}-${stackConfig.stage}`;
-    const entry = config.entry || findHandler(config.name);
+    this.entry = config.entry || findHandler(config.name);
 
     const constants = {
       stage: stackConfig.stage,
@@ -68,7 +76,7 @@ export class Lambda {
         architecture: awsLambda.Architecture.ARM_64,
         runtime: awsLambda.Runtime.NODEJS_22_X,
         functionName,
-        entry,
+        entry: this.entry,
         ...config,
         timeout:
           typeof config.timeout === "number"
@@ -86,19 +94,15 @@ export class Lambda {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    const generateEnvTypes =
-      config.generateEnvTypes !== undefined ? config.generateEnvTypes : true;
-
-    if (generateEnvTypes) {
+    this.appendToCodeGen(
       generateLambdaTypes({
-        entry,
         stage: stackConfig.stage,
         functionName,
         serviceName: stackConfig.name,
         runtimeConfig: config.runtimeConfig,
         environment: config.environment,
-      });
-    }
+      }),
+    );
   }
 
   export(referenceName?: string) {
@@ -123,15 +127,45 @@ export class Lambda {
     this.construct = construct;
     return this;
   }
-  fromArn(scope: Construct, id: string, referenceValue: string) {
-    this.name = referenceValue;
+  fromArn(
+    scope: Construct,
+    id: string,
+    referenceValue: string,
+    referenceName: string,
+  ) {
+    this.name = referenceName;
     return this.from(
       nodeLambda.NodejsFunction.fromFunctionArn(scope, id, referenceValue),
     );
   }
 
+  appendToCodeGen(str: string) {
+    const entryPath = path.parse(this.entry);
+    const contentRead = safe(fs.readFileSync)(
+      `${entryPath.dir}/${entryPath.name}.gen.ts`,
+    );
+    const content = contentRead.error ? "" : contentRead.result.toString();
+    const newContent = removeDuplicateImports(content + str);
+    fs.writeFileSync(`${entryPath.dir}/${entryPath.name}.gen.ts`, newContent);
+    return this;
+  }
+
   grantTableReadWrite(table: Table) {
     table.construct.grantReadWriteData(this.construct);
+    this.appendToCodeGen(
+      generateTableReadFunctions(table.name) +
+        generateTableWriteFunctions(table.name),
+    );
+    return this;
+  }
+  grantTableRead(table: Table) {
+    table.construct.grantReadData(this.construct);
+    this.appendToCodeGen(generateTableReadFunctions(table.name));
+    return this;
+  }
+  grantTableWrite(table: Table) {
+    table.construct.grantWriteData(this.construct);
+    this.appendToCodeGen(generateTableWriteFunctions(table.name));
     return this;
   }
 
@@ -146,6 +180,7 @@ export class Lambda {
         ),
       }),
     );
+    this.appendToCodeGen(generateSecretFunctions(secretNames));
     return this;
   }
 }

@@ -37,10 +37,14 @@ app(config, ({ Api, Lambda, Table, StackReference }) => {
       handler: new Lambda({
         name: "me",
         runtimeConfig,
-        environment: {
-          userTableName: userTable.construct.tableName,
-        },
-      }).grantTableReadWrite(userTable),
+      })
+        .grantTableReadWrite(userTable)
+        .grantSecretRead([
+          "GITHUB_CLIENT_ID",
+          "GITHUB_CLIENT_SECRET",
+          "AUTH_ACCESS_TOKEN_SIGNING_KEY",
+          "AUTH_REFRESH_TOKEN_SIGNING_KEY",
+        ]),
     },
     {
       route: "/user/me/delete",
@@ -49,9 +53,6 @@ app(config, ({ Api, Lambda, Table, StackReference }) => {
       handler: new Lambda({
         name: "meDelete",
         runtimeConfig,
-        environment: {
-          userTableName: userTable.construct.tableName,
-        },
       }).grantTableReadWrite(userTable),
     },
   ];

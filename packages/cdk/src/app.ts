@@ -10,6 +10,9 @@ export const app = (
   ) => void,
 ) => {
   const awsApp = new App();
+  if (process.env.bundleOff) {
+    awsApp.node.setContext("aws:cdk:bundling-stacks", []);
+  }
   const stack = new Stack(awsApp, config);
   appDefinition({ stack, ...bindConstructors(stack) });
 };

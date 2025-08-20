@@ -74,8 +74,13 @@ export class Table {
     return this;
   }
 
-  fromArn(scope: Construct, id: string, referenceValue: string) {
-    this.name = referenceValue;
+  fromArn(
+    scope: Construct,
+    id: string,
+    referenceValue: string,
+    referenceName: string,
+  ) {
+    this.name = referenceName;
     return this.from(ddb.TableV2.fromTableArn(scope, id, referenceValue));
   }
 }
