@@ -1,38 +1,34 @@
 import { getCookies } from "@dannywrayuk/aws/getCookies";
-import { getEnv } from "@dannywrayuk/aws/getEnv";
-import { getSecrets } from "@dannywrayuk/aws/getSecrets";
-import { verifyToken } from "./lib/verifyToken";
-import { LambdaEnv } from "./verify-env.gen";
+import { getSecrets } from "./verifyUser.gen";
+import * as jwt from "jsonwebtoken";
+import { safe } from "../lib/safe/safe";
 
-const env = getEnv<LambdaEnv>();
-
-const unauthorized = { isAuthorized: false };
+const verifyToken = safe((token: string, signingKey: string) => {
+  const decoded = jwt.verify(token, signingKey);
+  if (typeof decoded === "string") {
+    throw new Error("Invalid token");
+  }
+  return decoded;
+});
 
 export const handler = async (event: any) => {
-  const secrets = await getSecrets(
-    { stage: env.stage },
-    {
-      accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
-    },
-  );
+  const secrets = await getSecrets();
 
-  const cookies = getCookies(event, {
-    accessToken: "access_token",
-  });
+  const cookies = getCookies(event, ["access_token"] as const);
 
-  if (!cookies.accessToken) {
+  if (!cookies.access_token) {
     console.log("No tokens found in cookies");
-    return unauthorized;
+    return { isAuthorized: false };
   }
 
   const accessTokenVerified = verifyToken(
-    cookies.accessToken,
-    secrets.accessTokenSigningKey,
+    cookies.access_token,
+    secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
   );
 
   if (accessTokenVerified.error) {
     console.log("Error verifying access token", accessTokenVerified.error);
-    return unauthorized;
+    return { isAuthorized: false };
   }
 
   return {

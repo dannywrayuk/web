@@ -10,7 +10,9 @@ export const removeDuplicateImports = (code: string): string => {
     },
     { imports: new Set<string>(), lines: [] as string[] },
   );
-  return `${Array.from(processedCode.imports).join("\n")}
+  return processedCode.imports.size
+    ? `${Array.from(processedCode.imports).join("\n")}
 
-${processedCode.lines.join("\n")}`;
+${processedCode.lines.join("\n").trim()}`
+    : processedCode.lines.join("\n").trim();
 };

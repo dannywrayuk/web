@@ -5,10 +5,12 @@
     "cdk-destroy": "cdk destroy"
   },
   "dependencies": {
+    "@dannywrayuk/aws": "workspace:*",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "@dannywrayuk/cdk": "workspace:*",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.10.1",
     "aws-cdk": "^2.171.1",
     "aws-cdk-lib": "^2.171.1",

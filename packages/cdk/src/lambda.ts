@@ -94,6 +94,7 @@ export class Lambda {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    this.clearCodeGen();
     this.appendToCodeGen(
       generateLambdaTypes({
         stage: stackConfig.stage,
@@ -138,7 +139,11 @@ export class Lambda {
       nodeLambda.NodejsFunction.fromFunctionArn(scope, id, referenceValue),
     );
   }
-
+  clearCodeGen() {
+    const entryPath = path.parse(this.entry);
+    fs.writeFileSync(`${entryPath.dir}/${entryPath.name}.gen.ts`, "");
+    return this;
+  }
   appendToCodeGen(str: string) {
     const entryPath = path.parse(this.entry);
     const contentRead = safe(fs.readFileSync)(
