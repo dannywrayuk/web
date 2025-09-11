@@ -1,51 +1,34 @@
-import { dynamoDBTableCRUD } from "@dannywrayuk/aws/dynamoDBTable";
 import { getCookies } from "@dannywrayuk/aws/getCookies";
-import { getSecrets } from "@dannywrayuk/aws/getSecrets";
 import { buildAuthCookies } from "./lib/buildAuthCookies";
 import { calculateCookieDomain } from "./lib/calculateCookieDomain";
-import { getEnv } from "@dannywrayuk/aws/getEnv";
 import { failure, success } from "./lib/results";
 import { verifyToken } from "./lib/verifyToken";
-import { LambdaEnv } from "./refresh-env.gen";
-
-const env = getEnv<LambdaEnv>();
-
-const userTable = dynamoDBTableCRUD(env.userTableName);
+import { getSecrets, env, readUsersEntry } from "./refresh.gen";
 
 export const handler = async (event: any) => {
-  console.log(event);
-  const secrets = await getSecrets(
-    { stage: env.stage },
-    {
-      accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
-      refreshTokenSigningKey: "AUTH_REFRESH_TOKEN_SIGNING_KEY",
-    },
-  );
+  const secrets = await getSecrets();
 
   const tokenSettings = {
     accessToken: {
-      signingKey: secrets.accessTokenSigningKey,
+      signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
       timeout: env.authTokenTimeouts.accessToken,
     },
     refreshToken: {
-      signingKey: secrets.refreshTokenSigningKey,
+      signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
       timeout: env.authTokenTimeouts.refreshToken,
     },
   };
 
-  const cookies = getCookies(event, {
-    accessToken: "access_token",
-    refreshToken: "refresh_token",
-  });
+  const cookies = getCookies(event, ["access_token", "refresh_token"] as const);
 
-  if (!cookies.refreshToken) {
+  if (!cookies.refresh_token) {
     console.log("No refresh token found in cookies");
     return failure();
   }
 
   const refreshTokenVerified = verifyToken(
-    cookies.refreshToken,
-    secrets.refreshTokenSigningKey,
+    cookies.refresh_token,
+    secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
   );
 
   if (refreshTokenVerified.error) {
@@ -55,10 +38,10 @@ export const handler = async (event: any) => {
 
   const refreshTokenData = refreshTokenVerified.result;
 
-  const userQuery = await userTable.read(
-    `USER_ID#${refreshTokenData.sub}`,
-    "RECORD",
-  );
+  const userQuery = await readUsersEntry({
+    PK: `USER_ID#${refreshTokenData.sub}`,
+    SK: "RECORD",
+  });
 
   if (!userQuery?.length) {
     console.log("User not found");

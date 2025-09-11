@@ -16,6 +16,7 @@ import { authorizer } from "./authorizer";
 import { exportName } from "./util/exportName";
 import path from "node:path";
 import {
+  generateTableProperties,
   generateTableReadFunctions,
   generateTableWriteFunctions,
 } from "./util/generateTableFunctions";
@@ -27,7 +28,6 @@ export type LambdaConfig = {
   name: string;
   runtimeConfig?: Config<any, any>;
   constants?: Record<string, string>;
-  generateEnvTypes?: boolean;
   timeout?: number | Duration;
 } & Omit<nodeLambda.NodejsFunctionProps, "timeout">;
 
@@ -157,19 +157,20 @@ export class Lambda {
 
   grantTableReadWrite(table: Table) {
     table.construct.grantReadWriteData(this.construct);
-    this.appendToCodeGen(
-      generateTableReadFunctions(table.name) +
-        generateTableWriteFunctions(table.name),
-    );
+    this.appendToCodeGen(generateTableProperties(table));
+    this.appendToCodeGen(generateTableReadFunctions(table.name));
+    this.appendToCodeGen(generateTableWriteFunctions(table.name));
     return this;
   }
   grantTableRead(table: Table) {
     table.construct.grantReadData(this.construct);
+    this.appendToCodeGen(generateTableProperties(table));
     this.appendToCodeGen(generateTableReadFunctions(table.name));
     return this;
   }
   grantTableWrite(table: Table) {
     table.construct.grantWriteData(this.construct);
+    this.appendToCodeGen(generateTableProperties(table));
     this.appendToCodeGen(generateTableWriteFunctions(table.name));
     return this;
   }

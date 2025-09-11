@@ -26,3 +26,8 @@ export type CommonEnv = {
 };
 
 export type LambdaEnv = CommonEnv & (LambdaEnv_dev | LambdaEnv_prod);
+
+export const env = {
+    ...process.env,
+    ...((process.env.constants || {}) as unknown as object),
+  } as unknown as LambdaEnv;

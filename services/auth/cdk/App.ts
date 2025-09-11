@@ -43,7 +43,7 @@ app(config, ({ StackReference, Lambda, Api, Table }) => {
 
   const userTable = coreStack.import(Table, "users");
 
-  new Api({}).addEndpoints([
+  new Api({ name: "main" }).addEndpoints([
     {
       route: "/login",
       methods: ["GET"],

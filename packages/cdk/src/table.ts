@@ -20,7 +20,7 @@ export class Table {
 
   constructor();
   constructor(scope: Construct, tableConfig: TableConfig);
-  constructor(scope?: Construct, tableConfig?: TableConfig) {
+  constructor(scope?: Construct, tableConfig?: TableConfig | null) {
     if (!scope || !tableConfig) {
       return this;
     }

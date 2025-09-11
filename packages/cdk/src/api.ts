@@ -13,7 +13,7 @@ import { Lambda } from "./lambda";
 import { exportName } from "./util/exportName";
 
 export type ApiConfig = {
-  name?: string;
+  name: string;
 } & Partial<apiGw.HttpApiProps>;
 
 export type Endpoint = {
@@ -36,8 +36,8 @@ export class Api {
       return;
     }
     const stackConfig = getStackConfig(scope);
-    this.name = config.name || "main";
-    const apiName = `${config.name || "main"}-api`;
+    this.name = config.name;
+    const apiName = `${config.name}-api`;
     this.construct = new apiGw.HttpApi(scope, `HttpApi-${apiName}`, {
       ...config,
       apiName: `${stackConfig.name}-${apiName}-${stackConfig.stage}`,
@@ -103,6 +103,7 @@ export class Api {
         );
       });
     });
+    return this;
   }
 
   extendDomainMapping(domainMappingConfig: {
@@ -114,7 +115,7 @@ export class Api {
     const stackConfig = getStackConfig(this.construct);
     const config = { ...stackConfig, ...domainMappingConfig };
     if (!config.domainName) {
-      return;
+      return this;
     }
 
     const hostedZone = r53.HostedZone.fromLookup(this.construct, `HostedZone`, {
@@ -140,6 +141,7 @@ export class Api {
       domainName: domainNameConstruct,
       apiMappingKey: config.basePath,
     });
+    return this;
   }
 
   createDomainMapping(domainMappingConfig: {
@@ -151,7 +153,7 @@ export class Api {
     const stackConfig = getStackConfig(this.construct);
     const config = { ...stackConfig, ...domainMappingConfig };
     if (!config.domainName) {
-      return;
+      return this;
     }
 
     const hostedZone = r53.HostedZone.fromLookup(this.construct, `HostedZone`, {
@@ -192,5 +194,6 @@ export class Api {
         ),
       ),
     });
+    return this;
   }
 }

@@ -1,7 +1,7 @@
 import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { getSecrets } from "./verifyUser.gen";
 import * as jwt from "jsonwebtoken";
-import { safe } from "../lib/safe/safe";
+import { safe } from "@dannywrayuk/safe";
 
 const verifyToken = safe((token: string, signingKey: string) => {
   const decoded = jwt.verify(token, signingKey);

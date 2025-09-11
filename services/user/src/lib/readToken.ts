@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import { safe } from "./safe/safe";
+import { safe } from "@dannywrayuk/safe";
 
 export const readToken = safe((token: string | undefined) => {
   if (!token) {

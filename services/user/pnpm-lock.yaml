@@ -20,6 +20,9 @@ importers:
       '@dannywrayuk/aws':
         specifier: workspace:*
         version: link:../../packages/aws
+      '@dannywrayuk/safe':
+        specifier: workspace:*
+        version: link:../../packages/safe
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
@@ -79,6 +82,12 @@ importers:
       constructs:
         specifier: ^10.4.2
         version: 10.4.2
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
+
+  ../../packages/safe:
     devDependencies:
       '@types/node':
         specifier: ^22.10.1

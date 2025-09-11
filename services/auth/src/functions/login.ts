@@ -1,38 +1,22 @@
-import { dynamoDBTableCRUD } from "@dannywrayuk/aws/dynamoDBTable";
-import { getSecrets } from "@dannywrayuk/aws/getSecrets";
 import { randomUUID } from "crypto";
-import { safe } from "../lib/safe/safe";
 import { buildAuthCookies } from "./lib/buildAuthCookies";
 import { getAccessToken } from "./lib/getAccessToken";
 import { getGithubUserInfo } from "./lib/getGithubUserInfo";
 import { getUserPrimaryVerifiedEmail } from "./lib/getUserPrimaryVerifiedEmail";
 import { failure, success } from "./lib/results";
 import { calculateCookieDomain } from "./lib/calculateCookieDomain";
-import { getEnv } from "@dannywrayuk/aws/getEnv";
-import { LambdaEnv } from "./login-env.gen";
-
-const env = getEnv<LambdaEnv>();
-
-const userTable = dynamoDBTableCRUD(env.userTableName);
+import { getSecrets, readUsersEntry, env, createUsersEntry } from "./login.gen";
+import { safe } from "@dannywrayuk/safe";
 
 export const handler = async (event: any) => {
-  const secrets = await getSecrets(
-    { stage: env.stage },
-    {
-      clientId: "GITHUB_CLIENT_ID",
-      clientSecret: "GITHUB_CLIENT_SECRET",
-      accessTokenSigningKey: "AUTH_ACCESS_TOKEN_SIGNING_KEY",
-      refreshTokenSigningKey: "AUTH_REFRESH_TOKEN_SIGNING_KEY",
-    },
-  );
-
+  const secrets = await getSecrets();
   const tokenSettings = {
     accessToken: {
-      signingKey: secrets.accessTokenSigningKey,
+      signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
       timeout: env.authTokenTimeouts.accessToken,
     },
     refreshToken: {
-      signingKey: secrets.refreshTokenSigningKey,
+      signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
       timeout: env.authTokenTimeouts.refreshToken,
     },
   };
@@ -43,8 +27,8 @@ export const handler = async (event: any) => {
   const getAccessTokenCall = await getAccessToken(
     env.githubUrl,
     code,
-    secrets.clientId,
-    secrets.clientSecret,
+    secrets.GITHUB_CLIENT_ID,
+    secrets.GITHUB_CLIENT_SECRET,
   );
 
   if (getAccessTokenCall.error) {
@@ -73,10 +57,10 @@ export const handler = async (event: any) => {
 
   // Check if the user already has an account
   // If the user has an account, return auth tokens
-  const userIdQuery = await userTable.read(
-    "GITHUB_ID#" + githubUserInfo.id,
-    "USER_ID",
-  );
+  const userIdQuery = await readUsersEntry({
+    PK: "GITHUB_ID#" + githubUserInfo.id,
+    SK: "USER_ID",
+  });
 
   const sessionStarted = Math.round(Date.now() / 1000);
   const cookieDomain = calculateCookieDomain(
@@ -117,10 +101,10 @@ export const handler = async (event: any) => {
 
   const userId = randomUUID();
 
-  const createUserRecordCall = await safe(userTable.create)(
-    `USER_ID#${userId}`,
-    "RECORD",
-    {
+  const createUserRecordCall = await safe(createUsersEntry)({
+    PK: `USER_ID#${userId}`,
+    SK: "RECORD",
+    data: {
       USER_ID: userId,
       EMAIL: email,
       USERNAME: githubUserInfo.login,
@@ -128,21 +112,21 @@ export const handler = async (event: any) => {
       AVATAR_URL: githubUserInfo.avatar_url,
       CREATED_AT: new Date().toISOString(),
     },
-  );
+  });
 
   if (createUserRecordCall.error) {
     console.log("createUserRecordCall.error", createUserRecordCall.error);
     return failure();
   }
 
-  const linkUserGithubCall = await safe(userTable.create)(
-    "GITHUB_ID#" + githubUserInfo.id,
-    "USER_ID#" + userId,
-    {
+  const linkUserGithubCall = await safe(createUsersEntry)({
+    PK: "GITHUB_ID#" + githubUserInfo.id,
+    SK: "USER_ID#" + userId,
+    data: {
       USER_ID: userId,
       GITHUB_ID: githubUserInfo.id,
     },
-  );
+  });
 
   if (linkUserGithubCall.error) {
     return failure();

@@ -3,13 +3,10 @@ import { success } from "./lib/results";
 import { readToken } from "./lib/readToken";
 
 export const handler = async (event: any) => {
-  const cookies = getCookies(event, {
-    accessToken: "access_token",
-    refreshToken: "refresh_token",
-  });
+  const cookies = getCookies(event, ["access_token", "refresh_token"] as const);
 
-  const accessTokenData = readToken(cookies.accessToken);
-  const refreshTokenData = readToken(cookies.refreshToken);
+  const accessTokenData = readToken(cookies.access_token);
+  const refreshTokenData = readToken(cookies.refresh_token);
 
   const clearCookies = [];
   if (!accessTokenData.error && accessTokenData.result?.iss) {

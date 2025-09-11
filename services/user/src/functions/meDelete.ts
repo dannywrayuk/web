@@ -1,13 +1,35 @@
 import { getCookies } from "@dannywrayuk/aws/getCookies";
-import { getEnv } from "@dannywrayuk/aws/getEnv";
 import { readToken } from "../lib/readToken";
-import { removeUserFromDb } from "../lib/removeUserFromDb";
 import { failure, success } from "../lib/results";
-import { safe } from "../lib/safe/safe";
-import { LambdaEnv } from "./meDelete-env.gen";
+import { safe } from "@dannywrayuk/safe";
+import { env, readUsersEntry, usersTableName } from "./meDelete.gen";
+import { dynamoDBClient } from "@dannywrayuk/aws/clients/dynamodb";
+import { BatchWriteCommand } from "@aws-sdk/lib-dynamodb";
+
+export const removeUserFromDb = async (tableName: string, userId: string) => {
+  const userEntries = await readUsersEntry({ PK: `USER_ID#${userId}` });
+  const userMappingEntries = await readUsersEntry({
+    PK: `USER_ID#${userId}`,
+    indexName: "Inverse",
+  });
+  const entries = [...(userEntries || []), ...(userMappingEntries || [])];
+
+  if (entries.length) {
+    await dynamoDBClient.send(
+      new BatchWriteCommand({
+        RequestItems: {
+          [tableName]: entries.map((entry) => ({
+            DeleteRequest: {
+              Key: { PK: entry.PK, SK: entry.SK },
+            },
+          })),
+        },
+      }),
+    );
+  }
+};
 
 const hourInSeconds = 60 * 60;
-const env = getEnv<LambdaEnv>();
 
 export const handler = async (event: any) => {
   const tokenPayload = event.requestContext.authorizer.lambda.tokenPayload;
@@ -18,10 +40,30 @@ export const handler = async (event: any) => {
     return failure();
   }
 
-  const removeUser = await safe(removeUserFromDb)(
-    env.userTableName,
-    tokenPayload.sub,
-  );
+  const removeUser = await safe(async () => {
+    const userEntries = await readUsersEntry({
+      PK: `USER_ID#${tokenPayload.sub}`,
+    });
+    const userMappingEntries = await readUsersEntry({
+      PK: `USER_ID#${tokenPayload.sub}`,
+      indexName: "Inverse",
+    });
+    const entries = [...(userEntries || []), ...(userMappingEntries || [])];
+
+    if (entries.length) {
+      await dynamoDBClient.send(
+        new BatchWriteCommand({
+          RequestItems: {
+            [usersTableName]: entries.map((entry) => ({
+              DeleteRequest: {
+                Key: { PK: entry.PK, SK: entry.SK },
+              },
+            })),
+          },
+        }),
+      );
+    }
+  })();
 
   if (removeUser.error) {
     console.error({
@@ -32,13 +74,10 @@ export const handler = async (event: any) => {
     return failure();
   }
 
-  const cookies = getCookies(event, {
-    accessToken: "access_token",
-    refreshToken: "refresh_token",
-  });
+  const cookies = getCookies(event, ["access_token", "refresh_token"] as const);
 
-  const accessTokenData = readToken(cookies.accessToken);
-  const refreshTokenData = readToken(cookies.refreshToken);
+  const accessTokenData = readToken(cookies.access_token);
+  const refreshTokenData = readToken(cookies.refresh_token);
 
   const clearCookies = [];
   if (!accessTokenData.error && accessTokenData.result?.iss) {

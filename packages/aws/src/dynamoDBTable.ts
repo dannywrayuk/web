@@ -44,14 +44,16 @@ type QueryProps = {
   PK: string;
   SK?: string;
   rangeExpression?: string;
+  indexName?: string;
 };
 
 export const dynamoDBQuery =
   (tableName: string) =>
-  async ({ PK, SK, rangeExpression }: QueryProps) => {
+  async ({ PK, SK, rangeExpression, indexName }: QueryProps) => {
     const response = await dynamoDBClient.send(
       new QueryCommand({
         TableName: tableName,
+        IndexName: indexName,
         KeyConditionExpression:
           "PK = :pk" +
           (SK

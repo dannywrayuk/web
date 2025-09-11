@@ -15,11 +15,11 @@ export const config = new Config(
 );
 
 app(config, ({ Api, Lambda, Table }) => {
-  new Api({}).export();
+  new Api({ name: "main" }).export();
 
   new Table({
     name: "users",
-    gsi: [{ name: "PartitionSortInverse", PK: "SK", SK: "PK" }],
+    gsi: [{ name: "Inverse", PK: "SK", SK: "PK" }],
   }).export();
 
   new Lambda({ name: "verifyUser" })

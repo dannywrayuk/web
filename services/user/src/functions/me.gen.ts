@@ -1,9 +1,4 @@
 import { dynamoDBQuery } from "@dannywrayuk/aws/dynamoDBTable";
-import { dynamoDBPut, dynamoDBDelete, dynamoDBUpdate } from "@dannywrayuk/aws/dynamoDBTable";
-import {readSecret} from "@dannywrayuk/aws/readSecret";
-
-
-
 
 export type LambdaEnv_dev = {} & { stage: "dev" };
 
@@ -21,13 +16,10 @@ export type CommonEnv = {
 
 export type LambdaEnv = CommonEnv & (LambdaEnv_dev | LambdaEnv_prod);
 
-export const readUsers = dynamoDBQuery("users");
+export const env = {
+    ...process.env,
+    ...((process.env.constants || {}) as unknown as object),
+  } as unknown as LambdaEnv;
 
-export const createUsers = dynamoDBPut("users");
-export const updateUsers = dynamoDBUpdate("users");
-export const deleteUsers = dynamoDBDelete("users");
-
-export const getSecrets = () => readSecret(
-    { stage: process.env.stage as string })(
-    ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "AUTH_ACCESS_TOKEN_SIGNING_KEY", "AUTH_REFRESH_TOKEN_SIGNING_KEY"] as const,
-  );
+export const usersTableName = "users";
+export const readUsersEntry = dynamoDBQuery(usersTableName);
