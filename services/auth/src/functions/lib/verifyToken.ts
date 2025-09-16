@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import { safe } from "../../lib/safe/safe";
+import { safe } from "@dannywrayuk/safe";
 
 export const verifyToken = safe((token: string, signingKey: string) => {
   const decoded = jwt.verify(token, signingKey);

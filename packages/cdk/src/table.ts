@@ -17,6 +17,7 @@ export class Table {
   public construct: ddb.ITableV2;
   public typeName = "Table";
   public name: string;
+  public fullName: string;
 
   constructor();
   constructor(scope: Construct, tableConfig: TableConfig);
@@ -27,11 +28,11 @@ export class Table {
     const stackConfig = getStackConfig(scope);
     const config = { ...stackConfig, ...tableConfig };
     this.name = config.name;
-    const tableName = `${stackConfig.name}-${tableConfig.name}-${stackConfig.stage}`;
+    this.fullName = `${stackConfig.name}-${tableConfig.name}-${stackConfig.stage}`;
 
     const construct = new ddb.TableV2(scope, `Table-${tableConfig.name}`, {
       ...tableConfig,
-      tableName,
+      tableName: this.fullName,
       partitionKey: { name: "PK", type: ddb.AttributeType.STRING },
       sortKey: { name: "SK", type: ddb.AttributeType.STRING },
       removalPolicy: config.deletionProtection
@@ -67,9 +68,6 @@ export class Table {
   }
 
   from(table: ddb.ITableV2) {
-    if (!this.name) {
-      this.name = table.tableName;
-    }
     this.construct = table;
     return this;
   }
@@ -79,8 +77,10 @@ export class Table {
     id: string,
     referenceValue: string,
     referenceName: string,
+    fullName: string,
   ) {
     this.name = referenceName;
+    this.fullName = fullName;
     return this.from(ddb.TableV2.fromTableArn(scope, id, referenceValue));
   }
 }

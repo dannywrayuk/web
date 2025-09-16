@@ -22,7 +22,7 @@ export const env = {
     ...((process.env.constants || {}) as unknown as object),
   } as unknown as LambdaEnv;
 
-export const usersTableName = "users";
+export const usersTableName = "core-users-dev";
 export const readUsersEntry = dynamoDBQuery(usersTableName);
 export const createUsersEntry = dynamoDBPut(usersTableName);
 export const updateUsersEntry = dynamoDBUpdate(usersTableName);

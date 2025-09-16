@@ -43,43 +43,45 @@ app(config, ({ StackReference, Lambda, Api, Table }) => {
 
   const userTable = coreStack.import(Table, "users");
 
-  new Api({ name: "main" }).addEndpoints([
-    {
-      route: "/login",
-      methods: ["GET"],
-      handler: new Lambda({
-        name: "login",
-        timeout: 10,
-        runtimeConfig,
-      })
-        .grantTableReadWrite(userTable)
-        .grantSecretRead([
-          "GITHUB_CLIENT_ID",
-          "GITHUB_CLIENT_SECRET",
-          "AUTH_ACCESS_TOKEN_SIGNING_KEY",
-          "AUTH_REFRESH_TOKEN_SIGNING_KEY",
-        ]),
-    },
-    {
-      route: "/refresh",
-      methods: ["GET"],
-      handler: new Lambda({
-        name: "refresh",
-        runtimeConfig,
-      })
-        .grantTableReadWrite(userTable)
-        .grantSecretRead([
-          "AUTH_ACCESS_TOKEN_SIGNING_KEY",
-          "AUTH_REFRESH_TOKEN_SIGNING_KEY",
-        ]),
-    },
-    {
-      route: "/logout",
-      methods: ["GET"],
-      handler: new Lambda({
-        name: "logout",
-        runtimeConfig,
-      }),
-    },
-  ]);
+  new Api({ name: "main" })
+    .createDomainMapping({ subDomain: "auth" })
+    .addEndpoints([
+      {
+        route: "/login",
+        methods: ["GET"],
+        handler: new Lambda({
+          name: "login",
+          timeout: 10,
+          runtimeConfig,
+        })
+          .grantTableReadWrite(userTable)
+          .grantSecretRead([
+            "GITHUB_CLIENT_ID",
+            "GITHUB_CLIENT_SECRET",
+            "AUTH_ACCESS_TOKEN_SIGNING_KEY",
+            "AUTH_REFRESH_TOKEN_SIGNING_KEY",
+          ]),
+      },
+      {
+        route: "/refresh",
+        methods: ["GET"],
+        handler: new Lambda({
+          name: "refresh",
+          runtimeConfig,
+        })
+          .grantTableReadWrite(userTable)
+          .grantSecretRead([
+            "AUTH_ACCESS_TOKEN_SIGNING_KEY",
+            "AUTH_REFRESH_TOKEN_SIGNING_KEY",
+          ]),
+      },
+      {
+        route: "/logout",
+        methods: ["GET"],
+        handler: new Lambda({
+          name: "logout",
+          runtimeConfig,
+        }),
+      },
+    ]);
 });

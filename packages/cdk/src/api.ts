@@ -28,6 +28,7 @@ export class Api {
   public construct: apiGw.IHttpApi;
   public typeName = "Api";
   public name: string;
+  public fullName: string;
 
   constructor();
   constructor(scope: Construct, config: ApiConfig);
@@ -37,17 +38,14 @@ export class Api {
     }
     const stackConfig = getStackConfig(scope);
     this.name = config.name;
-    const apiName = `${config.name}-api`;
-    this.construct = new apiGw.HttpApi(scope, `HttpApi-${apiName}`, {
+    this.fullName = `${stackConfig.name}-${this.name}-api-${stackConfig.stage}`;
+    this.construct = new apiGw.HttpApi(scope, `HttpApi-${this.name}-api`, {
       ...config,
-      apiName: `${stackConfig.name}-${apiName}-${stackConfig.stage}`,
+      apiName: this.fullName,
     });
   }
 
   from(httpApi: apiGw.IHttpApi) {
-    if (!this.name) {
-      this.name = httpApi.node.id;
-    }
     this.construct = httpApi;
     return this;
   }
@@ -56,8 +54,10 @@ export class Api {
     id: string,
     referenceValue: string,
     referenceName: string,
+    fullName: string,
   ) {
     this.name = referenceName;
+    this.fullName = fullName;
     return this.from(
       apiGw.HttpApi.fromHttpApiAttributes(scope, id, {
         httpApiId: referenceValue,

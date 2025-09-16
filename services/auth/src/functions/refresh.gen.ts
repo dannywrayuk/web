@@ -36,13 +36,14 @@ export const env = {
     ...((process.env.constants || {}) as unknown as object),
   } as unknown as LambdaEnv;
 
-export const readUsersEntry = dynamoDBQuery("users");
+export const usersTableName = "core-users-dev";
+export const readUsersEntry = dynamoDBQuery(usersTableName);
+export const createUsersEntry = dynamoDBPut(usersTableName);
+export const updateUsersEntry = dynamoDBUpdate(usersTableName);
+export const deleteUsersEntry = dynamoDBDelete(usersTableName);
 
-export const createUsersEntry = dynamoDBPut("users");
-export const updateUsersEntry = dynamoDBUpdate("users");
-export const deleteUsersEntry = dynamoDBDelete("users");
-
+console.log(env)
 export const getSecrets = () => readSecret(
-    { stage: process.env.stage as string })(
+    { stage: env.stage as string })(
     ["AUTH_ACCESS_TOKEN_SIGNING_KEY", "AUTH_REFRESH_TOKEN_SIGNING_KEY"] as const,
   );

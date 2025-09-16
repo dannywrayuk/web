@@ -1,4 +1,4 @@
-import { safe } from "../../lib/safe/safe";
+import { safe } from "@dannywrayuk/safe";
 
 export const getUserPrimaryVerifiedEmail = safe(
   async (githubApiUrl: string, accessToken: string) => {

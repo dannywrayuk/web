@@ -11,9 +11,10 @@ export type LambdaEnv = CommonEnv & ({});
 export const env = {
     ...process.env,
     ...((process.env.constants || {}) as unknown as object),
-  } as LambdaEnv;
+  } as unknown as LambdaEnv;
 
+console.log(env)
 export const getSecrets = () => readSecret(
-    { stage: process.env.stage as string })(
+    { stage: env.stage as string })(
     ["AUTH_ACCESS_TOKEN_SIGNING_KEY"] as const,
   );

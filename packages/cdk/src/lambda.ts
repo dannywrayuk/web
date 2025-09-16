@@ -46,6 +46,7 @@ export class Lambda {
   public construct: awsLambda.IFunction;
   public typeName = "Lambda";
   public name: string;
+  public fullName: string;
   public entry: string;
 
   constructor();
@@ -56,8 +57,7 @@ export class Lambda {
     }
     this.name = config.name;
     const stackConfig = getStackConfig(scope);
-    const namespace = `${stackConfig.name}-${config.name}`;
-    const functionName = `${namespace}-${stackConfig.stage}`;
+    this.fullName = `${stackConfig.name}-${config.name}-${stackConfig.stage}`;
     this.entry = config.entry || findHandler(config.name);
 
     const constants = {
@@ -75,7 +75,7 @@ export class Lambda {
       {
         architecture: awsLambda.Architecture.ARM_64,
         runtime: awsLambda.Runtime.NODEJS_22_X,
-        functionName,
+        functionName: this.fullName,
         entry: this.entry,
         ...config,
         timeout:
@@ -89,7 +89,7 @@ export class Lambda {
     );
 
     new logs.LogGroup(this.construct, `LogGroup-${config.name}`, {
-      logGroupName: `/aws/lambda/${functionName}`,
+      logGroupName: `/aws/lambda/${this.fullName}`,
       retention: logs.RetentionDays.TWO_WEEKS,
       removalPolicy: RemovalPolicy.DESTROY,
     });
@@ -98,7 +98,7 @@ export class Lambda {
     this.appendToCodeGen(
       generateLambdaTypes({
         stage: stackConfig.stage,
-        functionName,
+        functionName: this.fullName,
         serviceName: stackConfig.name,
         runtimeConfig: config.runtimeConfig,
         environment: config.environment,
@@ -122,9 +122,6 @@ export class Lambda {
   }
 
   from(construct: awsLambda.IFunction) {
-    if (!this.name) {
-      this.name = construct.functionName;
-    }
     this.construct = construct;
     return this;
   }
@@ -133,8 +130,10 @@ export class Lambda {
     id: string,
     referenceValue: string,
     referenceName: string,
+    fullName: string,
   ) {
     this.name = referenceName;
+    this.fullName = fullName;
     return this.from(
       nodeLambda.NodejsFunction.fromFunctionArn(scope, id, referenceValue),
     );

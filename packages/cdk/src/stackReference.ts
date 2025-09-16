@@ -21,15 +21,18 @@ export type StackReferenceConfig = {
 };
 export class StackReference {
   scope: Construct;
+  stackName: string;
   name: string;
+  stage: string;
   constructor(scope: Construct, config: StackReferenceConfig) {
     this.scope = scope;
     if (config.stage === null) {
-      this.name = config.name;
+      this.stackName = config.name;
       return;
     }
-    const stage = config.stage || getStackConfig(scope).stage;
-    this.name = `${config.name}-${stage}`;
+    this.name = config.name;
+    this.stage = config.stage || getStackConfig(scope).stage;
+    this.stackName = `${config.name}-${this.stage}`;
   }
 
   import<
@@ -41,6 +44,7 @@ export class StackReference {
           id: string,
           referenceValue: string,
           referenceName: string,
+          fullName: string,
         ) => InstanceType<T>;
       };
     },
@@ -48,7 +52,7 @@ export class StackReference {
     const instance = new BaseType();
     const referenceValue = Fn.importValue(
       exportName({
-        stackName: this.name,
+        stackName: this.stackName,
         referenceName,
         type: instance.typeName,
       }),
@@ -56,12 +60,13 @@ export class StackReference {
     return instance.fromArn(
       this.scope,
       importId({
-        fromStack: this.name,
+        fromStack: this.stackName,
         referenceName,
         type: instance.typeName,
       }),
       referenceValue,
       referenceName,
+      `${this.name}-${referenceName}-${this.stage}`,
     );
   }
 }

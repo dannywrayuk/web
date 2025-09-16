@@ -2,7 +2,7 @@ import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { readToken } from "../lib/readToken";
 import { failure, success } from "../lib/results";
 import { safe } from "@dannywrayuk/safe";
-import { env, readUsersEntry, usersTableName } from "./meDelete.gen";
+import { readUsersEntry, usersTableName } from "./meDelete.gen";
 import { dynamoDBClient } from "@dannywrayuk/aws/clients/dynamodb";
 import { BatchWriteCommand } from "@aws-sdk/lib-dynamodb";
 

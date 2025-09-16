@@ -15,7 +15,7 @@ export const config = new Config(
 );
 
 app(config, ({ Api, Lambda, Table }) => {
-  new Api({ name: "main" }).export();
+  new Api({ name: "main" }).createDomainMapping({ subDomain: "api" }).export();
 
   new Table({
     name: "users",
