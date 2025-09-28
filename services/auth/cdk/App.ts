@@ -26,12 +26,12 @@ export const runtimeConfig = new Config(
     dev: {
       githubUrl: "https://mock.dannywray.co.uk/github.com",
       githubApiUrl: "https://mock.dannywray.co.uk/api.github.com",
-      cookieStages: ["dev"],
+      allowedOrigins: ["localhost:3000", "dev.dannywray.co.uk"],
     },
     prod: {
       githubUrl: "https://github.com",
       githubApiUrl: "https://api.github.com",
-      cookieStages: ["prod"],
+      allowedOrigins: ["dannywray.co.uk"],
     },
   },
 );
@@ -46,6 +46,22 @@ app(config, ({ StackReference, Lambda, Api, Table }) => {
   new Api({ name: "main" })
     .createDomainMapping({ subDomain: "auth" })
     .addEndpoints([
+      {
+        route: "/token",
+        methods: ["POST"],
+        handler: new Lambda({
+          name: "token",
+          timeout: 10,
+          runtimeConfig,
+        })
+          .grantTableReadWrite(userTable)
+          .grantSecretRead([
+            "GITHUB_CLIENT_ID",
+            "GITHUB_CLIENT_SECRET",
+            "AUTH_ACCESS_TOKEN_SIGNING_KEY",
+            "AUTH_REFRESH_TOKEN_SIGNING_KEY",
+          ]),
+      },
       {
         route: "/login",
         methods: ["GET"],
@@ -67,10 +83,13 @@ app(config, ({ StackReference, Lambda, Api, Table }) => {
         methods: ["GET"],
         handler: new Lambda({
           name: "refresh",
+          timeout: 10,
           runtimeConfig,
         })
           .grantTableReadWrite(userTable)
           .grantSecretRead([
+            "GITHUB_CLIENT_ID",
+            "GITHUB_CLIENT_SECRET",
             "AUTH_ACCESS_TOKEN_SIGNING_KEY",
             "AUTH_REFRESH_TOKEN_SIGNING_KEY",
           ]),
@@ -80,6 +99,7 @@ app(config, ({ StackReference, Lambda, Api, Table }) => {
         methods: ["GET"],
         handler: new Lambda({
           name: "logout",
+          timeout: 10,
           runtimeConfig,
         }),
       },

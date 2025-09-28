@@ -1,13 +1,13 @@
 export type LambdaEnv_dev = {
   githubUrl: string;
   githubApiUrl: string;
-  cookieStages: (string)[];
+  allowedOrigins: (string)[];
 } & { stage: "dev" };
 
 export type LambdaEnv_prod = {
   githubUrl: string;
   githubApiUrl: string;
-  cookieStages: (string)[];
+  allowedOrigins: (string)[];
 } & { stage: "prod" };
 
 export type CommonEnv = {

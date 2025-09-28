@@ -5,13 +5,13 @@ import { readSecret } from "@dannywrayuk/aws/readSecret";
 export type LambdaEnv_dev = {
   githubUrl: string;
   githubApiUrl: string;
-  cookieStages: (string)[];
+  allowedOrigins: (string)[];
 } & { stage: "dev" };
 
 export type LambdaEnv_prod = {
   githubUrl: string;
   githubApiUrl: string;
-  cookieStages: (string)[];
+  allowedOrigins: (string)[];
 } & { stage: "prod" };
 
 export type CommonEnv = {
@@ -45,5 +45,5 @@ export const deleteUsersEntry = dynamoDBDelete(usersTableName);
 console.log(env)
 export const getSecrets = () => readSecret(
     { stage: env.stage as string })(
-    ["AUTH_ACCESS_TOKEN_SIGNING_KEY", "AUTH_REFRESH_TOKEN_SIGNING_KEY"] as const,
+    ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "AUTH_ACCESS_TOKEN_SIGNING_KEY", "AUTH_REFRESH_TOKEN_SIGNING_KEY"] as const,
   );

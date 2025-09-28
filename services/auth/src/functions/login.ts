@@ -1,143 +1,85 @@
-import { randomUUID } from "crypto";
-import { buildAuthCookies } from "./lib/buildAuthCookies";
-import { getAccessToken } from "./lib/getAccessToken";
-import { getGithubUserInfo } from "./lib/getGithubUserInfo";
-import { getUserPrimaryVerifiedEmail } from "./lib/getUserPrimaryVerifiedEmail";
-import { failure, success } from "./lib/results";
-import { calculateCookieDomain } from "./lib/calculateCookieDomain";
-import { getSecrets, readUsersEntry, env, createUsersEntry } from "./login.gen";
-import { safe } from "@dannywrayuk/safe";
+import { authorizationCode } from "./lib/authorizationCode";
+import { env, getSecrets, readUsersEntry, createUsersEntry } from "./login.gen";
+import * as response from "./lib/response";
+import * as userActions from "./lib/userActions";
+import * as githubActions from "./lib/githubActions";
+import { generateToken } from "./lib/tokenActions";
 
 export const handler = async (event: any) => {
   const secrets = await getSecrets();
-  const tokenSettings = {
-    accessToken: {
-      signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
-      timeout: env.authTokenTimeouts.accessToken,
+
+  const currentTime = new Date().toISOString();
+
+  if (!event.queryStringParameters?.code) {
+    return response.badRequest("Missing code");
+  }
+
+  if (
+    !event.headers?.origin ||
+    !env.allowedOrigins.includes(event.headers.origin)
+  ) {
+    return response.forbidden;
+  }
+
+  const [tokens, tokenError] = await authorizationCode({
+    getExternalAccessToken: githubActions.getAccessToken({
+      clientId: secrets.GITHUB_CLIENT_ID,
+      clientSecret: secrets.GITHUB_CLIENT_SECRET,
+      githubOAuthUrl: env.githubUrl,
+      requiredScopes: ["read:user", "user:email"],
+    }),
+    findUserIdByExternalId: userActions.findUserIdByExternalId({
+      readUsersEntry,
+      externalName: "GITHUB",
+    }),
+    createUser: userActions.createUser({
+      createUsersEntry,
+      externalName: "GITHUB",
+    }),
+    getUserInfo: githubActions.getUserInfo({
+      githubApiUrl: env.githubApiUrl,
+    }),
+    getPrimaryEmail: githubActions.getPrimaryEmail({
+      githubApiUrl: env.githubApiUrl,
+    }),
+    accessToken: (userId) =>
+      generateToken(
+        { sub: userId, iss: env.domainName, sessionStarted: currentTime },
+        {
+          signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
+          timeout: env.authTokenTimeouts.accessToken,
+        },
+      ),
+    refreshToken: (userId) =>
+      generateToken(
+        { sub: userId, iss: env.domainName, sessionStarted: currentTime },
+        {
+          signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
+          timeout: env.authTokenTimeouts.refreshToken,
+        },
+      ),
+  })(event.queryStringParameters);
+
+  if (tokenError) {
+    return response.error(tokenError.message);
+  }
+
+  return response.ok(
+    {
+      access_token: tokens.access_token,
+      token_type: "Bearer",
+      expires_in: env.authTokenTimeouts.accessToken,
     },
-    refreshToken: {
-      signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
-      timeout: env.authTokenTimeouts.refreshToken,
-    },
-  };
-
-  const { code } = event.queryStringParameters;
-
-  console.log("Begin getAccessToken");
-  const getAccessTokenCall = await getAccessToken(
-    env.githubUrl,
-    code,
-    secrets.GITHUB_CLIENT_ID,
-    secrets.GITHUB_CLIENT_SECRET,
-  );
-
-  if (getAccessTokenCall.error) {
-    return failure();
-  }
-  console.log("End getAccessToken");
-
-  const { access_token, scope } = getAccessTokenCall.result;
-
-  if (!scope.includes("user:email") && !scope.includes("read:user")) {
-    return failure();
-  }
-
-  console.log("Begin getGithubUserInfo");
-  const getGithubUserInfoCall = await getGithubUserInfo(
-    env.githubApiUrl,
-    access_token,
-  );
-
-  if (getGithubUserInfoCall.error) {
-    return failure();
-  }
-  console.log("End getGithubUserInfo");
-
-  const githubUserInfo = getGithubUserInfoCall.result;
-
-  // Check if the user already has an account
-  // If the user has an account, return auth tokens
-  const userIdQuery = await readUsersEntry({
-    PK: "GITHUB_ID#" + githubUserInfo.id,
-    SK: "USER_ID",
-  });
-
-  const sessionStarted = Math.round(Date.now() / 1000);
-  const cookieDomain = calculateCookieDomain(
-    env.stage,
-    event.headers?.stage,
-    env.cookieStages,
-    env.domainName,
-  );
-
-  if (userIdQuery?.length) {
-    console.log("user already exists");
-    const userId = userIdQuery[0].USER_ID;
-    const authCookies = buildAuthCookies(
-      {
-        sub: userId,
-        iss: cookieDomain,
-        sessionStarted,
+    {
+      headers: {
+        "Access-Control-Allow-Origin": event.headers.origin,
+        "Access-Control-Allow-Credentials": "true",
+        "Cache-Control": "no-store",
+        Pragma: "no-cache",
       },
-      tokenSettings,
-    );
-    return success("hello", {
-      cookies: authCookies,
-    });
-  }
-
-  console.log("Begin getEmail");
-  const getUserPrimaryVerifiedEmailCall = await getUserPrimaryVerifiedEmail(
-    env.githubApiUrl,
-    access_token,
-  );
-
-  if (getUserPrimaryVerifiedEmailCall.error) {
-    return failure();
-  }
-  console.log("End getEmail");
-
-  const email = getUserPrimaryVerifiedEmailCall.result;
-
-  const userId = randomUUID();
-
-  const createUserRecordCall = await safe(createUsersEntry)({
-    PK: `USER_ID#${userId}`,
-    SK: "RECORD",
-    data: {
-      USER_ID: userId,
-      EMAIL: email,
-      USERNAME: githubUserInfo.login,
-      NAME: githubUserInfo.name,
-      AVATAR_URL: githubUserInfo.avatar_url,
-      CREATED_AT: new Date().toISOString(),
+      cookies: [
+        `refresh_token=${tokens.refresh_token}; Max-Age=${env.authTokenTimeouts.refreshToken}; Path=/refresh; HttpOnly; SameSite=None; Secure;`,
+      ],
     },
-  });
-
-  if (createUserRecordCall.error) {
-    console.log("createUserRecordCall.error", createUserRecordCall.error);
-    return failure();
-  }
-
-  const linkUserGithubCall = await safe(createUsersEntry)({
-    PK: "GITHUB_ID#" + githubUserInfo.id,
-    SK: "USER_ID#" + userId,
-    data: {
-      USER_ID: userId,
-      GITHUB_ID: githubUserInfo.id,
-    },
-  });
-
-  if (linkUserGithubCall.error) {
-    return failure();
-  }
-
-  const authCookies = buildAuthCookies(
-    { sub: userId, iss: cookieDomain, sessionStarted },
-    tokenSettings,
   );
-
-  return success("hello", {
-    cookies: authCookies,
-  });
 };

@@ -1,71 +1,63 @@
-import { getCookies } from "@dannywrayuk/aws/getCookies";
-import { buildAuthCookies } from "./lib/buildAuthCookies";
-import { calculateCookieDomain } from "./lib/calculateCookieDomain";
-import { failure, success } from "./lib/results";
-import { verifyToken } from "./lib/verifyToken";
+import { refreshTokens } from "./lib/refreshTokens";
+import { generateToken, verifyToken } from "./lib/tokenActions";
 import { getSecrets, env, readUsersEntry } from "./refresh.gen";
+import * as response from "./lib/response";
+import * as userActions from "./lib/userActions";
+import { getCookies } from "@dannywrayuk/aws/getCookies";
 
 export const handler = async (event: any) => {
   const secrets = await getSecrets();
+  const cookies = getCookies(event, ["refresh_token"] as const);
 
-  const tokenSettings = {
-    accessToken: {
-      signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
-      timeout: env.authTokenTimeouts.accessToken,
-    },
-    refreshToken: {
-      signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
-      timeout: env.authTokenTimeouts.refreshToken,
-    },
-  };
-
-  const cookies = getCookies(event, ["access_token", "refresh_token"] as const);
-
-  if (!cookies.refresh_token) {
-    console.log("No refresh token found in cookies");
-    return failure();
+  if (
+    !event.headers?.origin ||
+    !env.allowedOrigins.includes(event.headers.origin) ||
+    !cookies.refresh_token
+  ) {
+    return response.forbidden;
   }
 
-  const refreshTokenVerified = verifyToken(
-    cookies.refresh_token,
-    secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
-  );
+  const [tokens, tokenError] = await refreshTokens({
+    accessToken: (userId, sessionStarted) =>
+      generateToken(
+        { sub: userId, iss: env.domainName, sessionStarted },
+        {
+          signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
+          timeout: env.authTokenTimeouts.accessToken,
+        },
+      ),
+    refreshToken: (userId, sessionStarted) =>
+      generateToken(
+        { sub: userId, iss: env.domainName, sessionStarted },
+        {
+          signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
+          timeout: env.authTokenTimeouts.refreshToken,
+        },
+      ),
+    verifyRefreshToken: (token: string) =>
+      verifyToken(token, secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY),
+    findUserById: userActions.findUserById({ readUsersEntry }),
+  })({ refresh_token: cookies.refresh_token });
 
-  if (refreshTokenVerified.error) {
-    console.log("Error verifying refresh token", refreshTokenVerified.error);
-    return failure();
+  if (tokenError) {
+    return response.error(tokenError.message);
   }
-
-  const refreshTokenData = refreshTokenVerified.result;
-
-  const userQuery = await readUsersEntry({
-    PK: `USER_ID#${refreshTokenData.sub}`,
-    SK: "RECORD",
-  });
-
-  if (!userQuery?.length) {
-    console.log("User not found");
-    return failure();
-  }
-
-  const cookieDomain = calculateCookieDomain(
-    env.stage,
-    event.headers?.stage,
-    env.cookieStages,
-    env.domainName,
-  );
-  const user = userQuery[0];
-
-  const authCookies = buildAuthCookies(
+  return response.ok(
     {
-      sub: user.USER_ID,
-      iss: cookieDomain,
-      sessionStarted: refreshTokenData.sessionStarted,
+      access_token: tokens.access_token,
+      token_type: "Bearer",
+      expires_in: env.authTokenTimeouts.accessToken,
     },
-    tokenSettings,
+    {
+      headers: {
+        "Access-Control-Allow-Origin": event.headers.origin,
+        "Access-Control-Allow-Credentials": "true",
+        "Cache-Control": "no-store",
+        Pragma: "no-cache",
+      },
+      cookies: [
+        `refresh_token=${tokens.refresh_token}; Max-Age=${env.authTokenTimeouts.refreshToken}; Path=/refresh; HttpOnly; SameSite=None; Secure;`,
+      ],
+    },
   );
-
-  return success("hello", {
-    cookies: authCookies,
-  });
 };
