@@ -20,9 +20,12 @@ importers:
       '@dannywrayuk/aws':
         specifier: workspace:*
         version: link:../../packages/aws
-      '@dannywrayuk/safe':
+      '@dannywrayuk/responses':
         specifier: workspace:*
-        version: link:../../packages/safe
+        version: link:../../packages/responses
+      '@dannywrayuk/results':
+        specifier: workspace:*
+        version: link:../../packages/results
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
@@ -87,7 +90,13 @@ importers:
         specifier: ^22.10.1
         version: 22.10.1
 
-  ../../packages/safe:
+  ../../packages/responses:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
+
+  ../../packages/results:
     devDependencies:
       '@types/node':
         specifier: ^22.10.1

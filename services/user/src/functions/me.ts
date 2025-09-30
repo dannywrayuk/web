@@ -1,4 +1,4 @@
-import { success } from "../lib/results";
+import { ok } from "@dannywrayuk/responses";
 import { readUsersEntry } from "./me.gen";
 
 export const handler = async (event: any) => {
@@ -15,5 +15,5 @@ export const handler = async (event: any) => {
 
   const { PK, SK, ...user } = userData[0];
 
-  return success(user);
+  return ok(user);
 };

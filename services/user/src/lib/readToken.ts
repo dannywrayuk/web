@@ -1,7 +1,7 @@
+import { unsafe } from "@dannywrayuk/results";
 import * as jwt from "jsonwebtoken";
-import { safe } from "@dannywrayuk/safe";
 
-export const readToken = safe((token: string | undefined) => {
+export const readToken = unsafe((token: string | undefined) => {
   if (!token) {
     throw new Error("No token provided");
   }

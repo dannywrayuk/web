@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import { err, ok, unsafe } from "./results";
+import { err, ok, unsafe } from "@dannywrayuk/results";
 
 type TokenSettings = {
   signingKey: string;

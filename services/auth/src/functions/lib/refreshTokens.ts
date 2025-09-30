@@ -1,4 +1,4 @@
-import { AsyncResult, err, ok, Result } from "./results";
+import { AsyncResult, err, ok, Result } from "@dannywrayuk/results";
 
 export const refreshTokens =
   ({

@@ -1,10 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    async function fetchAuth() {
+      const auth = await fetch(
+        "https://auth.dev.dannywray.co.uk/login?code=123",
+        {
+          credentials: "include",
+        },
+      );
+      const data = await auth.json();
+      console.log(data);
+    }
+    fetchAuth();
+  }, []);
+
+  const refresh = async () => {
+    const auth = await fetch("https://auth.dev.dannywray.co.uk/refresh", {
+      credentials: "include",
+    });
+    const data = await auth.json();
+    console.log(data);
+  };
 
   return (
     <>
@@ -18,7 +39,12 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
+        <button
+          onClick={() => {
+            setCount((count) => count + 1);
+            refresh();
+          }}
+        >
           count is {count}
         </button>
         <p>
@@ -29,7 +55,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

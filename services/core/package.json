@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "@dannywrayuk/aws": "workspace:*",
-    "@dannywrayuk/safe": "workspace:*",
+    "@dannywrayuk/results": "workspace:*",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {

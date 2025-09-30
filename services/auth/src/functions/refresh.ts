@@ -1,8 +1,8 @@
 import { refreshTokens } from "./lib/refreshTokens";
-import { generateToken, verifyToken } from "./lib/tokenActions";
+import { generateToken, verifyToken } from "./lib/actions/tokenActions";
 import { getSecrets, env, readUsersEntry } from "./refresh.gen";
-import * as response from "./lib/response";
-import * as userActions from "./lib/userActions";
+import * as response from "@dannywrayuk/responses";
+import * as userActions from "./lib/actions/userActions";
 import { getCookies } from "@dannywrayuk/aws/getCookies";
 
 export const handler = async (event: any) => {

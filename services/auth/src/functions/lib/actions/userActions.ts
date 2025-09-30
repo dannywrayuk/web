@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { err, ok, unsafe } from "./results";
+import { err, ok, unsafe } from "@dannywrayuk/results";
 
 export const findUserIdByExternalId =
   ({

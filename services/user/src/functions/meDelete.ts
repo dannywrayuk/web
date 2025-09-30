@@ -1,10 +1,8 @@
-import { getCookies } from "@dannywrayuk/aws/getCookies";
-import { readToken } from "../lib/readToken";
-import { failure, success } from "../lib/results";
-import { safe } from "@dannywrayuk/safe";
+import { ok, error } from "@dannywrayuk/responses";
 import { readUsersEntry, usersTableName } from "./meDelete.gen";
 import { dynamoDBClient } from "@dannywrayuk/aws/clients/dynamodb";
 import { BatchWriteCommand } from "@aws-sdk/lib-dynamodb";
+import { unsafe } from "@dannywrayuk/results";
 
 export const removeUserFromDb = async (tableName: string, userId: string) => {
   const userEntries = await readUsersEntry({ PK: `USER_ID#${userId}` });
@@ -37,10 +35,10 @@ export const handler = async (event: any) => {
 
   if (sessionLength > hourInSeconds) {
     console.log({ message: "Session too old", sessionLength });
-    return failure();
+    return error();
   }
 
-  const removeUser = await safe(async () => {
+  const [_, removeUserError] = await unsafe(async () => {
     const userEntries = await readUsersEntry({
       PK: `USER_ID#${tokenPayload.sub}`,
     });
@@ -65,46 +63,13 @@ export const handler = async (event: any) => {
     }
   })();
 
-  if (removeUser.error) {
-    console.error({
-      message: "Failed to delete user",
-      error: removeUser.error,
-    });
-
-    return failure();
+  if (removeUserError) {
+    return error();
   }
 
-  const cookies = getCookies(event, ["access_token", "refresh_token"] as const);
-
-  const accessTokenData = readToken(cookies.access_token);
-  const refreshTokenData = readToken(cookies.refresh_token);
-
-  const clearCookies = [];
-  if (!accessTokenData.error && accessTokenData.result?.iss) {
-    clearCookies.push(
-      [
-        `access_token=loggedOut`,
-        `Max-Age=-1`,
-        `Domain=${accessTokenData.result?.iss}`,
-        "HttpOnly",
-        "Secure",
-        "SameSite=Strict",
-        "Path=/",
-      ].join("; "),
-    );
-  }
-
-  if (!refreshTokenData.error && refreshTokenData.result?.iss) {
-    clearCookies.push(
-      [
-        `refresh_token=loggedOut`,
-        `Max-Age=-1`,
-        "HttpOnly",
-        "Secure",
-        "SameSite=Strict",
-        "Path=/",
-      ].join("; "),
-    );
-  }
-  return success("bye", { cookies: clearCookies });
+  return ok("bye", {
+    cookies: [
+      `refresh_token=invalid; Max-Age=-1; Path=/refresh; HttpOnly; SameSite=None; Secure;`,
+    ],
+  });
 };

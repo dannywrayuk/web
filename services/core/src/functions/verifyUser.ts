@@ -1,9 +1,9 @@
 import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { getSecrets } from "./verifyUser.gen";
 import * as jwt from "jsonwebtoken";
-import { safe } from "@dannywrayuk/safe";
+import { unsafe } from "@dannywrayuk/results";
 
-const verifyToken = safe((token: string, signingKey: string) => {
+const verifyToken = unsafe((token: string, signingKey: string) => {
   const decoded = jwt.verify(token, signingKey);
   if (typeof decoded === "string") {
     throw new Error("Invalid token");
@@ -13,7 +13,6 @@ const verifyToken = safe((token: string, signingKey: string) => {
 
 export const handler = async (event: any) => {
   const secrets = await getSecrets();
-
   const cookies = getCookies(event, ["access_token"] as const);
 
   if (!cookies.access_token) {
@@ -21,20 +20,20 @@ export const handler = async (event: any) => {
     return { isAuthorized: false };
   }
 
-  const accessTokenVerified = verifyToken(
+  const [accessTokenVerified, accessTokenVerifiedError] = verifyToken(
     cookies.access_token,
     secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
   );
 
-  if (accessTokenVerified.error) {
-    console.log("Error verifying access token", accessTokenVerified.error);
+  if (accessTokenVerifiedError) {
+    console.log("Error verifying access token", accessTokenVerifiedError);
     return { isAuthorized: false };
   }
 
   return {
     isAuthorized: true,
     context: {
-      tokenPayload: accessTokenVerified.result,
+      tokenPayload: accessTokenVerified,
     },
   };
 };

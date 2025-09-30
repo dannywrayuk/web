@@ -1,4 +1,4 @@
-import { ok } from "./lib/response";
+import { ok } from "@dannywrayuk/responses";
 
 export const handler = async () => {
   return ok("bye", {

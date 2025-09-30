@@ -43,6 +43,12 @@ export function unsafe<T extends (...args: any[]) => any>(fn: T) {
   };
 }
 
+export function unsafeSync<T extends (...args: any[]) => any>(
+  fn: T,
+): (...input: Parameters<T>) => Result<ReturnType<T>>;
+export function unsafeSync<T extends () => any>(
+  fn: T,
+): () => Result<ReturnType<T>>;
 export function unsafeSync<T extends (...args: any[]) => any>(fn: T) {
   return (...input: Parameters<T>) => {
     try {

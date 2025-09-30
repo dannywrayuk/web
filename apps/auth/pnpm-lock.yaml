@@ -105,6 +105,18 @@ importers:
         specifier: ^22.10.1
         version: 22.10.1
 
+  ../../packages/responses:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
+
+  ../../packages/results:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
+
 packages:
 
   /@aws-cdk/asset-awscli-v1@2.2.225:

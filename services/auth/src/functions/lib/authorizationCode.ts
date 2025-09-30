@@ -1,4 +1,4 @@
-import { AsyncResult, err, ok } from "./results";
+import { AsyncResult, err, ok } from "@dannywrayuk/results";
 
 export const authorizationCode =
   ({
@@ -46,6 +46,7 @@ export const authorizationCode =
       if (foundUser) {
         return ok(foundUser);
       }
+
       const [primaryEmail, primaryEmailError] =
         await getPrimaryEmail(externalAccessToken);
       if (primaryEmailError) {
@@ -59,6 +60,7 @@ export const authorizationCode =
       if (createUserError) {
         return err(createUserError);
       }
+
       return ok(createdUser);
     })();
 

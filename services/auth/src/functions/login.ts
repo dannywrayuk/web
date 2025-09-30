@@ -1,9 +1,9 @@
 import { authorizationCode } from "./lib/authorizationCode";
 import { env, getSecrets, readUsersEntry, createUsersEntry } from "./login.gen";
-import * as response from "./lib/response";
-import * as userActions from "./lib/userActions";
-import * as githubActions from "./lib/githubActions";
-import { generateToken } from "./lib/tokenActions";
+import * as response from "@dannywrayuk/responses";
+import * as userActions from "./lib/actions/userActions";
+import * as githubActions from "./lib/actions/githubActions";
+import { generateToken } from "./lib/actions/tokenActions";
 
 export const handler = async (event: any) => {
   const secrets = await getSecrets();

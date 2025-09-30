@@ -1,11 +1,11 @@
-import * as response from "./lib/response";
+import * as response from "@dannywrayuk/responses";
 import { authorizationCode } from "./lib/authorizationCode";
 import { refreshTokens } from "./lib/refreshTokens";
-import { err, ok, unsafeSync } from "./lib/results";
+import { err, ok, unsafeSync } from "@dannywrayuk/results";
 import { createUsersEntry, env, getSecrets, readUsersEntry } from "./token.gen";
-import * as userActions from "./lib/userActions";
-import * as githubActions from "./lib/githubActions";
-import { generateToken, verifyToken } from "./lib/tokenActions";
+import * as userActions from "./lib/actions/userActions";
+import * as githubActions from "./lib/actions/githubActions";
+import { generateToken, verifyToken } from "./lib/actions/tokenActions";
 
 export const handler = async (event: any) => {
   const secrets = await getSecrets();
