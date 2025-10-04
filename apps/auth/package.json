@@ -13,12 +13,15 @@
     "cdk-bucket-sync": "ts-node cdk/postDeploy.ts"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.2",
+    "@tanstack/react-router": "^1.132.33",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@dannywrayuk/cdk": "workspace:*",
     "@eslint/js": "^9.21.0",
+    "@tanstack/router-plugin": "^1.132.33",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.10.1",
     "@types/react": "^19.0.10",

@@ -1,4 +1,3 @@
-import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { getSecrets } from "./verifyUser.gen";
 import * as jwt from "jsonwebtoken";
 import { unsafe } from "@dannywrayuk/results";
@@ -13,15 +12,14 @@ const verifyToken = unsafe((token: string, signingKey: string) => {
 
 export const handler = async (event: any) => {
   const secrets = await getSecrets();
-  const cookies = getCookies(event, ["access_token"] as const);
-
-  if (!cookies.access_token) {
-    console.log("No tokens found in cookies");
+  const access_token = event.identitySource?.[0].split(" ")[1];
+  if (!access_token) {
+    console.log("No access token provided");
     return { isAuthorized: false };
   }
 
   const [accessTokenVerified, accessTokenVerifiedError] = verifyToken(
-    cookies.access_token,
+    access_token,
     secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
   );
 

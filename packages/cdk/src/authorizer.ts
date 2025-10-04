@@ -6,6 +6,6 @@ export const authorizer = (lambda: Lambda) => {
   return new apiGwAuth.HttpLambdaAuthorizer(authorizerName, lambda.construct, {
     authorizerName,
     responseTypes: [apiGwAuth.HttpLambdaResponseType.SIMPLE],
-    identitySource: ["$request.header.Cookie"],
+    identitySource: ["$request.header.Authorization"],
   });
 };
