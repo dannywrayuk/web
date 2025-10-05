@@ -1,5 +1,5 @@
+import { createContext, useContext } from "react";
 import React, { useEffect } from "react";
-import { authContext } from "./useAuth";
 
 type AuthResponse = {
   access_token: string;
@@ -79,3 +79,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     </authContext.Provider>
   );
 };
+
+type AuthContext = {
+  loggedIn: boolean;
+  login: (code: string) => Promise<void>;
+  refresh: () => Promise<{ value: string } | null>;
+  logout: () => Promise<void>;
+};
+
+export const authContext = createContext({} as AuthContext);
+
+export const useAuth = () => useContext(authContext);

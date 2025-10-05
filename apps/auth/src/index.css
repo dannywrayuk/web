@@ -1,1 +1,47 @@
 @import "tailwindcss";
+
+html[colorMode="light"] {
+  --color-bg-l0: #ffffff;
+  --color-bg-l1: #f5f8fa;
+  --color-bg-l2: #e7ebee;
+  --color-bg-l3: #d0d7de;
+  --color-fg-u0: #24292f;
+  --color-fg-u1: #57606a;
+  --color-fg-u2: #6e7781;
+  --color-link-default: inherit;
+  --color-overlay-default: #aaaaaa44;
+}
+
+html[colorMode="dark"] {
+  --color-bg-l0: #0e1117;
+  --color-bg-l1: #161b22;
+  --color-bg-l2: #343941;
+  --color-bg-l3: #30363d;
+  --color-fg-u0: #c9d1d9;
+  --color-fg-u1: #8b949e;
+  --color-fg-u2: #6e7681;
+  --color-link-default: #ffca1e;
+  --color-overlay-default: #24242488;
+}
+
+@theme {
+  --color-dw: #ffca1e;
+  --color-overlay0: var(--color-overlay-default);
+  --color-link: var(--color-fg-link);
+
+  --color-l0: var(--color-bg-l0);
+  --color-l1: var(--color-bg-l1);
+  --color-l2: var(--color-bg-l2);
+  --color-l3: var(--color-bg-l3);
+
+  --color-u0: var(--color-fg-u0);
+  --color-u1: var(--color-fg-u1);
+  --color-u2: var(--color-fg-u2);
+
+  --color-github: #2f2f2f;
+}
+
+html {
+  color: var(--color-fg-u0);
+  background-color: var(--color-bg-l0);
+}
