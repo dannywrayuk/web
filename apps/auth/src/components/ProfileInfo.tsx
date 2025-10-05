@@ -18,7 +18,7 @@ export const ProfileInfo = () => {
 
   return (
     <div className="flex flex-col items-center justify-center mt-20">
-      <div className="flex flex-col bg-l1 border-1 border-l3 p-8 rounded-lg w-full max-w-md min-h-[600px]">
+      <div className="flex flex-col justify-between bg-l1 border-1 border-l3 p-8 rounded-lg w-full max-w-md min-h-[600px]">
         <h1 className="text-u0 text-4xl font-bold">Account</h1>
         <div className="flex flex-col items-center">
           <img
@@ -33,7 +33,7 @@ export const ProfileInfo = () => {
           </p>
         </div>
         <button
-          className="text-u0 bg-l2 px-4 py-2 rounded-lg w-full text-center mt-4 inline-block mt-auto hover:bg-red-900"
+          className="text-u0 bg-l2 px-4 py-2 rounded-lg w-full text-center mt-4 inline-block mt-20 hover:bg-red-900"
           onClick={logout}
         >
           logout
