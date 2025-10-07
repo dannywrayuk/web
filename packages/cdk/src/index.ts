@@ -9,3 +9,4 @@ export { StackReference } from "./stackReference";
 export { Table } from "./table";
 export { bindConstructors } from "./util/bindConstructors";
 export { app } from "./app";
+export { Certificate } from "./certificate";

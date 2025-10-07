@@ -1,5 +1,5 @@
 {
-  "name": "auth",
+  "name": "account",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "cdk-synth": "cdk synth",
-    "cdk-deploy": "cdk deploy && pnpm cdk-bucket-sync",
+    "cdk-deploy": "pnpm build && cdk deploy && pnpm cdk-bucket-sync",
     "cdk-destroy": "cdk destroy",
     "cdk-bucket-sync": "ts-node cdk/postDeploy.ts"
   },

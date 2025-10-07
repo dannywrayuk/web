@@ -112,6 +112,9 @@ importers:
       '@dannywrayuk/casing':
         specifier: ^1.0.4
         version: 1.0.4
+      '@dannywrayuk/results':
+        specifier: workspace:*
+        version: link:../results
       aws-cdk-lib:
         specifier: ^2.171.1
         version: 2.171.1(constructs@10.4.2)

@@ -44,4 +44,5 @@ html[colorMode="dark"] {
 html {
   color: var(--color-fg-u0);
   background-color: var(--color-bg-l0);
+  background-image: url("/img/random-shapes.svg");
 }

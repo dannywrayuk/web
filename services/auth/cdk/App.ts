@@ -26,12 +26,15 @@ export const runtimeConfig = new Config(
     dev: {
       githubUrl: "https://mock.dannywray.co.uk/github.com",
       githubApiUrl: "https://mock.dannywray.co.uk/api.github.com",
-      allowedOrigins: ["http://localhost:5173", "https://dev.dannywray.co.uk"],
+      allowedOrigins: [
+        "http://localhost:5173",
+        "https://account.dev.dannywray.co.uk",
+      ],
     },
     prod: {
       githubUrl: "https://github.com",
       githubApiUrl: "https://api.github.com",
-      allowedOrigins: ["https://dannywray.co.uk"],
+      allowedOrigins: ["https://account.dannywray.co.uk"],
     },
   },
 );

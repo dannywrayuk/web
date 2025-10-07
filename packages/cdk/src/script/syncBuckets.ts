@@ -1,5 +1,5 @@
 import * as fs from "node:fs";
-import { safe } from "./util/safe/safe";
+import { unsafe } from "@dannywrayuk/results";
 import { execSync } from "node:child_process";
 
 export const syncBuckets = () => {
@@ -13,8 +13,14 @@ export const syncBuckets = () => {
     );
     console.log(`Syncing ${source} to ${bucketName}`);
 
-    safe(execSync)(`aws s3 sync ${source} s3://${bucketName}`, {
-      stdio: "inherit",
-    });
+    const [_, syncError] = unsafe(execSync)(
+      `aws s3 sync ${source} s3://${bucketName}`,
+      {
+        stdio: "inherit",
+      },
+    );
+    if (syncError) {
+      console.error("Error syncing, ", syncError.message);
+    }
   });
 };

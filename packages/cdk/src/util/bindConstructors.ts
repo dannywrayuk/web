@@ -5,6 +5,7 @@ import { Bucket, BucketConfig } from "../bucket";
 import { Api, ApiConfig } from "../api";
 import { Cdn, CdnConfig } from "../cdn";
 import { Table, TableConfig } from "../table";
+import { Certificate, CertificateConfig } from "../certificate";
 
 export const bindConstructors = (scope: Construct) => ({
   Api: class extends Api {
@@ -14,6 +15,11 @@ export const bindConstructors = (scope: Construct) => ({
   },
   Bucket: class extends Bucket {
     constructor(config: BucketConfig) {
+      super(scope, config);
+    }
+  },
+  Certificate: class extends Certificate {
+    constructor(config: CertificateConfig) {
       super(scope, config);
     }
   },
