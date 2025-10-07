@@ -14,7 +14,7 @@ function RouteComponent() {
   }
   return (
     <div className="flex flex-col items-center justify-center mt-20">
-      <div className="bg-l1 border-1 border-l3 p-8 rounded-lg w-full max-w-md min-h-[600px]">
+      <div className="bg-l1 border-1 border-l3 p-8 rounded-lg w-full max-w-md">
         <h1 className="text-u0 text-4xl font-bold">Account</h1>
         <p className="mt-8">
           Sign in and manage your account. Or create one if you don't have one

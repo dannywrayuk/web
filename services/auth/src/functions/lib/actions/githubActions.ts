@@ -1,4 +1,6 @@
-import { err, ok, unsafe } from "@dannywrayuk/results";
+import { err, ok } from "@dannywrayuk/results";
+import { validatedFetch } from "./customFetch";
+import { z } from "zod";
 
 export const getAccessToken =
   ({
@@ -13,90 +15,91 @@ export const getAccessToken =
     requiredScopes?: string[];
   }) =>
   async (code: string) => {
-    const [accessResponse, accessResponseError] = await unsafe(fetch)(
-      `${githubOAuthUrl}/login/oauth/access_token`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-        },
-        body: JSON.stringify({
-          client_id: clientId,
-          client_secret: clientSecret,
-          code,
+    const [accessResponse, accessResponseError] = await validatedFetch(
+      z.object({
+        status: z.literal(200),
+        body: z.object({
+          access_token: z.string(),
+          scope: z.string(),
+          token_type: z.string(),
         }),
+      }),
+    )(`${githubOAuthUrl}/login/oauth/access_token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "application/json",
       },
-    );
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code,
+      }),
+    });
+
     if (accessResponseError) {
       return err(accessResponseError, "fetching access token");
     }
-    const [accessResponseData, accessResponseDataError] = await unsafe(() =>
-      accessResponse.json(),
-    )();
-    if (accessResponseDataError) {
-      return err(accessResponseDataError, "parsing access token response");
-    }
+
     if (
       requiredScopes?.length &&
       !requiredScopes.every((requiredScope) =>
-        accessResponseData.scope?.includes(requiredScope),
+        accessResponse.body.scope?.includes(requiredScope),
       )
     ) {
       return err("required scopes not met");
     }
 
-    if (!accessResponseData.access_token) {
+    if (!accessResponse.body.access_token) {
       return err("Invalid access token response. Could not parse json");
     }
-    return ok(accessResponseData.access_token);
+    return ok(accessResponse.body.access_token);
   };
 
 export const getUserInfo =
   ({ githubApiUrl }: { githubApiUrl: string }) =>
   async (accessToken: string) => {
-    const [userResponse, userResponseError] = await unsafe(fetch)(
-      `${githubApiUrl}/user`,
-      {
-        headers: {
-          Authorization: `token ${accessToken}`,
-        },
+    const [userResponse, userResponseError] = await validatedFetch(
+      z.object({
+        status: z.literal(200),
+        body: z.object({ id: z.number() }),
+      }),
+    )(`${githubApiUrl}/user`, {
+      headers: {
+        Authorization: `token ${accessToken}`,
       },
-    );
+    });
     if (userResponseError) {
       return err(userResponseError, "fetching user info");
     }
 
-    const [user, userError] = await unsafe(() => userResponse.json())();
-
-    if (userError) {
-      return err(userError, "parsing user info response");
-    }
-
-    return ok(user);
+    return ok({ ...userResponse.body, id: String(userResponse.body.id) });
   };
 
 export const getPrimaryEmail =
   ({ githubApiUrl }: { githubApiUrl: string }) =>
   async (accessToken: string) => {
-    const [emailResponse, emailResponseError] = await unsafe(fetch)(
-      `${githubApiUrl}/user/emails`,
-      {
-        headers: {
-          Authorization: `token ${accessToken}`,
-        },
+    const [emailResponse, emailResponseError] = await validatedFetch(
+      z.object({
+        status: z.literal(200),
+        body: z.array(
+          z.object({
+            primary: z.boolean(),
+            verified: z.boolean(),
+            email: z.string(),
+          }),
+        ),
+      }),
+    )(`${githubApiUrl}/user/emails`, {
+      headers: {
+        Authorization: `token ${accessToken}`,
       },
-    );
+    });
     if (emailResponseError) {
       return err(emailResponseError, "fetching user emails");
     }
 
-    const [emails, emailsError] = await unsafe(() => emailResponse.json())();
-    if (emailsError) {
-      return err(emailsError, "parsing user emails response");
-    }
-
-    const email = emails?.find(
+    const email = emailResponse.body.find(
       (email: any) => email.primary && email.verified,
     )?.email;
     if (!email) {

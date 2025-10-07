@@ -24,6 +24,7 @@ export function error(message?: string) {
   return {
     statusCode: 500,
     headers: {
+      "Access-Control-Allow-Origin": "*",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -36,6 +37,7 @@ export function badRequest(message?: string) {
   return {
     statusCode: 400,
     headers: {
+      "Access-Control-Allow-Origin": "*",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({

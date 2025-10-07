@@ -42,7 +42,7 @@ export const createUsersEntry = dynamoDBPut(usersTableName);
 export const updateUsersEntry = dynamoDBUpdate(usersTableName);
 export const deleteUsersEntry = dynamoDBDelete(usersTableName);
 
-console.log(env)
+
 export const getSecrets = () => readSecret(
     { stage: env.stage as string })(
     ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "AUTH_ACCESS_TOKEN_SIGNING_KEY", "AUTH_REFRESH_TOKEN_SIGNING_KEY"] as const,
