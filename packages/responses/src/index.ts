@@ -1,7 +1,10 @@
+import { logger } from "@dannywrayuk/logger";
+
 export function ok(
   data?: any,
   response?: { headers?: Record<string, string>; cookies?: string[] },
 ) {
+  logger.info("success").debug("response data", { data, response });
   if (!data)
     return {
       statusCode: 200,
@@ -21,6 +24,7 @@ export function ok(
 }
 
 export function error(message?: string) {
+  logger.error(message || "There was an error");
   return {
     statusCode: 500,
     headers: {
@@ -34,6 +38,7 @@ export function error(message?: string) {
 }
 
 export function badRequest(message?: string) {
+  logger.error(message || "bad request");
   return {
     statusCode: 400,
     headers: {
@@ -46,7 +51,10 @@ export function badRequest(message?: string) {
   };
 }
 
-export const forbidden = {
-  statusCode: 403,
-  body: "forbidden",
-};
+export function forbidden() {
+  logger.error("forbidden");
+  return {
+    statusCode: 403,
+    body: "forbidden",
+  };
+}

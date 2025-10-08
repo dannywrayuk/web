@@ -64,7 +64,7 @@ export class Lambda {
       stage: stackConfig.stage,
       ...config.runtimeConfig?.common,
       ...config.runtimeConfig?.current,
-      serviceName: config.name,
+      serviceName: stackConfig.name,
       ...config.constants,
       functionName: config.name,
     } as const;

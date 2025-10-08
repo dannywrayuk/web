@@ -50,7 +50,6 @@ export class Bucket {
       removalPolicy: config.deletionProtection
         ? RemovalPolicy.RETAIN
         : RemovalPolicy.DESTROY,
-      autoDeleteObjects: !config.deletionProtection,
     });
 
     if (bucketConfig.source) {

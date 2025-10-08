@@ -1,3 +1,2 @@
-- do i want to validate the output of the github call? this would help with types on the return value, could have that embedded as a custom fetch function??
 - logger?
 - really need a better access control system

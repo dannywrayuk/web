@@ -1,5 +1,5 @@
 import { err, ok } from "@dannywrayuk/results";
-import { validatedFetch } from "./customFetch";
+import { validatedFetch } from "@dannywrayuk/validatedFetch";
 import { z } from "zod";
 
 export const getAccessToken =

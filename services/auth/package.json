@@ -11,6 +11,8 @@
     "@dannywrayuk/aws": "workspace:*",
     "@dannywrayuk/responses": "workspace:*",
     "@dannywrayuk/results": "workspace:*",
+    "@dannywrayuk/validatedFetch": "workspace:*",
+    "@dannywrayuk/logger": "workspace:*",
     "jsonwebtoken": "^9.0.2",
     "typescript": "^5.7.3",
     "zod": "^4.1.12"

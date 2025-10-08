@@ -1,5 +1,5 @@
 {
-  "name": "@dannywrayuk/responses",
+  "name": "@dannywrayuk/logger",
   "version": "1.0.0",
   "description": "",
   "exports": {
@@ -7,9 +7,7 @@
     "./*": "./src/*.ts"
   },
   "scripts": {},
-  "dependencies": {
-    "@dannywrayuk/logger": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^22.10.1"
   },

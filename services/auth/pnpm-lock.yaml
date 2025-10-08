@@ -20,12 +20,18 @@ importers:
       '@dannywrayuk/aws':
         specifier: workspace:*
         version: link:../../packages/aws
+      '@dannywrayuk/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@dannywrayuk/responses':
         specifier: workspace:*
         version: link:../../packages/responses
       '@dannywrayuk/results':
         specifier: workspace:*
         version: link:../../packages/results
+      '@dannywrayuk/validatedFetch':
+        specifier: workspace:*
+        version: link:../../packages/validatedFetch
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
@@ -82,6 +88,9 @@ importers:
       '@dannywrayuk/casing':
         specifier: ^1.0.4
         version: 1.0.4
+      '@dannywrayuk/results':
+        specifier: workspace:*
+        version: link:../results
       aws-cdk-lib:
         specifier: ^2.171.1
         version: 2.171.1(constructs@10.4.2)
@@ -93,13 +102,36 @@ importers:
         specifier: ^22.10.1
         version: 22.10.1
 
+  ../../packages/logger:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
+
   ../../packages/responses:
+    dependencies:
+      '@dannywrayuk/logger':
+        specifier: workspace:*
+        version: link:../logger
     devDependencies:
       '@types/node':
         specifier: ^22.10.1
         version: 22.10.1
 
   ../../packages/results:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
+
+  ../../packages/validatedFetch:
+    dependencies:
+      '@dannywrayuk/results':
+        specifier: workspace:*
+        version: link:../results
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@types/node':
         specifier: ^22.10.1

@@ -4,10 +4,23 @@ import * as response from "@dannywrayuk/responses";
 import * as userActions from "./lib/actions/userActions";
 import * as githubActions from "./lib/actions/githubActions";
 import { generateToken } from "./lib/actions/tokenActions";
+import { logger } from "@dannywrayuk/logger";
 
 export const handler = async (event: any) => {
-  const secrets = await getSecrets();
+  logger
+    .setDebug(env.stage === "dev")
+    .attach({
+      name: env.functionName,
+      service: env.serviceName,
+      stage: env.stage,
+    })
+    .debug("input", {
+      queryParams: event.queryStringParameters,
+      headers: event.headers,
+    })
+    .info("start");
 
+  const secrets = await getSecrets();
   const currentTime = new Date().toISOString();
 
   if (!event.queryStringParameters?.code) {
@@ -18,7 +31,7 @@ export const handler = async (event: any) => {
     !event.headers?.origin ||
     !env.allowedOrigins.includes(event.headers.origin)
   ) {
-    return response.forbidden;
+    return response.forbidden();
   }
 
   const [tokens, tokenError] = await authorizationCode({

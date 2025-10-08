@@ -4,8 +4,21 @@ import { getSecrets, env, readUsersEntry } from "./refresh.gen";
 import * as response from "@dannywrayuk/responses";
 import * as userActions from "./lib/actions/userActions";
 import { getCookies } from "@dannywrayuk/aws/getCookies";
+import { logger } from "@dannywrayuk/logger";
 
 export const handler = async (event: any) => {
+  logger
+    .setDebug(env.stage === "dev")
+    .attach({
+      name: env.functionName,
+      service: env.serviceName,
+      stage: env.stage,
+    })
+    .debug("input", {
+      headers: event.headers,
+    })
+    .info("start");
+
   const secrets = await getSecrets();
   const cookies = getCookies(event, ["refresh_token"] as const);
 
@@ -14,7 +27,7 @@ export const handler = async (event: any) => {
     !env.allowedOrigins.includes(event.headers.origin) ||
     !cookies.refresh_token
   ) {
-    return response.forbidden;
+    return response.forbidden();
   }
 
   const [tokens, tokenError] = await refreshTokens({
@@ -42,6 +55,7 @@ export const handler = async (event: any) => {
   if (tokenError) {
     return response.error(tokenError.message);
   }
+
   return response.ok(
     {
       access_token: tokens.access_token,

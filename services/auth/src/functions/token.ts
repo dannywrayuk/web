@@ -6,8 +6,22 @@ import { createUsersEntry, env, getSecrets, readUsersEntry } from "./token.gen";
 import * as userActions from "./lib/actions/userActions";
 import * as githubActions from "./lib/actions/githubActions";
 import { generateToken, verifyToken } from "./lib/actions/tokenActions";
+import { logger } from "@dannywrayuk/logger";
 
 export const handler = async (event: any) => {
+  logger
+    .setDebug(env.stage === "dev")
+    .attach({
+      name: env.functionName,
+      service: env.serviceName,
+      stage: env.stage,
+    })
+    .debug("input", {
+      headers: event.headers,
+      body: event.body,
+    })
+    .info("start");
+
   const secrets = await getSecrets();
   const headers = event.headers;
   const contentType = headers["Content-Type"] || headers["content-type"];
@@ -31,11 +45,15 @@ export const handler = async (event: any) => {
   if (bodyError) {
     return response.badRequest(bodyError.message);
   }
+
+  logger.debug("body", body);
+
   if (!body.grant_type) {
     return response.badRequest("Missing grant_type");
   }
 
   if (body.grant_type == "authorization_code") {
+    logger.info("authorization_code");
     const currentTime = new Date().toISOString();
 
     const [tokens, tokenError] = await authorizationCode({
@@ -95,6 +113,7 @@ export const handler = async (event: any) => {
     );
   }
   if (body.grant_type === "refresh_token") {
+    logger.info("refresh_token");
     const [tokens, tokenError] = await refreshTokens({
       accessToken: (userId, sessionStarted) =>
         generateToken(
