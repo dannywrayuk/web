@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "@dannywrayuk/aws": "workspace:*",
+    "@dannywrayuk/logger": "workspace:*",
     "@dannywrayuk/responses": "workspace:*",
     "@dannywrayuk/results": "workspace:*",
     "@aws-sdk/client-dynamodb": "^3.721.0",

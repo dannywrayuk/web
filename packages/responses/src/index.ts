@@ -51,6 +51,20 @@ export function badRequest(message?: string) {
   };
 }
 
+export function notFound(message?: string) {
+  logger.error(message || "bad request");
+  return {
+    statusCode: 404,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message: message || "bad request",
+    }),
+  };
+}
+
 export function forbidden() {
   logger.error("forbidden");
   return {

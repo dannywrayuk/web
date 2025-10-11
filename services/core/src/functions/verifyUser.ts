@@ -1,6 +1,7 @@
-import { getSecrets } from "./verifyUser.gen";
+import { env, getSecrets } from "./verifyUser.gen";
 import * as jwt from "jsonwebtoken";
 import { unsafe } from "@dannywrayuk/results";
+import { logger } from "@dannywrayuk/logger";
 
 const verifyToken = unsafe((token: string, signingKey: string) => {
   const decoded = jwt.verify(token, signingKey);
@@ -11,10 +12,21 @@ const verifyToken = unsafe((token: string, signingKey: string) => {
 });
 
 export const handler = async (event: any) => {
+  logger
+    .setDebug(env.stage === "dev")
+    .attach({
+      name: env.functionName,
+      service: env.serviceName,
+      stage: env.stage,
+    })
+    .debug("input", {
+      identitySource: event.identitySource,
+    })
+    .info("start");
   const secrets = await getSecrets();
   const access_token = event.identitySource?.[0].split(" ")[1];
   if (!access_token) {
-    console.log("No access token provided");
+    logger.info("No access token provided");
     return { isAuthorized: false };
   }
 
@@ -24,9 +36,11 @@ export const handler = async (event: any) => {
   );
 
   if (accessTokenVerifiedError) {
-    console.log("Error verifying access token", accessTokenVerifiedError);
+    logger.info("Error verifying access token", accessTokenVerifiedError);
     return { isAuthorized: false };
   }
+
+  logger.debug("Access token verified", accessTokenVerified);
 
   return {
     isAuthorized: true,
