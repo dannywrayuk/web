@@ -22,7 +22,7 @@ import {
 } from "./util/generateTableFunctions";
 import { removeDuplicateImports } from "./util/removeDuplicateImports";
 import { generateSecretFunctions } from "./util/generateSecretFunctions";
-import { safe } from "./util/safe/safe";
+import { unsafe } from "@dannywrayuk/results";
 
 export type LambdaConfig = {
   name: string;
@@ -145,10 +145,10 @@ export class Lambda {
   }
   appendToCodeGen(str: string) {
     const entryPath = path.parse(this.entry);
-    const contentRead = safe(fs.readFileSync)(
+    const [contentRead] = unsafe(fs.readFileSync)(
       `${entryPath.dir}/${entryPath.name}.gen.ts`,
     );
-    const content = contentRead.error ? "" : contentRead.result.toString();
+    const content = contentRead ? contentRead.toString() : "";
     const newContent = removeDuplicateImports(content + str);
     fs.writeFileSync(`${entryPath.dir}/${entryPath.name}.gen.ts`, newContent);
     return this;
