@@ -40,14 +40,6 @@ app(config, ({ Api, Lambda, Table, StackReference }) => {
       }).grantTableRead(userTable),
     },
     {
-      route: "/user/me",
-      methods: ["OPTIONS"],
-      handler: new Lambda({
-        name: "options",
-        runtimeConfig,
-      }),
-    },
-    {
       route: "/user/me/delete",
       methods: ["GET"],
       authorizer: userAuthorizer,

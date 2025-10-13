@@ -13,7 +13,7 @@ export const env = {
     ...((process.env.constants || {}) as unknown as object),
   } as unknown as LambdaEnv;
 
-console.log(env)
+
 export const getSecrets = () => readSecret(
     { stage: env.stage as string })(
     ["AUTH_ACCESS_TOKEN_SIGNING_KEY"] as const,

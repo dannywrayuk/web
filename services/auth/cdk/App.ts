@@ -6,10 +6,16 @@ const config = new Config(
     domainName: "dannywray.co.uk",
   },
   {
-    dev: {},
+    dev: {
+      allowedOrigins: [
+        "http://localhost:5173",
+        "https://account.dev.dannywray.co.uk",
+      ],
+    },
     prod: {
       removeStageSubdomain: true,
       deletionProtection: true,
+      allowedOrigins: ["https://account.dannywray.co.uk"],
     },
   },
 );
@@ -26,15 +32,10 @@ export const runtimeConfig = new Config(
     dev: {
       githubUrl: "https://mock.dannywray.co.uk/github.com",
       githubApiUrl: "https://mock.dannywray.co.uk/api.github.com",
-      allowedOrigins: [
-        "http://localhost:5173",
-        "https://account.dev.dannywray.co.uk",
-      ],
     },
     prod: {
       githubUrl: "https://github.com",
       githubApiUrl: "https://api.github.com",
-      allowedOrigins: ["https://account.dannywray.co.uk"],
     },
   },
 );
@@ -46,7 +47,14 @@ app(config, ({ StackReference, Lambda, Api, Table }) => {
 
   const userTable = coreStack.import(Table, "users");
 
-  new Api({ name: "main" })
+  new Api({
+    name: "main",
+    corsPreflight: {
+      allowOrigins: config.current.allowedOrigins,
+      allowMethods: ["GET"],
+      allowCredentials: true,
+    },
+  })
     .createDomainMapping({ subDomain: "auth" })
     .addEndpoints([
       {

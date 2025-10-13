@@ -26,5 +26,5 @@ export const handler = async (event: any) => {
 
   const { PK, SK, ...user } = userData[0];
 
-  return ok(user, { headers: { "Access-Control-Allow-Origin": "*" } });
+  return ok(user);
 };

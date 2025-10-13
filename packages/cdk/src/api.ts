@@ -14,7 +14,19 @@ import { exportName } from "./util/exportName";
 
 export type ApiConfig = {
   name: string;
-} & Partial<apiGw.HttpApiProps>;
+  corsPreflight?: Omit<apiGw.CorsPreflightOptions, "allowMethods"> & {
+    allowMethods: (
+      | "GET"
+      | "POST"
+      | "PUT"
+      | "DELETE"
+      | "OPTIONS"
+      | "HEAD"
+      | "PATCH"
+      | "ANY"
+    )[];
+  };
+} & Omit<Partial<apiGw.HttpApiProps>, "corsPreflight">;
 
 export type Endpoint = {
   route: string;
@@ -40,7 +52,7 @@ export class Api {
     this.name = config.name;
     this.fullName = `${stackConfig.name}-${this.name}-api-${stackConfig.stage}`;
     this.construct = new apiGw.HttpApi(scope, `HttpApi-${this.name}-api`, {
-      ...config,
+      ...(config as apiGw.HttpApiProps),
       apiName: this.fullName,
     });
   }

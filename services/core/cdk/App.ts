@@ -6,16 +6,31 @@ export const config = new Config(
     domainName: "dannywray.co.uk",
   },
   {
-    dev: {},
+    dev: {
+      allowedOrigins: [
+        "http://localhost:5173",
+        "https://account.dev.dannywray.co.uk",
+      ],
+    },
     prod: {
       removeStageSubdomain: true,
       deletionProtection: true,
+      allowedOrigins: ["https://account.dannywray.co.uk"],
     },
   },
 );
 
 app(config, ({ Api, Lambda, Table }) => {
-  new Api({ name: "main" }).createDomainMapping({ subDomain: "api" }).export();
+  new Api({
+    name: "main",
+    corsPreflight: {
+      allowOrigins: config.current.allowedOrigins,
+      allowMethods: ["GET", "POST"],
+      allowCredentials: true,
+    },
+  })
+    .createDomainMapping({ subDomain: "api" })
+    .export();
 
   new Table({
     name: "users",

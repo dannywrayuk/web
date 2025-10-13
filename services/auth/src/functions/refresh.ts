@@ -22,11 +22,7 @@ export const handler = async (event: any) => {
   const secrets = await getSecrets();
   const cookies = getCookies(event, ["refresh_token"] as const);
 
-  if (
-    !event.headers?.origin ||
-    !env.allowedOrigins.includes(event.headers.origin) ||
-    !cookies.refresh_token
-  ) {
+  if (!cookies.refresh_token) {
     return response.forbidden();
   }
 
@@ -64,8 +60,6 @@ export const handler = async (event: any) => {
     },
     {
       headers: {
-        "Access-Control-Allow-Origin": event.headers.origin,
-        "Access-Control-Allow-Credentials": "true",
         "Cache-Control": "no-store",
         Pragma: "no-cache",
       },

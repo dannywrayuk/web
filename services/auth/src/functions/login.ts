@@ -27,13 +27,6 @@ export const handler = async (event: any) => {
     return response.badRequest("Missing code");
   }
 
-  if (
-    !event.headers?.origin ||
-    !env.allowedOrigins.includes(event.headers.origin)
-  ) {
-    return response.forbidden();
-  }
-
   const [tokens, tokenError] = await authorizationCode({
     getExternalAccessToken: githubActions.getAccessToken({
       clientId: secrets.GITHUB_CLIENT_ID,
@@ -85,8 +78,6 @@ export const handler = async (event: any) => {
     },
     {
       headers: {
-        "Access-Control-Allow-Origin": event.headers.origin,
-        "Access-Control-Allow-Credentials": "true",
         "Cache-Control": "no-store",
         Pragma: "no-cache",
       },
