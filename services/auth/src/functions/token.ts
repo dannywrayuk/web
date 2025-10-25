@@ -2,11 +2,17 @@ import * as response from "@dannywrayuk/responses";
 import { authorizationCode } from "./lib/authorizationCode";
 import { refreshTokens } from "./lib/refreshTokens";
 import { err, ok, unsafeSync } from "@dannywrayuk/results";
-import { createUsersEntry, env, getSecrets, readUsersEntry } from "./token.gen";
-import * as userActions from "./lib/actions/userActions";
+import { env, getSecrets, usersTable } from "./token.gen";
 import * as githubActions from "./lib/actions/githubActions";
 import { generateToken, verifyToken } from "./lib/actions/tokenActions";
 import { logger } from "@dannywrayuk/logger";
+import {
+  createUserExternalLink,
+  createUserRecord,
+  readUserExternalLink,
+  readUserRecord,
+  UserRecord,
+} from "@dannywrayuk/schema/database/users";
 
 export const handler = async (event: any) => {
   logger
@@ -63,14 +69,30 @@ export const handler = async (event: any) => {
         githubOAuthUrl: env.githubUrl,
         requiredScopes: ["read:user", "user:email"],
       }),
-      findUserIdByExternalId: userActions.findUserIdByExternalId({
-        readUsersEntry,
-        externalName: "GITHUB",
-      }),
-      createUser: userActions.createUser({
-        createUsersEntry,
-        externalName: "GITHUB",
-      }),
+      findUserByExternalLink: (id: string) =>
+        readUserExternalLink(usersTable)({
+          externalName: "GITHUB",
+          externalId: id,
+        }),
+      createUser: async (userRecord: UserRecord & { EXTERNAL_ID: string }) => {
+        const { EXTERNAL_ID, ...userData } = userRecord;
+        const [, createUserError] = await createUserRecord(usersTable)({
+          ...userData,
+          GITHUB_ID: EXTERNAL_ID,
+        });
+        if (createUserError) {
+          return err(createUserError);
+        }
+        const [, createLinkError] = await createUserExternalLink(usersTable)({
+          externalName: "GITHUB",
+          userId: userData.USER_ID,
+          externalId: EXTERNAL_ID,
+        });
+        if (createLinkError) {
+          return err(createLinkError);
+        }
+        return ok(userData.USER_ID);
+      },
       getUserInfo: githubActions.getUserInfo({
         githubApiUrl: env.githubApiUrl,
       }),
@@ -133,7 +155,7 @@ export const handler = async (event: any) => {
         ),
       verifyRefreshToken: (token: string) =>
         verifyToken(token, secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY),
-      findUserById: userActions.findUserById({ readUsersEntry }),
+      findUserById: readUserRecord(usersTable),
     })(body);
 
     if (tokenError) {

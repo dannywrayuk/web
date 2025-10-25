@@ -27,6 +27,7 @@ app(config, ({ Api, Lambda, Table }) => {
       allowOrigins: config.current.allowedOrigins,
       allowMethods: ["GET", "POST"],
       allowCredentials: true,
+      allowHeaders: ["authorization"],
     },
   })
     .createDomainMapping({ subDomain: "api" })

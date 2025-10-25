@@ -53,6 +53,7 @@ app(config, ({ StackReference, Lambda, Api, Table }) => {
       allowOrigins: config.current.allowedOrigins,
       allowMethods: ["GET"],
       allowCredentials: true,
+      allowHeaders: ["authorization"],
     },
   })
     .createDomainMapping({ subDomain: "auth" })

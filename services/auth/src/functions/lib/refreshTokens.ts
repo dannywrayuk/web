@@ -1,4 +1,5 @@
 import { AsyncResult, err, ok, Result } from "@dannywrayuk/results";
+import { UserRecord } from "@dannywrayuk/schema/database/users";
 
 export const refreshTokens =
   ({
@@ -12,7 +13,7 @@ export const refreshTokens =
     verifyRefreshToken: (
       token: string,
     ) => Result<{ sub: string; sessionStarted: string }>;
-    findUserById: (id: string) => AsyncResult<{ USER_ID: string } | null>;
+    findUserById: (input: { userId: string }) => AsyncResult<UserRecord | null>;
   }) =>
   async (body: { refresh_token: string }) => {
     if (!body.refresh_token) {
@@ -25,7 +26,7 @@ export const refreshTokens =
       return err(tokenError, "verifying refresh token");
     }
 
-    const [user, findUserError] = await findUserById(tokenData.sub);
+    const [user, findUserError] = await findUserById({ userId: tokenData.sub });
 
     if (findUserError) {
       return err(findUserError, "finding user from token sub");

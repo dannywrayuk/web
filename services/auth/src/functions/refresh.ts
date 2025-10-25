@@ -1,10 +1,10 @@
 import { refreshTokens } from "./lib/refreshTokens";
 import { generateToken, verifyToken } from "./lib/actions/tokenActions";
-import { getSecrets, env, readUsersEntry } from "./refresh.gen";
+import { getSecrets, env, usersTable } from "./refresh.gen";
 import * as response from "@dannywrayuk/responses";
-import * as userActions from "./lib/actions/userActions";
 import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { logger } from "@dannywrayuk/logger";
+import { readUserRecord } from "@dannywrayuk/schema/database/users";
 
 export const handler = async (event: any) => {
   logger
@@ -45,7 +45,7 @@ export const handler = async (event: any) => {
       ),
     verifyRefreshToken: (token: string) =>
       verifyToken(token, secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY),
-    findUserById: userActions.findUserById({ readUsersEntry }),
+    findUserById: readUserRecord(usersTable),
   })({ refresh_token: cookies.refresh_token });
 
   if (tokenError) {

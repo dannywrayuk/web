@@ -1,23 +1,35 @@
+import crypto from "node:crypto";
 import { AsyncResult, err, ok } from "@dannywrayuk/results";
+import {
+  UserExternalLink,
+  UserRecord,
+} from "@dannywrayuk/schema/database/users";
 
 export const authorizationCode =
   ({
     getExternalAccessToken,
     getUserInfo,
     getPrimaryEmail,
-    findUserIdByExternalId,
+    findUserByExternalLink,
     createUser,
     accessToken,
     refreshToken,
   }: {
     getExternalAccessToken: (code: string) => AsyncResult<string>;
-    getUserInfo: (code: string) => AsyncResult<{ id: string }>;
+    getUserInfo: (code: string) => AsyncResult<{
+      EXTERNAL_ID: string;
+      USERNAME: string;
+      NAME: string;
+      AVATAR_URL: string;
+      EMAIL?: string;
+    }>;
     getPrimaryEmail: (accessToken: string) => AsyncResult<string>;
-    findUserIdByExternalId: (externalId: string) => AsyncResult<string | null>;
-    createUser: (userInfo: {
-      id: string;
-      email: string;
-    }) => AsyncResult<string>;
+    findUserByExternalLink: (
+      externalId: string,
+    ) => AsyncResult<UserExternalLink | null>;
+    createUser: (
+      userRecord: UserRecord & { EXTERNAL_ID: string },
+    ) => AsyncResult<unknown>;
     accessToken: (userId: string) => string;
     refreshToken: (userId: string) => string;
   }) =>
@@ -37,31 +49,35 @@ export const authorizationCode =
     }
 
     const [userId, userError] = await (async () => {
-      const [foundUser, foundUserError] = await findUserIdByExternalId(
-        userInfo.id,
+      const [foundUser, foundUserError] = await findUserByExternalLink(
+        userInfo.EXTERNAL_ID,
       );
       if (foundUserError) {
         return err(foundUserError);
       }
       if (foundUser) {
-        return ok(foundUser);
+        return ok(foundUser.USER_ID);
       }
 
-      const [primaryEmail, primaryEmailError] =
-        await getPrimaryEmail(externalAccessToken);
+      const [primaryEmail, primaryEmailError] = userInfo.EMAIL
+        ? ok(userInfo.EMAIL)
+        : await getPrimaryEmail(externalAccessToken);
       if (primaryEmailError) {
         return err(primaryEmailError);
       }
 
-      const [createdUser, createUserError] = await createUser({
+      const userId = crypto.randomUUID();
+      const [_, createUserError] = await createUser({
+        USER_ID: userId,
+        CREATED_AT: new Date().toISOString(),
+        EMAIL: primaryEmail,
         ...userInfo,
-        email: primaryEmail,
       });
       if (createUserError) {
         return err(createUserError);
       }
 
-      return ok(createdUser);
+      return ok(userId);
     })();
 
     if (userError) {

@@ -1,6 +1,11 @@
 import { err, ok } from "@dannywrayuk/results";
 import { validatedFetch } from "@dannywrayuk/validatedFetch";
-import { z } from "zod";
+import { okResponse } from "@dannywrayuk/schema/common/responses";
+import {
+  githubAccessTokenResponse,
+  githubEmailsResponse,
+  githubUserResponse,
+} from "@dannywrayuk/schema/external/github";
 
 export const getAccessToken =
   ({
@@ -16,14 +21,7 @@ export const getAccessToken =
   }) =>
   async (code: string) => {
     const [accessResponse, accessResponseError] = await validatedFetch(
-      z.object({
-        status: z.literal(200),
-        body: z.object({
-          access_token: z.string(),
-          scope: z.string(),
-          token_type: z.string(),
-        }),
-      }),
+      okResponse(githubAccessTokenResponse),
     )(`${githubOAuthUrl}/login/oauth/access_token`, {
       method: "POST",
       headers: {
@@ -60,10 +58,7 @@ export const getUserInfo =
   ({ githubApiUrl }: { githubApiUrl: string }) =>
   async (accessToken: string) => {
     const [userResponse, userResponseError] = await validatedFetch(
-      z.object({
-        status: z.literal(200),
-        body: z.object({ id: z.number() }),
-      }),
+      okResponse(githubUserResponse),
     )(`${githubApiUrl}/user`, {
       headers: {
         Authorization: `token ${accessToken}`,
@@ -73,23 +68,19 @@ export const getUserInfo =
       return err(userResponseError, "fetching user info");
     }
 
-    return ok({ ...userResponse.body, id: String(userResponse.body.id) });
+    return ok({
+      EXTERNAL_ID: String(userResponse.body.id),
+      USERNAME: userResponse.body.login,
+      AVATAR_URL: userResponse.body.avatar_url,
+      NAME: userResponse.body.name,
+    });
   };
 
 export const getPrimaryEmail =
   ({ githubApiUrl }: { githubApiUrl: string }) =>
   async (accessToken: string) => {
     const [emailResponse, emailResponseError] = await validatedFetch(
-      z.object({
-        status: z.literal(200),
-        body: z.array(
-          z.object({
-            primary: z.boolean(),
-            verified: z.boolean(),
-            email: z.string(),
-          }),
-        ),
-      }),
+      okResponse(githubEmailsResponse),
     )(`${githubApiUrl}/user/emails`, {
       headers: {
         Authorization: `token ${accessToken}`,

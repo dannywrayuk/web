@@ -17,8 +17,7 @@ import { exportName } from "./util/exportName";
 import path from "node:path";
 import {
   generateTableProperties,
-  generateTableReadFunctions,
-  generateTableWriteFunctions,
+  generateTableFunctions,
 } from "./util/generateTableFunctions";
 import { removeDuplicateImports } from "./util/removeDuplicateImports";
 import { generateSecretFunctions } from "./util/generateSecretFunctions";
@@ -157,20 +156,19 @@ export class Lambda {
   grantTableReadWrite(table: Table) {
     table.construct.grantReadWriteData(this.construct);
     this.appendToCodeGen(generateTableProperties(table));
-    this.appendToCodeGen(generateTableReadFunctions(table.name));
-    this.appendToCodeGen(generateTableWriteFunctions(table.name));
+    this.appendToCodeGen(generateTableFunctions(table.name));
     return this;
   }
   grantTableRead(table: Table) {
     table.construct.grantReadData(this.construct);
     this.appendToCodeGen(generateTableProperties(table));
-    this.appendToCodeGen(generateTableReadFunctions(table.name));
+    this.appendToCodeGen(generateTableFunctions(table.name));
     return this;
   }
   grantTableWrite(table: Table) {
     table.construct.grantWriteData(this.construct);
     this.appendToCodeGen(generateTableProperties(table));
-    this.appendToCodeGen(generateTableWriteFunctions(table.name));
+    this.appendToCodeGen(generateTableFunctions(table.name));
     return this;
   }
 

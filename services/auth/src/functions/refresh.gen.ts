@@ -1,5 +1,4 @@
-import { dynamoDBQuery } from "@dannywrayuk/aws/dynamoDBTable";
-import { dynamoDBPut, dynamoDBDelete, dynamoDBUpdate } from "@dannywrayuk/aws/dynamoDBTable";
+import { table } from "@dannywrayuk/aws/dynamoDBTable";
 import { readSecret } from "@dannywrayuk/aws/readSecret";
 
 export type LambdaEnv_dev = {
@@ -35,10 +34,7 @@ export const env = {
   } as unknown as LambdaEnv;
 
 export const usersTableName = "core-users-dev";
-export const readUsersEntry = dynamoDBQuery(usersTableName);
-export const createUsersEntry = dynamoDBPut(usersTableName);
-export const updateUsersEntry = dynamoDBUpdate(usersTableName);
-export const deleteUsersEntry = dynamoDBDelete(usersTableName);
+export const usersTable = table(usersTableName);
 
 
 export const getSecrets = () => readSecret(

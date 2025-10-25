@@ -1,87 +1,81 @@
-/*
-    This file contains some super basic crud operations for DynamoDB.
-    It does not intend to replace or abstract all the features of the sdk.
-    If you need advanced features, you should use the sdk directly.
-    But for quick prototyping these functions should be good enough to get you started.
-*/
+import { ok, err, unsafe } from "@dannywrayuk/results";
 import {
   DeleteCommand,
+  DeleteCommandInput,
   PutCommand,
+  PutCommandInput,
   QueryCommand,
+  QueryCommandInput,
   UpdateCommand,
+  UpdateCommandInput,
 } from "@aws-sdk/lib-dynamodb";
 import { dynamoDBClient } from "./clients/dynamodb";
 
-export type DynamoDBElement = {
-  [key: string]: string | number | boolean | null | undefined | DynamoDBElement;
-};
-
-type PutProps = {
-  PK: string;
-  SK?: string;
-  data: DynamoDBElement;
-};
-
-export const dynamoDBPut =
-  (tableName: string) =>
-  async ({ PK, SK, data }: PutProps) => {
-    const response = await dynamoDBClient.send(
+export const table = (tableName: string) => ({
+  put: async (input: Omit<PutCommandInput, "TableName">) => {
+    const [response, responseError] = await unsafe((command: PutCommand) =>
+      dynamoDBClient.send(command),
+    )(
       new PutCommand({
         TableName: tableName,
-        Item: { PK, SK, ...data },
         ConditionExpression:
           "attribute_not_exists(PK) " +
-          (SK ? "AND attribute_not_exists(SK)" : ""),
+          (input.Item?.SK ? "AND attribute_not_exists(SK)" : ""),
+        ...input,
       }),
     );
 
-    if (response.$metadata.httpStatusCode !== 200) {
-      throw new Error("Error putting item");
+    if (responseError) {
+      return err(responseError, "putting item into table");
     }
-  };
 
-type QueryProps = {
-  PK: string;
-  SK?: string;
-  rangeExpression?: string;
-  indexName?: string;
-};
-
-export const dynamoDBQuery =
-  (tableName: string) =>
-  async ({ PK, SK, rangeExpression, indexName }: QueryProps) => {
-    const response = await dynamoDBClient.send(
+    if (response.$metadata.httpStatusCode !== 200) {
+      return err("put returned non-200 status code");
+    }
+    return ok(response);
+  },
+  query: async (
+    input: { PK: string; SK?: string; rangeExpression?: string } & Omit<
+      QueryCommandInput,
+      "TableName"
+    >,
+  ) => {
+    const [response, responseError] = await unsafe((command: QueryCommand) =>
+      dynamoDBClient.send(command),
+    )(
       new QueryCommand({
         TableName: tableName,
-        IndexName: indexName,
+        ExpressionAttributeValues: { ":pk": input.PK, ":sk": input.SK },
         KeyConditionExpression:
           "PK = :pk" +
-          (SK
-            ? rangeExpression
-              ? ` AND ${rangeExpression}`
+          (input.SK
+            ? input.rangeExpression
+              ? ` AND ${input.rangeExpression}`
               : " AND begins_with(SK, :sk)"
             : ""),
-        ExpressionAttributeValues: { ":pk": PK, ":sk": SK },
+        ...input,
       }),
     );
 
-    if (response.$metadata.httpStatusCode !== 200) {
-      throw new Error("Error querying item");
+    if (responseError) {
+      return err(responseError, "querying item from table");
     }
 
-    return response.Items;
-  };
-
-type UpdateProps = {
-  PK: string;
-  SK?: string;
-  data: DynamoDBElement;
-};
-
-export const dynamoDBUpdate =
-  (tableName: string) =>
-  async ({ PK, SK, data }: UpdateProps) => {
-    const response = await dynamoDBClient.send(
+    if (response.$metadata.httpStatusCode !== 200) {
+      return err("query returned non-200 status code");
+    }
+    return ok(response);
+  },
+  update: async (
+    input: { Item: { PK: string; SK?: string } } & Omit<
+      UpdateCommandInput,
+      "TableName" | "Key"
+    >,
+  ) => {
+    const { PK, SK, ...data } = input.Item;
+    const [response, responseError] = await unsafe((command: UpdateCommand) =>
+      dynamoDBClient.send(command),
+    )(
       new UpdateCommand({
         TableName: tableName,
         Key: { PK, SK },
@@ -93,27 +87,46 @@ export const dynamoDBUpdate =
         ),
         ConditionExpression:
           "attribute_exists(PK) " + SK ? "AND attribute_exists(SK)" : "",
+        ...input,
       }),
     );
 
-    if (response.$metadata.httpStatusCode !== 200) {
-      throw new Error("Error updating item");
+    if (responseError) {
+      return err(responseError, "updating item in table");
     }
-  };
 
-type DeleteProps = {
-  PK: string;
-  SK?: string;
-};
-
-export const dynamoDBDelete =
-  (tableName: string) =>
-  async ({ PK, SK }: DeleteProps) => {
-    const response = await dynamoDBClient.send(
-      new DeleteCommand({ TableName: tableName, Key: { PK, SK } }),
+    if (response.$metadata.httpStatusCode !== 200) {
+      return err("update returned non-200 status code");
+    }
+    return ok(response);
+  },
+  delete: async (
+    input: { PK: string; SK?: string } & Omit<
+      DeleteCommandInput,
+      "TableName" | "Key"
+    >,
+  ) => {
+    const [response, responseError] = await unsafe((command: DeleteCommand) =>
+      dynamoDBClient.send(command),
+    )(
+      new DeleteCommand({
+        TableName: tableName,
+        Key: { PK: input.PK, SK: input.SK },
+        ConditionExpression:
+          "attribute_exists(PK) " + input.SK ? "AND attribute_exists(SK)" : "",
+        ...input,
+      }),
     );
 
-    if (response.$metadata.httpStatusCode !== 200) {
-      throw new Error("Error deleting item");
+    if (responseError) {
+      return err(responseError, "deleting item from table");
     }
-  };
+
+    if (response.$metadata.httpStatusCode !== 200) {
+      return err("delete returned non-200 status code");
+    }
+    return ok(response);
+  },
+});
+
+export type Table = ReturnType<typeof table>;

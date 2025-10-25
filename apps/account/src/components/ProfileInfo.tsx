@@ -1,15 +1,23 @@
 import { useFetch } from "@/hooks/useFetch";
-import { useAuth } from "@/hooks/useAuth";
 import { Loading, LoadingMessage } from "./Loading";
+import { Link } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { AuthState } from "@/auth/authState";
 
 export const ProfileInfo = () => {
-  const { logout } = useAuth();
-  const { data: profile, isPending } = useFetch(
+  const { mutate: logout } = useMutation({
+    mutationKey: ["logout"],
+    mutationFn: async (_, { client }) => {
+      await new AuthState().logout();
+      await client.invalidateQueries({ queryKey: ["session"] });
+    },
+  });
+  const { data: profile, isLoading } = useFetch(
     ["profile"],
     `https://api.dev.dannywray.co.uk/user/me`,
   );
 
-  if (isPending)
+  if (isLoading)
     return (
       <Loading>
         <LoadingMessage>Loading your account</LoadingMessage>
@@ -26,18 +34,27 @@ export const ProfileInfo = () => {
             alt="Profile Picture"
             className="w-32 h-32 rounded-full mt-4 mb-4"
           />
-          <h2 className="text-lg">{profile.NAME}</h2>
+          <h2 className="text-lg">{profile.USERNAME}</h2>
+          <p className="text-lg">{profile.NAME}</p>
           <p className="text-sm text-u2">{profile.EMAIL}</p>
           <p className="text-sm text-u2">
             Account Created: {new Date(profile.CREATED_AT).toLocaleString()}
           </p>
         </div>
-        <button
-          className="text-u0 bg-l2 px-4 py-2 rounded-lg w-full text-center mt-4 inline-block mt-20 hover:bg-red-900"
-          onClick={logout}
-        >
-          logout
-        </button>
+        <div>
+          <Link
+            to="/delete-account"
+            className="text-u0 bg-l2 px-4 py-2 rounded-lg w-full text-center mt-4 inline-block hover:bg-red-900"
+          >
+            Delete Account
+          </Link>
+          <button
+            className="text-u0 bg-l2 px-4 py-2 rounded-lg w-full text-center mt-4 inline-block hover:bg-red-900"
+            onClick={() => logout()}
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   );
