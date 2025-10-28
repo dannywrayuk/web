@@ -1,7 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Loading, LoadingMessage } from "@/components/Loading";
-import { useQuery } from "@tanstack/react-query";
-import { AuthState } from "@/auth/authState";
+import { useMutation } from "@tanstack/react-query";
+import { loginMutation } from "@/auth/operations";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/login")({
   component: RouteComponent,
@@ -12,23 +13,15 @@ export const Route = createFileRoute("/login")({
 
 function RouteComponent() {
   const { code } = Route.useSearch();
-  const navigate = useNavigate();
-  const { isLoading } = useQuery({
-    queryKey: ["login"],
-    queryFn: () => new AuthState().login(code),
-  });
+  const { mutate: login } = useMutation(loginMutation(code));
 
-  if (isLoading)
-    return (
-      <Loading>
-        <LoadingMessage>Logging you in</LoadingMessage>
-      </Loading>
-    );
+  useEffect(() => {
+    login();
+  }, [login]);
 
-  navigate({ to: "/" });
   return (
     <Loading>
-      <LoadingMessage>Found you!</LoadingMessage>
+      <LoadingMessage>Logging you in</LoadingMessage>
     </Loading>
   );
 }

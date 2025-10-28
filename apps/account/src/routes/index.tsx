@@ -2,16 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ProfileInfo } from "@/components/ProfileInfo";
 import { AiOutlineGithub } from "react-icons/ai";
 import { useQuery } from "@tanstack/react-query";
+import { checkSessionQuery } from "@/auth/operations";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { data: hasSession, isLoading } = useQuery({
-    queryKey: ["session"],
-    queryFn: async () => localStorage.getItem("session") === "true",
-  });
+  const { data: hasSession, isLoading } = useQuery(checkSessionQuery);
   if (hasSession) {
     return <ProfileInfo />;
   }

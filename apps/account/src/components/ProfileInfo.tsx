@@ -1,21 +1,12 @@
-import { useFetch } from "@/hooks/useFetch";
 import { Loading, LoadingMessage } from "./Loading";
 import { Link } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
-import { AuthState } from "@/auth/authState";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { logoutMutation } from "@/auth/operations";
+import { userProfileQuery } from "@/operations/user";
 
 export const ProfileInfo = () => {
-  const { mutate: logout } = useMutation({
-    mutationKey: ["logout"],
-    mutationFn: async (_, { client }) => {
-      await new AuthState().logout();
-      await client.invalidateQueries({ queryKey: ["session"] });
-    },
-  });
-  const { data: profile, isLoading } = useFetch(
-    ["profile"],
-    `https://api.dev.dannywray.co.uk/user/me`,
-  );
+  const { mutate: logout } = useMutation(logoutMutation);
+  const { data: profile, isLoading } = useQuery(userProfileQuery);
 
   if (isLoading)
     return (
@@ -23,6 +14,8 @@ export const ProfileInfo = () => {
         <LoadingMessage>Loading your account</LoadingMessage>
       </Loading>
     );
+
+  if (!profile) return null;
 
   return (
     <div className="flex flex-col items-center justify-center mt-20">
