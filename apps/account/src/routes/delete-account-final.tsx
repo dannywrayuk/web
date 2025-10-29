@@ -1,3 +1,5 @@
+import { logoutMutation } from "@/auth/operations";
+import { userDeleteMutation } from "@/operations/user";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
@@ -7,16 +9,11 @@ export const Route = createFileRoute("/delete-account-final")({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { mutateAsync: deleteAccountRequest } = useMutation({
-    mutationFn: async () => {
-      await fetch(`https://api.dev.dannywray.co.uk/user/me/delete`, {
-        method: "GET",
-        credentials: "include",
-      });
-    },
-  });
+  const { mutateAsync: userDelete } = useMutation(userDeleteMutation);
+  const { mutate: logout } = useMutation(logoutMutation);
   const deleteAccount = async () => {
-    await deleteAccountRequest();
+    await userDelete();
+    logout();
     navigate({ to: "/" });
   };
   return (

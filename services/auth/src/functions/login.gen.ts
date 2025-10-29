@@ -1,4 +1,4 @@
-import { table } from "@dannywrayuk/aws/dynamoDBTable";
+import { Table, table } from "@dannywrayuk/aws/dynamoDBTable";
 import { readSecret } from "@dannywrayuk/aws/readSecret";
 
 export type LambdaEnv_dev = {
@@ -29,15 +29,18 @@ export type CommonEnv = {
 export type LambdaEnv = CommonEnv & (LambdaEnv_dev | LambdaEnv_prod);
 
 export const env = {
-    ...process.env,
-    ...((process.env.constants || {}) as unknown as object),
-  } as unknown as LambdaEnv;
+  ...process.env,
+  ...((process.env.constants || {}) as unknown as object),
+} as unknown as LambdaEnv;
 
 export const usersTableName = "core-users-dev";
-export const usersTable = table(usersTableName);
+export const usersTable: Table = table(usersTableName);
 
+export const getSecrets = () =>
+  readSecret({ stage: env.stage as string })([
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "AUTH_ACCESS_TOKEN_SIGNING_KEY",
+    "AUTH_REFRESH_TOKEN_SIGNING_KEY",
+  ] as const);
 
-export const getSecrets = () => readSecret(
-    { stage: env.stage as string })(
-    ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "AUTH_ACCESS_TOKEN_SIGNING_KEY", "AUTH_REFRESH_TOKEN_SIGNING_KEY"] as const,
-  );

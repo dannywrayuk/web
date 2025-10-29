@@ -126,3 +126,46 @@ export const createUserExternalLink =
     }
     return ok(rsp);
   };
+
+export const deleteUser =
+  (table: Table) =>
+  async (input: { userId: string }): AsyncResult<null> => {
+    const [userEntries, userEntriesError] = await table.query({
+      PK: `USER_ID#${input.userId}`,
+    });
+
+    if (userEntriesError) {
+      return err(userEntriesError, "querying for user entries to delete");
+    }
+
+    const [userEntriesInverse, userEntriesInverseError] = await table.query({
+      PK: `USER_ID#${input.userId}`,
+      IndexName: "Inverse",
+    });
+
+    if (userEntriesInverseError) {
+      return err(
+        userEntriesInverseError,
+        "querying for inverse user entries to delete",
+      );
+    }
+
+    const entries = [
+      ...(userEntries?.Items || []),
+      ...(userEntriesInverse?.Items || []),
+    ];
+
+    if (entries.length) {
+      const [, batchDeleteError] = await table.batchWrite(
+        entries.map((entry) => ({
+          DeleteRequest: {
+            Key: { PK: entry.PK, SK: entry.SK },
+          },
+        })),
+      );
+      if (batchDeleteError) {
+        return err(batchDeleteError, "deleting user entries");
+      }
+    }
+    return ok(null);
+  };

@@ -1,5 +1,4 @@
-import { dynamoDBQuery } from "@dannywrayuk/aws/dynamoDBTable";
-import { dynamoDBPut, dynamoDBDelete, dynamoDBUpdate } from "@dannywrayuk/aws/dynamoDBTable";
+import { table, Table } from "@dannywrayuk/aws/dynamoDBTable";
 
 export type LambdaEnv_dev = {} & { stage: "dev" };
 
@@ -23,7 +22,4 @@ export const env = {
   } as unknown as LambdaEnv;
 
 export const usersTableName = "core-users-dev";
-export const readUsersEntry = dynamoDBQuery(usersTableName);
-export const createUsersEntry = dynamoDBPut(usersTableName);
-export const updateUsersEntry = dynamoDBUpdate(usersTableName);
-export const deleteUsersEntry = dynamoDBDelete(usersTableName);
+export const usersTable: Table = table(usersTableName);

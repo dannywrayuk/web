@@ -14,6 +14,6 @@ export const generateTableFunctions = (tableName: string) => {
   const tableNameVariable = tableNameVariableName(tableName);
   const tableNameCamel = casing.camel(tableName);
   return `
-import { table } from "@dannywrayuk/aws/dynamoDBTable";
-export const ${tableNameCamel}Table = table(${tableNameVariable});`;
+import { table, Table } from "@dannywrayuk/aws/dynamoDBTable";
+export const ${tableNameCamel}Table: Table = table(${tableNameVariable});`;
 };

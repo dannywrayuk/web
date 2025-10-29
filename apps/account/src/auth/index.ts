@@ -55,19 +55,15 @@ const authState = () => {
     url: string,
     body?: z.infer<I>,
     opts: Options<O, I> = { headers: {}, retries: 1 },
-  ): Promise<{
-    ok: boolean;
-    status: number;
-    headers?: Headers;
-    body: unknown;
-  }> => {
+  ) => {
     const token = await auth.getAccessToken();
     if (!token) {
       return {
         ok: false,
         status: 401,
+        headers: new Headers(),
         body: { error: "Unauthorized" },
-      };
+      } as const;
     }
     if (!(opts.headers as Record<string, string>)["authorization"]) {
       (opts.headers as Record<string, string>)["authorization"] =

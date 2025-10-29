@@ -23,15 +23,15 @@ export const ProfileInfo = () => {
         <h1 className="text-u0 text-4xl font-bold">Account</h1>
         <div className="flex flex-col items-center">
           <img
-            src={profile.AVATAR_URL}
+            src={profile.avatarUrl}
             alt="Profile Picture"
             className="w-32 h-32 rounded-full mt-4 mb-4"
           />
-          <h2 className="text-lg">{profile.USERNAME}</h2>
-          <p className="text-lg">{profile.NAME}</p>
-          <p className="text-sm text-u2">{profile.EMAIL}</p>
+          <h2 className="text-lg">{profile.username}</h2>
+          <p className="text-lg">{profile.name}</p>
+          <p className="text-sm text-u2">{profile.email}</p>
           <p className="text-sm text-u2">
-            Account Created: {new Date(profile.CREATED_AT).toLocaleString()}
+            Account Created: {new Date(profile.createdAt).toLocaleString()}
           </p>
         </div>
         <div>

@@ -29,12 +29,18 @@ importers:
       '@dannywrayuk/results':
         specifier: workspace:*
         version: link:../../packages/results
+      '@dannywrayuk/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
       typescript:
         specifier: ^5.7.3
         version: 5.7.3
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@dannywrayuk/cdk':
         specifier: workspace:*
@@ -61,6 +67,16 @@ importers:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@22.10.1)(typescript@5.7.3)
 
+  ../../packages/api:
+    dependencies:
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
+
   ../../packages/aws:
     dependencies:
       '@aws-sdk/client-dynamodb':
@@ -72,6 +88,9 @@ importers:
       '@aws-sdk/lib-dynamodb':
         specifier: ^3.721.0
         version: 3.721.0(@aws-sdk/client-dynamodb@3.721.0)
+      '@dannywrayuk/results':
+        specifier: workspace:*
+        version: link:../results
     devDependencies:
       '@types/node':
         specifier: ^22.10.1
@@ -113,6 +132,22 @@ importers:
         version: 22.10.1
 
   ../../packages/results:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
+
+  ../../packages/schema:
+    dependencies:
+      '@dannywrayuk/aws':
+        specifier: workspace:*
+        version: link:../aws
+      '@dannywrayuk/results':
+        specifier: workspace:*
+        version: link:../results
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@types/node':
         specifier: ^22.10.1

@@ -1,5 +1,7 @@
 import { ok, err, unsafe } from "@dannywrayuk/results";
 import {
+  BatchWriteCommand,
+  BatchWriteCommandInput,
   DeleteCommand,
   DeleteCommandInput,
   PutCommand,
@@ -124,6 +126,28 @@ export const table = (tableName: string) => ({
 
     if (response.$metadata.httpStatusCode !== 200) {
       return err("delete returned non-200 status code");
+    }
+    return ok(response);
+  },
+  batchWrite: async (
+    items: NonNullable<BatchWriteCommandInput["RequestItems"]>[string],
+  ) => {
+    const [response, responseError] = await unsafe(
+      (command: BatchWriteCommand) => dynamoDBClient.send(command),
+    )(
+      new BatchWriteCommand({
+        RequestItems: {
+          [tableName]: items,
+        },
+      }),
+    );
+
+    if (responseError) {
+      return err(responseError, "batch writing to table");
+    }
+
+    if (response.$metadata.httpStatusCode !== 200) {
+      return err("batchWrite returned non-200 status code");
     }
     return ok(response);
   },

@@ -9,11 +9,13 @@
     "@dannywrayuk/logger": "workspace:*",
     "@dannywrayuk/responses": "workspace:*",
     "@dannywrayuk/results": "workspace:*",
+    "@dannywrayuk/schema": "workspace:*",
     "@aws-sdk/client-dynamodb": "^3.721.0",
     "@aws-sdk/client-ssm": "^3.699.0",
     "@aws-sdk/lib-dynamodb": "^3.721.0",
     "jsonwebtoken": "^9.0.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@dannywrayuk/cdk": "workspace:*",
