@@ -155,12 +155,30 @@ export class Lambda {
 
   grantTableReadWrite(table: Table) {
     table.construct.grantReadWriteData(this.construct);
+    this.construct.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["dynamodb:Query"],
+        resources: [
+          table.construct.tableArn,
+          `${table.construct.tableArn}/index/*`,
+        ],
+      }),
+    );
     this.appendToCodeGen(generateTableProperties(table));
     this.appendToCodeGen(generateTableFunctions(table.name));
     return this;
   }
   grantTableRead(table: Table) {
     table.construct.grantReadData(this.construct);
+    this.construct.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["dynamodb:Query"],
+        resources: [
+          table.construct.tableArn,
+          `${table.construct.tableArn}/index/*`,
+        ],
+      }),
+    );
     this.appendToCodeGen(generateTableProperties(table));
     this.appendToCodeGen(generateTableFunctions(table.name));
     return this;

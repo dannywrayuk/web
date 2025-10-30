@@ -17,7 +17,7 @@ export const handler = async (event: any) => {
 
   return ok("bye", {
     cookies: [
-      `refresh_token=invalid; Max-Age=-1; Path=/refresh; HttpOnly; SameSite=None; Secure;`,
+      `refresh_token=invalid; Max-Age=-1; Path=/refresh; HttpOnly; SameSite=None; Secure; Partitioned;`,
     ],
   });
 };

@@ -140,7 +140,7 @@ export const deleteUser =
 
     const [userEntriesInverse, userEntriesInverseError] = await table.query({
       PK: `USER_ID#${input.userId}`,
-      IndexName: "Inverse",
+      inverse: true,
     });
 
     if (userEntriesInverseError) {

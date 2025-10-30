@@ -1,4 +1,4 @@
-import { table } from "@dannywrayuk/aws/dynamoDBTable";
+import { table, Table } from "@dannywrayuk/aws/dynamoDBTable";
 import { readSecret } from "@dannywrayuk/aws/readSecret";
 
 export type LambdaEnv_dev = {
@@ -34,7 +34,7 @@ export const env = {
   } as unknown as LambdaEnv;
 
 export const usersTableName = "core-users-dev";
-export const usersTable = table(usersTableName);
+export const usersTable: Table = table(usersTableName);
 
 
 export const getSecrets = () => readSecret(

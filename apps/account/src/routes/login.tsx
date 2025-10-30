@@ -3,6 +3,7 @@ import { Loading, LoadingMessage } from "@/components/Loading";
 import { useMutation } from "@tanstack/react-query";
 import { loginMutation } from "@/auth/operations";
 import { useEffect } from "react";
+import { ErrorBubble } from "@/components/ErrorBubble";
 
 export const Route = createFileRoute("/login")({
   component: RouteComponent,
@@ -13,12 +14,16 @@ export const Route = createFileRoute("/login")({
 
 function RouteComponent() {
   const { code } = Route.useSearch();
-  const { mutate: login } = useMutation(loginMutation(code));
+  const { mutate: login, error } = useMutation(loginMutation(code));
 
   useEffect(() => {
     login();
   }, [login]);
-
+  if (error) {
+    return (
+      <ErrorBubble message="There was an error logging you in. Please try again." />
+    );
+  }
   return (
     <Loading>
       <LoadingMessage>Logging you in</LoadingMessage>

@@ -1,8 +1,10 @@
 import { auth } from "@/auth";
 import { userMeResponse } from "@dannywrayuk/schema/endpoints/user";
 
+const url = import.meta.env.VITE_INTEGRATION_URL;
+
 export const userProfileAPI = async () => {
-  const rsp = await auth.api.get(`https://api.dev.dannywray.co.uk/user/me`, {
+  const rsp = await auth.api.get(`https://api.${url}/user/me`, {
     validateOutput: userMeResponse,
   });
   if (!rsp.ok) {
@@ -12,8 +14,6 @@ export const userProfileAPI = async () => {
 };
 
 export const userDeleteAPI = async () => {
-  const rsp = await auth.api.post(
-    `https://api.dev.dannywray.co.uk/user/delete`,
-  );
+  const rsp = await auth.api.get(`https://api.${url}/user/me/delete`);
   return rsp.ok;
 };

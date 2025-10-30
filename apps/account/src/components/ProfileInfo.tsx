@@ -3,10 +3,16 @@ import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { logoutMutation } from "@/auth/operations";
 import { userProfileQuery } from "@/operations/user";
+import { ErrorBubble } from "./ErrorBubble";
 
 export const ProfileInfo = () => {
   const { mutate: logout } = useMutation(logoutMutation);
-  const { data: profile, isLoading } = useQuery(userProfileQuery);
+  const { data: profile, isLoading, error } = useQuery(userProfileQuery);
+
+  if (error)
+    return (
+      <ErrorBubble message="There was an error loading your profile. Please try again." />
+    );
 
   if (isLoading)
     return (
@@ -15,7 +21,7 @@ export const ProfileInfo = () => {
       </Loading>
     );
 
-  if (!profile) return null;
+  if (!profile) return <ErrorBubble message="User not found" />;
 
   return (
     <div className="flex flex-col items-center justify-center mt-20">

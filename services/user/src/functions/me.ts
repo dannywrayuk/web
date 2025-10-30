@@ -6,7 +6,7 @@ import { z } from "zod";
 import { readUserRecord } from "@dannywrayuk/schema/database/users";
 
 export const handler = async (event: any) => {
-  const userId = event.requestContext.authorizer.lambda.tokenPayload.sub;
+  const tokenPayload = event.requestContext.authorizer.lambda.tokenPayload;
   logger
     .setDebug(env.stage === "dev")
     .attach({
@@ -15,12 +15,12 @@ export const handler = async (event: any) => {
       stage: env.stage,
     })
     .debug("input", {
-      userId,
+      userId: tokenPayload.sub,
     })
     .info("start");
 
   const [userData, userDataError] = await readUserRecord(usersTable)({
-    userId,
+    userId: tokenPayload.sub,
   });
 
   if (userDataError) {

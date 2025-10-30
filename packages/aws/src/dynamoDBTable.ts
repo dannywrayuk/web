@@ -37,11 +37,15 @@ export const table = (tableName: string) => ({
     return ok(response);
   },
   query: async (
-    input: { PK: string; SK?: string; rangeExpression?: string } & Omit<
-      QueryCommandInput,
-      "TableName"
-    >,
+    input: {
+      PK: string;
+      SK?: string;
+      rangeExpression?: string;
+      inverse?: boolean;
+    } & Omit<QueryCommandInput, "TableName">,
   ) => {
+    const PK = input.inverse ? "SK" : "PK";
+    const SK = input.inverse ? "PK" : "SK";
     const [response, responseError] = await unsafe((command: QueryCommand) =>
       dynamoDBClient.send(command),
     )(
@@ -49,12 +53,13 @@ export const table = (tableName: string) => ({
         TableName: tableName,
         ExpressionAttributeValues: { ":pk": input.PK, ":sk": input.SK },
         KeyConditionExpression:
-          "PK = :pk" +
+          `${PK} = :pk` +
           (input.SK
             ? input.rangeExpression
               ? ` AND ${input.rangeExpression}`
-              : " AND begins_with(SK, :sk)"
+              : ` AND begins_with(${SK}, :sk)`
             : ""),
+        IndexName: input.inverse ? "Inverse" : undefined,
         ...input,
       }),
     );

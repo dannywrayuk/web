@@ -65,9 +65,11 @@ const authState = () => {
         body: { error: "Unauthorized" },
       } as const;
     }
-    if (!(opts.headers as Record<string, string>)["authorization"]) {
-      (opts.headers as Record<string, string>)["authorization"] =
-        `Bearer ${token}`;
+    if (!(opts?.headers as Record<string, string>)?.["authorization"]) {
+      opts.headers = {
+        ...(opts.headers || {}),
+        authorization: `Bearer ${token}`,
+      };
     }
     const rsp = await fetcher(method, url, body, opts);
     if (!rsp.ok) {
