@@ -17,9 +17,10 @@ export type CommonEnv = {
 export type LambdaEnv = CommonEnv & (LambdaEnv_dev | LambdaEnv_prod);
 
 export const env = {
-    ...process.env,
-    ...((process.env.constants || {}) as unknown as object),
-  } as unknown as LambdaEnv;
+  ...process.env,
+  ...((process.env.constants || {}) as unknown as object),
+} as unknown as LambdaEnv;
 
-export const usersTableName = "core-users-dev";
+export const usersTableName = "core-users-" + env.stage;
 export const usersTable: Table = table(usersTableName);
+

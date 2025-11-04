@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ProfileInfo } from "@/components/ProfileInfo";
 import { AiOutlineGithub } from "react-icons/ai";
 import { useQuery } from "@tanstack/react-query";
@@ -23,16 +23,15 @@ function RouteComponent() {
             already.
           </p>
           <div className="flex flex-col mt-8">
-            <Link
-              to="/login"
-              search={{ code: "1234" }}
+            <a
+              href={import.meta.env.VITE_GITHUB_OAUTH_URL}
               className="text-u0 bg-github px-4 py-2 rounded-lg w-full text-center mt-4 inline-block"
             >
               <div className="flex items-center justify-center gap-2">
                 <AiOutlineGithub className="size-[1.5em]" />
                 <span>GitHub</span>
               </div>
-            </Link>
+            </a>
           </div>
         </div>
       </div>

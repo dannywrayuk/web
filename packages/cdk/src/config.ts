@@ -17,7 +17,7 @@ export class Config<
     };
   constructor(commonConfig: CommonConfig, stageConfigs: StageConfigs) {
     this.stageConfigs = stageConfigs;
-    const stageVar = process.env.stage;
+    const stageVar = process.env.STAGE;
     const stageFallback = commonConfig?.defaultStage || "dev";
     if (!stageVar) {
       console.warn(

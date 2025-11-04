@@ -5,7 +5,11 @@ import { execSync } from "node:child_process";
 export const syncBuckets = () => {
   const bucketFiles = fs
     .readdirSync("./cdk.out")
-    .filter((file) => file.endsWith(".s3.json"));
+    .filter(
+      (file) =>
+        file.endsWith(".s3.json") &&
+        file.includes(`-${process.env.STAGE || "dev"}-`),
+    );
 
   bucketFiles.forEach((file) => {
     const { bucketName, source } = JSON.parse(

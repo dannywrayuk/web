@@ -24,7 +24,7 @@ export const handler = async (event: any) => {
   });
 
   if (userDataError) {
-    logger.error("Error reading user data", { error: userDataError });
+    logger.error("Error reading user data", { error: userDataError.message });
     return error();
   }
 

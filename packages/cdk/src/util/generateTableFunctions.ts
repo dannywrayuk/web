@@ -7,7 +7,7 @@ const tableNameVariableName = (tableName: string) =>
 export const generateTableProperties = (table: Table) => {
   return `
 
-export const ${tableNameVariableName(table.name)} = "${table.fullName}";`;
+export const ${tableNameVariableName(table.name)} = "${table.fullName.split("-").slice(0, -1).join("-")}-" + env.stage;`;
 };
 
 export const generateTableFunctions = (tableName: string) => {

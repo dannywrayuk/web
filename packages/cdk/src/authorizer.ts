@@ -1,4 +1,7 @@
-import { aws_apigatewayv2_authorizers as apiGwAuth } from "aws-cdk-lib";
+import {
+  aws_apigatewayv2_authorizers as apiGwAuth,
+  Duration,
+} from "aws-cdk-lib";
 import { Lambda } from "./lambda";
 
 export const authorizer = (lambda: Lambda) => {
@@ -7,5 +10,6 @@ export const authorizer = (lambda: Lambda) => {
     authorizerName,
     responseTypes: [apiGwAuth.HttpLambdaResponseType.SIMPLE],
     identitySource: ["$request.header.Authorization"],
+    resultsCacheTtl: Duration.seconds(10),
   });
 };
