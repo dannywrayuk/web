@@ -18,7 +18,7 @@ export const syncBuckets = () => {
     console.log(`Syncing ${source} to ${bucketName}`);
 
     const [_, syncError] = unsafe(execSync)(
-      `aws s3 sync ${source} s3://${bucketName}`,
+      `aws s3 sync ${source} s3://${bucketName} --delete`,
       {
         stdio: "inherit",
       },

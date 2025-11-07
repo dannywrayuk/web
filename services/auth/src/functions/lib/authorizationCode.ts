@@ -66,7 +66,7 @@ export const authorizationCode =
         return err(primaryEmailError);
       }
 
-      const userId = crypto.randomUUID();
+      const userId = `user_${crypto.randomUUID()}`;
       const [_, createUserError] = await createUser({
         USER_ID: userId,
         CREATED_AT: new Date().toISOString(),

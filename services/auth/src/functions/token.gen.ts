@@ -33,7 +33,7 @@ export const env = {
     ...((process.env.constants || {}) as unknown as object),
   } as unknown as LambdaEnv;
 
-export const usersTableName = "core-users-prod";
+export const usersTableName = "core-users-" + env.stage;
 export const usersTable: Table = table(usersTableName);
 
 
