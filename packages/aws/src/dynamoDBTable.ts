@@ -14,15 +14,18 @@ import {
 import { dynamoDBClient } from "./clients/dynamodb";
 
 export const table = (tableName: string) => ({
-  put: async (input: Omit<PutCommandInput, "TableName">) => {
+  put: async (
+    input: Omit<PutCommandInput, "TableName"> & { overwrite?: boolean },
+  ) => {
     const [response, responseError] = await unsafe((command: PutCommand) =>
       dynamoDBClient.send(command),
     )(
       new PutCommand({
         TableName: tableName,
-        ConditionExpression:
-          "attribute_not_exists(PK) " +
-          (input.Item?.SK ? "AND attribute_not_exists(SK)" : ""),
+        ConditionExpression: input.overwrite
+          ? undefined
+          : "attribute_not_exists(PK) " +
+            (input.Item?.SK ? "AND attribute_not_exists(SK)" : ""),
         ...input,
       }),
     );

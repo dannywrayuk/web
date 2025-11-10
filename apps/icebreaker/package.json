@@ -1,0 +1,50 @@
+{
+  "name": "icebreaker",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite --mode ${STAGE:-dev}",
+    "build": "tsc -b && vite build --mode ${STAGE:-dev}",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "cdk-synth": "cdk synth",
+    "cdk-deploy": "pnpm build && cdk deploy && pnpm cdk-bucket-sync",
+    "cdk-destroy": "cdk destroy",
+    "cdk-bucket-sync": "ts-node cdk/postDeploy.ts"
+  },
+  "dependencies": {
+    "@dannywrayuk/api": "workspace:*",
+    "@dannywrayuk/schema": "workspace:*",
+    "@tanstack/react-query": "^5.90.2",
+    "@tanstack/react-router": "^1.132.33",
+    "@vitejs/plugin-react-swc": "^4.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0",
+    "tailwindcss": "^4.1.14",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@dannywrayuk/cdk": "workspace:*",
+    "@eslint/js": "^9.21.0",
+    "@tailwindcss/vite": "^4.1.14",
+    "@tanstack/router-plugin": "^1.132.33",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.12.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "aws-cdk": "^2.171.1",
+    "aws-cdk-lib": "^2.171.1",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^7.1.9"
+  },
+  "packageManager": "pnpm@8.6.5+sha1.a074a371066567dcdeb19a1d1bd9a78cf3c9faa3"
+}
