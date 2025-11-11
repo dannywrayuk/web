@@ -9,24 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as DeleteAccountFinalRouteImport } from './routes/delete-account-final'
-import { Route as DeleteAccountRouteImport } from './routes/delete-account'
+import { Route as PresentRouteImport } from './routes/present'
+import { Route as SessionIdRouteImport } from './routes/$sessionId'
 import { Route as IndexRouteImport } from './routes/index'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const PresentRoute = PresentRouteImport.update({
+  id: '/present',
+  path: '/present',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DeleteAccountFinalRoute = DeleteAccountFinalRouteImport.update({
-  id: '/delete-account-final',
-  path: '/delete-account-final',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DeleteAccountRoute = DeleteAccountRouteImport.update({
-  id: '/delete-account',
-  path: '/delete-account',
+const SessionIdRoute = SessionIdRouteImport.update({
+  id: '/$sessionId',
+  path: '/$sessionId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,59 +31,48 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/delete-account': typeof DeleteAccountRoute
-  '/delete-account-final': typeof DeleteAccountFinalRoute
-  '/login': typeof LoginRoute
+  '/$sessionId': typeof SessionIdRoute
+  '/present': typeof PresentRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/delete-account': typeof DeleteAccountRoute
-  '/delete-account-final': typeof DeleteAccountFinalRoute
-  '/login': typeof LoginRoute
+  '/$sessionId': typeof SessionIdRoute
+  '/present': typeof PresentRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/delete-account': typeof DeleteAccountRoute
-  '/delete-account-final': typeof DeleteAccountFinalRoute
-  '/login': typeof LoginRoute
+  '/$sessionId': typeof SessionIdRoute
+  '/present': typeof PresentRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/delete-account' | '/delete-account-final' | '/login'
+  fullPaths: '/' | '/$sessionId' | '/present'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/delete-account' | '/delete-account-final' | '/login'
-  id: '__root__' | '/' | '/delete-account' | '/delete-account-final' | '/login'
+  to: '/' | '/$sessionId' | '/present'
+  id: '__root__' | '/' | '/$sessionId' | '/present'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DeleteAccountRoute: typeof DeleteAccountRoute
-  DeleteAccountFinalRoute: typeof DeleteAccountFinalRoute
-  LoginRoute: typeof LoginRoute
+  SessionIdRoute: typeof SessionIdRoute
+  PresentRoute: typeof PresentRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/present': {
+      id: '/present'
+      path: '/present'
+      fullPath: '/present'
+      preLoaderRoute: typeof PresentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/delete-account-final': {
-      id: '/delete-account-final'
-      path: '/delete-account-final'
-      fullPath: '/delete-account-final'
-      preLoaderRoute: typeof DeleteAccountFinalRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/delete-account': {
-      id: '/delete-account'
-      path: '/delete-account'
-      fullPath: '/delete-account'
-      preLoaderRoute: typeof DeleteAccountRouteImport
+    '/$sessionId': {
+      id: '/$sessionId'
+      path: '/$sessionId'
+      fullPath: '/$sessionId'
+      preLoaderRoute: typeof SessionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -104,9 +87,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DeleteAccountRoute: DeleteAccountRoute,
-  DeleteAccountFinalRoute: DeleteAccountFinalRoute,
-  LoginRoute: LoginRoute,
+  SessionIdRoute: SessionIdRoute,
+  PresentRoute: PresentRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

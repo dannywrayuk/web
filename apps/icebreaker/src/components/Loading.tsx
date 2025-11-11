@@ -1,10 +1,18 @@
 import React from "react";
 import { PiSpinnerBold } from "react-icons/pi";
 
-export const Loading = ({ children }: { children: React.ReactNode }) => {
+export const Loading = ({
+  children,
+  spinner,
+}: {
+  children: React.ReactNode;
+  spinner?: boolean;
+}) => {
   return (
     <div className="flex flex-col h-screen w-full items-center justify-center">
-      <PiSpinnerBold className="text-dw size-[2em] animate-[spin_3s_linear_infinite]" />
+      {spinner && (
+        <PiSpinnerBold className="text-dw size-[2em] animate-[spin_3s_linear_infinite]" />
+      )}
       {children}
     </div>
   );

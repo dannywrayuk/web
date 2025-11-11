@@ -88,7 +88,7 @@ const setQuestions = async (sessionId: string, questions: string[]) => {
   }
 };
 
-const getQuestion = async (sessionId: string, questionNumber: number) => {
+const getQuestions = async (sessionId: string) => {
   const [rsp, queryErr] = await stateTable.query({
     PK: `SESSION#${sessionId}`,
     SK: "QUESTIONS",
@@ -101,7 +101,7 @@ const getQuestion = async (sessionId: string, questionNumber: number) => {
     logger.error("No questions found for session " + sessionId);
     throw new Error("No questions found for session " + sessionId);
   }
-  return rsp.Items[0].questions[questionNumber] as string;
+  return rsp.Items[0].questions as string[];
 };
 
 export const handler = async (event: any) => {
@@ -131,17 +131,22 @@ export const handler = async (event: any) => {
       break;
     case "start": {
       const participants = await getParticipants(body.sessionId);
-      const questionText = await getQuestion(
-        body.sessionId,
-        body.questionNumber,
-      );
+      const questions = await getQuestions(body.sessionId);
       await setPresenter(body.sessionId, connectionId);
-      const question = {
-        action: "question",
-        question: questionText,
-        questionNumber: body.questionNumber,
-        answerOptions: participants.map((p) => p.name),
-      };
+      const question =
+        body.questionNumber >= questions.length
+          ? {
+              action: "question",
+              question: "",
+              questionNumber: -1,
+              answerOptions: [],
+            }
+          : {
+              action: "question",
+              question: questions[body.questionNumber],
+              questionNumber: body.questionNumber,
+              answerOptions: participants.map((p) => p.name),
+            };
       await replyToConnection(apiClient, connectionId, question);
       for (const participant of participants) {
         await replyToConnection(apiClient, participant.connectionId, question);
@@ -164,7 +169,8 @@ export const handler = async (event: any) => {
       const presenter = await getPresenter(body.sessionId);
       await replyToConnection(apiClient, presenter.connectionId, {
         action: "voted",
-        name: body.answer,
+        answer: body.answer,
+        name: body.name,
       });
       break;
     }
