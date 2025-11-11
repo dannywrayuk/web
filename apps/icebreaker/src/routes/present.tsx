@@ -1,9 +1,10 @@
 import { session } from "@/sessionSocket";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const InitialScene = () => {
+  const questionsInputRef = useRef<string>("");
   const create = useMutation({
     mutationFn: async (questions: string[]) => session.create(questions),
   });
@@ -16,9 +17,14 @@ const InitialScene = () => {
           You are now in presenter mode. Create a new session below.
         </p>
         <div className="flex flex-col mt-8">
+          <textarea
+            placeholder="Enter questions, one per line"
+            className="bg-l2 border-1 border-l3 p-2 rounded-lg w-full text-u0 h-40"
+            id="questions"
+          />
           <button
             className="text-u0 bg-github px-4 py-2 rounded-lg w-full text-center mt-4 inline-block cursor-pointer"
-            onClick={() => create.mutate(["test1", "test2", "test3"])}
+            onClick={() => create.mutate(questionsInputRef.current.split("\n"))}
           >
             <div className="flex items-center justify-center gap-2">
               <span>Create session</span>
