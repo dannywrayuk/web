@@ -165,7 +165,7 @@ export const EndScene = () => {
       <div className="flex flex-col mt-4">
         {scores.map((score, index) => (
           <p
-            className="mt-2 text-u0 mr-4 bg-l1 p-4 rounded-md border-l3 border-2"
+            className="mt-2 text-u0 bg-l1 p-4 rounded-md border-l3 border-2"
             key={index + (state?.sessionId || "")}
           >
             <span className="font-bold mr-2">{index + 1}.</span>
