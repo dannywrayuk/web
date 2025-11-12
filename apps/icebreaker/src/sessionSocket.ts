@@ -29,11 +29,14 @@ export const sessionSocket = () => {
         break;
       }
       case "joined": {
-        state.players.push(data.name);
+        state.players = [...state.players, data.name];
         break;
       }
       case "voted": {
-        state.votes?.[data.answer].push(data.name);
+        state.votes = {
+          ...state.votes,
+          [data.answer]: [...(state.votes[data.answer] || []), data.name],
+        };
         break;
       }
       case "question": {
@@ -60,7 +63,6 @@ export const sessionSocket = () => {
       }
     }
     refreshState();
-    console.log("message received:", data);
   };
 
   const send = (action: string, payload: object) => {
@@ -81,10 +83,12 @@ export const sessionSocket = () => {
         ...Object.values(state.votes).map((voters) => voters.length),
       );
 
-      const winners = Object.entries(state.votes).reduce((acc, cur) => {
-        if (cur[1].length === highestVotedCount) acc.concat(cur[1]);
-        return acc;
-      }, [] as string[]);
+      const winners = Object.entries(state.votes)
+        .filter(([, voters]) => voters.length === highestVotedCount)
+        .reduce((acc, [, voters]) => {
+          acc.push(...voters);
+          return acc;
+        }, [] as string[]);
 
       winners.forEach((winner) => {
         state.scores[winner] = (state.scores[winner] || 0) + 1;
@@ -103,6 +107,7 @@ export const sessionSocket = () => {
     if (!name) return;
     send("join", { sessionId: state.sessionId, name });
     state.scene = "waiting-for-questions";
+    state.me = name;
     refreshState();
   };
 

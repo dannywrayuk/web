@@ -103,6 +103,11 @@ const EndScene = () => {
       <div className="bg-l1 border-1 border-l3 p-8 rounded-lg w-full max-w-md">
         <h1 className="text-u0 text-4xl font-bold">The ice is broken</h1>
         <p className="mt-4">Thank you for playing!</p>
+        <img
+          src="/teamwork.jpg"
+          alt="Ice Broken"
+          className="mt-8 w-full rounded-lg"
+        />
       </div>
     </div>
   );

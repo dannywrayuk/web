@@ -21,6 +21,9 @@ const InitialScene = () => {
             placeholder="Enter questions, one per line"
             className="bg-l2 border-1 border-l3 p-2 rounded-lg w-full text-u0 h-40"
             id="questions"
+            onChange={(e) => {
+              questionsInputRef.current = e.target.value;
+            }}
           />
           <button
             className="text-u0 bg-github px-4 py-2 rounded-lg w-full text-center mt-4 inline-block cursor-pointer"
@@ -82,6 +85,10 @@ export const QuestionScene = () => {
   });
   if (!state) return null;
   const max = Math.max(...Object.values(state.votes).map((v) => v.length));
+  const winners = Object.entries(state.votes)
+    .filter(([, v]) => v.length === max)
+    .map(([name]) => name)
+    .join(", ");
   return (
     <div className="flex flex-col items-center justify-center mt-20">
       <h1 className="text-u0 text-6xl font-bold">
@@ -91,7 +98,7 @@ export const QuestionScene = () => {
       <div className="flex items-end gap-2 w-full px-8 py-16 rounded h-[50vh]">
         {Object.entries(state.votes).map(([voteName, voteValues], idx) => (
           <div
-            key={idx}
+            key={idx + "question" + (state?.question?.number || 0)}
             className="flex flex-col items-center justify-end h-full"
             style={{ flex: 1 }}
           >
@@ -109,6 +116,7 @@ export const QuestionScene = () => {
             {
               <span className={"text-lg mt-2" + (reveal ? "" : " opacity-0")}>
                 {voteName}
+                <br />({voteValues.length})
               </span>
             }
           </div>
@@ -116,13 +124,7 @@ export const QuestionScene = () => {
       </div>
       <div>
         {reveal && (
-          <h2 className="text-u0 text-4xl font-bold mt-4">
-            {
-              Object.entries(state.votes).reduce((a, b) =>
-                a[1] > b[1] ? a : b,
-              )[0]
-            }
-          </h2>
+          <h2 className="text-u0 text-4xl font-bold mt-4">{winners}</h2>
         )}
       </div>
       <button
@@ -130,6 +132,7 @@ export const QuestionScene = () => {
         onClick={() => {
           if (reveal) {
             start.mutate();
+            setReveal(false);
           } else {
             setReveal(true);
           }
@@ -162,10 +165,10 @@ export const EndScene = () => {
       <div className="flex flex-col mt-4">
         {scores.map((score, index) => (
           <p
-            className="mt-2 text-u0 mr-4 bg-l1 p-4 rounded-full border-l3 border-2"
-            key={index}
+            className="mt-2 text-u0 mr-4 bg-l1 p-4 rounded-md border-l3 border-2"
+            key={index + (state?.sessionId || "")}
           >
-            <span>{index + 1}.</span>
+            <span className="font-bold mr-2">{index + 1}.</span>
             <span>
               {score.name}: {score.score}
             </span>

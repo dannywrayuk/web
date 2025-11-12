@@ -120,7 +120,7 @@ export const handler = async (event: any) => {
   const apiClient = createApiClient(event.requestContext);
 
   switch (body.action) {
-    case "create":
+    case "create": {
       const sessionId = randomUUID();
       await setPresenter(sessionId, connectionId);
       await setQuestions(sessionId, body.questions);
@@ -129,6 +129,7 @@ export const handler = async (event: any) => {
         sessionId,
       });
       break;
+    }
     case "start": {
       const participants = await getParticipants(body.sessionId);
       const questions = await getQuestions(body.sessionId);

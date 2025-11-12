@@ -35,7 +35,7 @@ app(config, ({ Cdn, Bucket, stack }) => {
   new Cdn({
     name: "assets",
     certificate,
-    subDomain: "account",
+    subDomain: "icebreaker",
     bucket: assets,
   }).addDomainMapping();
 });

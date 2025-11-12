@@ -2,6 +2,7 @@ import {
   ApiGatewayManagementApiClient,
   PostToConnectionCommand,
 } from "@aws-sdk/client-apigatewaymanagementapi";
+import { logger } from "@dannywrayuk/logger";
 import { unsafe } from "@dannywrayuk/results";
 
 export const replyToConnection = async (
@@ -9,7 +10,7 @@ export const replyToConnection = async (
   connectionId: string,
   payload: object,
 ) => {
-  return unsafe(() => {
+  const [_, err] = await unsafe(() => {
     return client.send(
       new PostToConnectionCommand({
         ConnectionId: connectionId,
@@ -17,4 +18,7 @@ export const replyToConnection = async (
       }),
     );
   })();
+  if (err) {
+    logger.error("Error replying to connection:", { error: err.message });
+  }
 };
