@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <!-- env: %MODE% -->
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Icebreaker | dannywray.co.uk</title>
+    <script>
+      const manual = localStorage.getItem("colorMode");
+      const preference = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const mode = manual || (preference ? "dark" : "light");
+      document.documentElement.setAttribute("colorMode", mode);
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
