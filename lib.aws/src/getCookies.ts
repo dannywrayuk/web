@@ -7,7 +7,7 @@ export const getCookies = <
 ): { [K in C[number]]: string | undefined } => {
   const cookiesArray = event.cookies;
   return cookies.reduce(
-    (acc, key) => {
+    (acc, key: C[number]) => {
       acc[key] = cookiesArray
         .find((cookie) => cookie.startsWith(`${key}=`))
         ?.split("=")[1];

@@ -42,6 +42,12 @@ importers:
       '@dannywrayuk/cdk':
         specifier: workspace:*
         version: link:../lib.cdk
+      '@dannywrayuk/eslint':
+        specifier: workspace:*
+        version: link:../lib.eslint
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@eslint/js':
         specifier: ^9.21.0
         version: 9.39.1
@@ -136,6 +142,12 @@ importers:
       '@dannywrayuk/cdk':
         specifier: workspace:*
         version: link:../lib.cdk
+      '@dannywrayuk/eslint':
+        specifier: workspace:*
+        version: link:../lib.eslint
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@eslint/js':
         specifier: ^9.21.0
         version: 9.39.1
@@ -200,9 +212,15 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
     devDependencies:
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/node':
         specifier: ^22.10.1
         version: 22.19.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
 
   lib.aws:
     dependencies:
@@ -219,9 +237,15 @@ importers:
         specifier: workspace:*
         version: link:../lib.results
     devDependencies:
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/node':
         specifier: ^22.10.1
         version: 22.19.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
 
   lib.cdk:
     dependencies:
@@ -238,15 +262,48 @@ importers:
         specifier: ^10.4.2
         version: 10.4.3
     devDependencies:
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/node':
         specifier: ^22.10.1
         version: 22.19.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
+
+  lib.eslint:
+    dependencies:
+      '@eslint/js':
+        specifier: ^9.39.1
+        version: 9.39.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
+      eslint-plugin-react-hooks:
+        specifier: ^5.1.0
+        version: 5.2.0(eslint@9.39.1(jiti@2.6.1))
+      eslint-plugin-react-refresh:
+        specifier: ^0.4.19
+        version: 0.4.24(eslint@9.39.1(jiti@2.6.1))
+      globals:
+        specifier: ^15.15.0
+        version: 15.15.0
+      typescript-eslint:
+        specifier: ^8.46.4
+        version: 8.46.4(eslint@9.39.1(jiti@2.6.1))(typescript@5.7.3)
 
   lib.logger:
     devDependencies:
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/node':
         specifier: ^22.10.1
         version: 22.19.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
 
   lib.responses:
     dependencies:
@@ -254,15 +311,27 @@ importers:
         specifier: workspace:*
         version: link:../lib.logger
     devDependencies:
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/node':
         specifier: ^22.10.1
         version: 22.19.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
 
   lib.results:
     devDependencies:
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/node':
         specifier: ^22.10.1
         version: 22.19.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
 
   lib.schema:
     dependencies:
@@ -276,9 +345,17 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
     devDependencies:
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/node':
         specifier: ^22.10.1
         version: 22.19.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
+
+  lib.tsconfig: {}
 
   lib.validatedFetch:
     dependencies:
@@ -289,9 +366,15 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
     devDependencies:
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/node':
         specifier: ^22.10.1
         version: 22.19.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
 
   svc.auth:
     dependencies:
@@ -335,6 +418,9 @@ importers:
       '@dannywrayuk/cdk':
         specifier: workspace:*
         version: link:../lib.cdk
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/jsonwebtoken':
         specifier: ^9.0.7
         version: 9.0.10
@@ -353,6 +439,9 @@ importers:
       esbuild:
         specifier: ^0.24.0
         version: 0.24.2
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.15.1)(@types/node@22.19.1)(typescript@5.7.3)
@@ -375,6 +464,9 @@ importers:
       '@dannywrayuk/cdk':
         specifier: workspace:*
         version: link:../lib.cdk
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10
@@ -393,6 +485,9 @@ importers:
       esbuild:
         specifier: ^0.24.0
         version: 0.24.2
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.15.1)(@types/node@22.19.1)(typescript@5.7.3)
@@ -436,6 +531,9 @@ importers:
       '@dannywrayuk/cdk':
         specifier: workspace:*
         version: link:../lib.cdk
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/node':
         specifier: ^22.10.1
         version: 22.19.1
@@ -451,6 +549,9 @@ importers:
       esbuild:
         specifier: ^0.24.0
         version: 0.24.2
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.15.1)(@types/node@22.19.1)(typescript@5.7.3)
@@ -464,6 +565,9 @@ importers:
       '@dannywrayuk/cdk':
         specifier: workspace:*
         version: link:../lib.cdk
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/jsonwebtoken':
         specifier: ^9.0.7
         version: 9.0.10
@@ -482,6 +586,9 @@ importers:
       esbuild:
         specifier: ^0.24.0
         version: 0.24.2
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.15.1)(@types/node@22.19.1)(typescript@5.7.3)
@@ -525,6 +632,12 @@ importers:
       '@dannywrayuk/cdk':
         specifier: workspace:*
         version: link:../lib.cdk
+      '@dannywrayuk/eslint':
+        specifier: workspace:*
+        version: link:../lib.eslint
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
       '@types/jsonwebtoken':
         specifier: ^9.0.7
         version: 9.0.10
@@ -543,6 +656,9 @@ importers:
       esbuild:
         specifier: ^0.24.0
         version: 0.24.2
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.15.1)(@types/node@22.19.1)(typescript@5.7.3)

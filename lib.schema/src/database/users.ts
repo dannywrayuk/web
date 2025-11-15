@@ -116,7 +116,7 @@ export const createUserExternalLink =
     }
     const [rsp, putError] = await table.put({
       Item: {
-        PK: `${externalIdKey}#${data[externalIdKey]}`,
+        PK: `${externalIdKey}#${data[externalIdKey as keyof typeof data]}`,
         SK: `USER_ID#${data.USER_ID}`,
         ...data,
       },
