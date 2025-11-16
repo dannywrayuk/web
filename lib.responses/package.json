@@ -11,8 +11,9 @@
     "@dannywrayuk/logger": "workspace:*"
   },
   "devDependencies": {
+    "@dannywrayuk/eslint": "workspace:*",
     "@dannywrayuk/tsconfig": "workspace:*",
-    "@types/node": "^22.10.1",
-    "eslint": "^9.39.1"
+    "@types/node": "catalog:",
+    "eslint": "catalog:"
   }
 }

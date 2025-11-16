@@ -5,29 +5,29 @@
     "cdk-destroy": "cdk destroy"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.721.0",
-    "@aws-sdk/client-ssm": "^3.699.0",
-    "@aws-sdk/lib-dynamodb": "^3.721.0",
+    "@aws-sdk/client-dynamodb": "catalog:",
+    "@aws-sdk/client-ssm": "catalog:",
+    "@aws-sdk/lib-dynamodb": "catalog:",
     "@dannywrayuk/aws": "workspace:*",
     "@dannywrayuk/logger": "workspace:*",
     "@dannywrayuk/responses": "workspace:*",
     "@dannywrayuk/results": "workspace:*",
     "@dannywrayuk/schema": "workspace:*",
-    "jsonwebtoken": "^9.0.2",
-    "typescript": "^5.7.3",
-    "zod": "^4.1.12"
+    "jsonwebtoken": "catalog:",
+    "typescript": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@dannywrayuk/cdk": "workspace:*",
     "@dannywrayuk/eslint": "workspace:*",
     "@dannywrayuk/tsconfig": "workspace:*",
-    "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^22.10.1",
-    "aws-cdk": "^2.171.1",
-    "aws-cdk-lib": "^2.171.1",
-    "constructs": "^10.4.2",
-    "esbuild": "^0.24.0",
-    "eslint": "^9.39.1",
-    "ts-node": "^10.9.2"
+    "@types/jsonwebtoken": "catalog:",
+    "@types/node": "catalog:",
+    "aws-cdk": "catalog:",
+    "aws-cdk-lib": "catalog:",
+    "constructs": "catalog:",
+    "esbuild": "catalog:",
+    "eslint": "catalog:",
+    "ts-node": "catalog:"
   }
 }
