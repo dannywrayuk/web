@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {
+    "new": "pnpx @dannywrayuk/cookie-cutter ./templates/ ./"
+  },
+  "dependencies": {}
+}

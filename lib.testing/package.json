@@ -1,0 +1,16 @@
+{
+  "name": "@dannywrayuk/testing",
+  "version": "1.0.0",
+  "description": "",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "@dannywrayuk/tsconfig": "workspace:*",
+    "@types/node": "^22.10.1",
+    "eslint": "^9.39.1"
+  }
+}

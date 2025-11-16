@@ -1,0 +1,26 @@
+{
+  "scripts": {
+    "cdk-synth": "cdk synth",
+    "cdk-deploy": "cdk deploy",
+    "cdk-destroy": "cdk destroy"
+  },
+  "dependencies": {
+    "@dannywrayuk/aws": "workspace:*",
+    "@dannywrayuk/logger": "workspace:*",
+    "@dannywrayuk/results": "workspace:*",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@dannywrayuk/cdk": "workspace:*",
+    "@dannywrayuk/tsconfig": "workspace:*",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.10.1",
+    "aws-cdk": "^2.171.1",
+    "aws-cdk-lib": "^2.171.1",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.39.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}
