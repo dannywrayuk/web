@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
+    "ts-check": "tsc -b --noEmit",
     "dev": "vite --mode ${STAGE:-dev}",
     "build": "tsc -b && vite build --mode ${STAGE:-dev}",
     "lint": "eslint .",

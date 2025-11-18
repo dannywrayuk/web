@@ -1,4 +1,0 @@
-{
-  "extends": "@dannywrayuk/tsconfig/base.json",
-  "include": ["../cdk"]
-}

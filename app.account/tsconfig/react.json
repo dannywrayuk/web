@@ -1,9 +1,0 @@
-{
-  "extends": "@dannywrayuk/tsconfig/react.json",
-  "compilerOptions": {
-    "paths": {
-      "@/*": ["../src/*"]
-    }
-  },
-  "include": ["../src"]
-}
