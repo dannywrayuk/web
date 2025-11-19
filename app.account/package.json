@@ -1,17 +1,15 @@
 {
-  "name": "account",
+  "name": "@dannywrayuk/app.account",
   "private": true,
-  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "ts-check": "tsc -b --noEmit",
     "dev": "vite --mode ${STAGE:-dev}",
     "build": "tsc -b && vite build --mode ${STAGE:-dev}",
     "lint": "eslint .",
     "preview": "vite preview",
     "cdk-synth": "cdk synth",
-    "cdk-deploy": "pnpm build && cdk deploy && pnpm cdk-bucket-sync",
-    "cdk-destroy": "cdk destroy",
-    "cdk-bucket-sync": "ts-node cdk/postDeploy.ts"
+    "cdk-deploy": "pnpm build && cdk deploy",
+    "cdk-destroy": "cdk destroy"
   },
   "dependencies": {
     "@dannywrayuk/api": "workspace:*",
@@ -29,24 +27,8 @@
     "@dannywrayuk/cdk": "workspace:*",
     "@dannywrayuk/eslint": "workspace:*",
     "@dannywrayuk/tsconfig": "workspace:*",
-    "@eslint/js": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/router-plugin": "catalog:",
-    "@types/jsonwebtoken": "catalog:",
-    "@types/node": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "aws-cdk": "catalog:",
-    "aws-cdk-lib": "catalog:",
-    "constructs": "catalog:",
-    "esbuild": "catalog:",
-    "eslint": "catalog:",
-    "eslint-plugin-react-hooks": "catalog:",
-    "eslint-plugin-react-refresh": "catalog:",
-    "globals": "catalog:",
-    "ts-node": "catalog:",
-    "typescript": "catalog:",
-    "typescript-eslint": "catalog:",
     "vite": "catalog:"
   }
 }

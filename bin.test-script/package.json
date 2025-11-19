@@ -1,0 +1,9 @@
+{
+  "name": "@dannywrayuk/test-script",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "bin": {
+    "test-script": "./src/index.ts"
+  }
+}

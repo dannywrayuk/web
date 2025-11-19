@@ -1,13 +1,13 @@
 {
+  "name": "@dannywrayuk/svc.auth",
+  "private": true,
+  "type": "module",
   "scripts": {
     "cdk-synth": "cdk synth",
     "cdk-deploy": "cdk deploy",
     "cdk-destroy": "cdk destroy"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "catalog:",
-    "@aws-sdk/client-ssm": "catalog:",
-    "@aws-sdk/lib-dynamodb": "catalog:",
     "@dannywrayuk/aws": "workspace:*",
     "@dannywrayuk/responses": "workspace:*",
     "@dannywrayuk/results": "workspace:*",
@@ -15,20 +15,11 @@
     "@dannywrayuk/logger": "workspace:*",
     "@dannywrayuk/schema": "workspace:*",
     "jsonwebtoken": "catalog:",
-    "typescript": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@dannywrayuk/cdk": "workspace:*",
     "@dannywrayuk/eslint": "workspace:*",
-    "@dannywrayuk/tsconfig": "workspace:*",
-    "@types/jsonwebtoken": "catalog:",
-    "@types/node": "catalog:",
-    "aws-cdk": "catalog:",
-    "aws-cdk-lib": "catalog:",
-    "constructs": "catalog:",
-    "esbuild": "catalog:",
-    "eslint": "catalog:",
-    "ts-node": "catalog:"
+    "@dannywrayuk/tsconfig": "workspace:*"
   }
 }

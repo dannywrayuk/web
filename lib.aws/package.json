@@ -1,7 +1,7 @@
 {
   "name": "@dannywrayuk/aws",
-  "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "type": "module",
   "exports": {
     "./*": "./src/*.ts"
   },
@@ -16,8 +16,6 @@
   },
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",
-    "@dannywrayuk/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "eslint": "catalog:"
+    "@dannywrayuk/tsconfig": "workspace:*"
   }
 }

@@ -1,7 +1,7 @@
 import { Fn } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { getStackConfig } from "./getStackConfig";
-import { exportName } from "./util/exportName";
+import { getStackConfig } from "./getStackConfig.ts";
+import { exportName } from "./util/exportName.ts";
 
 const importId = ({
   fromStack,

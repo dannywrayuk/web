@@ -1,7 +1,20 @@
 {
+  "name": "@dannywrayuk/web",
   "private": true,
   "scripts": {
     "new": "pnpx @dannywrayuk/cookie-cutter ./templates/ ./"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jsonwebtoken": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "aws-cdk": "catalog:",
+    "aws-cdk-lib": "catalog:",
+    "constructs": "catalog:",
+    "esbuild": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:"
+  }
 }

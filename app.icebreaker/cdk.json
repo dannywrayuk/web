@@ -1,16 +1,10 @@
 {
-  "app": "ts-node cdk/App.ts",
+  "app": "node cdk/App.ts",
   "watch": {
-    "include": ["**"],
-    "exclude": [
-      "README.md",
-      "cdk*.json",
-      "**/*.d.ts",
-      "**/*.js",
-      "package.json",
-      "pnpm-lock.yaml"
-    ]
+    "include": ["cdk/**"],
+    "exclude": []
   },
+  "versionReporting": false,
   "context": {
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,

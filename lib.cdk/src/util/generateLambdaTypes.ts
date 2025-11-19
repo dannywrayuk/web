@@ -1,4 +1,4 @@
-import { variableToTypeString } from "./variableToTypeString";
+import { variableToTypeString } from "./variableToTypeString.ts";
 
 export const generateLambdaTypes = ({
   stage,

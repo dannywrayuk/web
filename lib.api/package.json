@@ -1,20 +1,14 @@
 {
   "name": "@dannywrayuk/api",
-  "version": "1.0.0",
-  "description": "",
+  "private": true,
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts"
   },
   "scripts": {},
   "dependencies": {},
-  "peerDependencies": {
-    "zod": "^4.1.12"
-  },
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",
-    "@dannywrayuk/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "eslint": "catalog:"
+    "@dannywrayuk/tsconfig": "workspace:*"
   }
 }

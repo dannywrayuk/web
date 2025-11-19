@@ -3,8 +3,8 @@ import { RemovalPolicy, aws_s3 as s3 } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import crypto from "node:crypto";
 import * as fs from "node:fs";
-import { getStackConfig } from "./getStackConfig";
-import { exportName } from "./util/exportName";
+import { getStackConfig } from "./getStackConfig.ts";
+import { exportName } from "./util/exportName.ts";
 
 export type BucketConfig = {
   name: string;

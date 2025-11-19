@@ -1,7 +1,7 @@
 {
   "name": "@dannywrayuk/schema",
-  "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts"
@@ -13,11 +13,6 @@
   },
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",
-    "@dannywrayuk/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "eslint": "catalog:"
-  },
-  "peerDependencies": {
-    "zod": "^4.1.12"
+    "@dannywrayuk/tsconfig": "workspace:*"
   }
 }

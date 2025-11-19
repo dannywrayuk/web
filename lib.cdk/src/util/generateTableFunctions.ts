@@ -1,5 +1,5 @@
 import { casing } from "@dannywrayuk/casing";
-import { Table } from "../table";
+import { Table } from "../table.ts";
 
 const tableNameVariableName = (tableName: string) =>
   `${casing.camel(tableName)}TableName`;

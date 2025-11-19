@@ -1,7 +1,7 @@
 {
   "name": "@dannywrayuk/validatedFetch",
-  "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts"

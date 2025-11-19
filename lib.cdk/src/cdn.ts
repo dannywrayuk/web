@@ -5,10 +5,10 @@ import {
   aws_route53_targets as r53Targets,
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { getStackConfig } from "./getStackConfig";
-import { calculateDomain } from "./util/calculateDomain";
-import { Bucket } from "./bucket";
-import { Certificate } from "./certificate";
+import { getStackConfig } from "./getStackConfig.ts";
+import { calculateDomain } from "./util/calculateDomain.ts";
+import { Bucket } from "./bucket.ts";
+import { Certificate } from "./certificate.ts";
 
 export type CdnConfig = {
   bucket: Bucket;

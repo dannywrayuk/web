@@ -8,19 +8,19 @@ import {
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as fs from "node:fs";
-import { Config } from "./config";
-import { getStackConfig } from "./getStackConfig";
-import { generateLambdaTypes } from "./util/generateLambdaTypes";
-import { Table } from "./table";
-import { authorizer } from "./authorizer";
-import { exportName } from "./util/exportName";
+import { Config } from "./config.ts";
+import { getStackConfig } from "./getStackConfig.ts";
+import { generateLambdaTypes } from "./util/generateLambdaTypes.ts";
+import { Table } from "./table.ts";
+import { authorizer } from "./authorizer.ts";
+import { exportName } from "./util/exportName.ts";
 import path from "node:path";
 import {
   generateTableProperties,
   generateTableFunctions,
-} from "./util/generateTableFunctions";
-import { removeDuplicateImports } from "./util/removeDuplicateImports";
-import { generateSecretFunctions } from "./util/generateSecretFunctions";
+} from "./util/generateTableFunctions.ts";
+import { removeDuplicateImports } from "./util/removeDuplicateImports.ts";
+import { generateSecretFunctions } from "./util/generateSecretFunctions.ts";
 import { unsafe } from "@dannywrayuk/results";
 
 export type LambdaConfig = {

@@ -2,7 +2,7 @@ import {
   aws_apigatewayv2_authorizers as apiGwAuth,
   Duration,
 } from "aws-cdk-lib";
-import { Lambda } from "./lambda";
+import { Lambda } from "./lambda.ts";
 
 export const authorizer = (lambda: Lambda) => {
   const authorizerName = `LambdaAuthorizer-${lambda.construct.node.id}`;

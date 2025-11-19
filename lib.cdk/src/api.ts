@@ -6,11 +6,11 @@ import {
   aws_route53_targets as r53Targets,
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { calculateDomain } from "./util/calculateDomain";
-import { hashMap } from "./util/hashMap";
-import { getStackConfig } from "./getStackConfig";
-import { Lambda } from "./lambda";
-import { exportName } from "./util/exportName";
+import { calculateDomain } from "./util/calculateDomain.ts";
+import { hashMap } from "./util/hashMap.ts";
+import { getStackConfig } from "./getStackConfig.ts";
+import { Lambda } from "./lambda.ts";
+import { exportName } from "./util/exportName.ts";
 
 export type ApiConfig = {
   name: string;

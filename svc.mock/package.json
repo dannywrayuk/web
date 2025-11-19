@@ -1,4 +1,7 @@
 {
+  "name": "@dannywrayuk/svc.mock",
+  "private": true,
+  "type": "module",
   "scripts": {
     "cdk-synth": "cdk synth",
     "cdk-deploy": "cdk deploy",

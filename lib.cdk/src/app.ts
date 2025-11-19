@@ -1,7 +1,7 @@
 import { App } from "aws-cdk-lib";
-import { Config } from "./config";
-import { Stack } from "./stack";
-import { bindConstructors } from "./util/bindConstructors";
+import { Config } from "./config.ts";
+import { Stack } from "./stack.ts";
+import { bindConstructors } from "./util/bindConstructors.ts";
 
 export const app = (
   config: Config<any, any>,

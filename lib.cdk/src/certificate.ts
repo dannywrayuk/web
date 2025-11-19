@@ -3,8 +3,8 @@ import {
   aws_certificatemanager as certMan,
   aws_route53 as r53,
 } from "aws-cdk-lib";
-import { exportName } from "./util/exportName";
-import { getStackConfig } from "./getStackConfig";
+import { exportName } from "./util/exportName.ts";
+import { getStackConfig } from "./getStackConfig.ts";
 
 export type CertificateConfig = { name: string; certifiedDomain: string };
 

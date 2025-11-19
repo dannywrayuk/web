@@ -1,7 +1,7 @@
 import { aws_dynamodb as ddb, RemovalPolicy } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { getStackConfig } from "./getStackConfig";
-import { exportName } from "./util/exportName";
+import { getStackConfig } from "./getStackConfig.ts";
+import { exportName } from "./util/exportName.ts";
 
 export type TableConfig = {
   name: string;

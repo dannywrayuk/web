@@ -1,11 +1,14 @@
-import { Lambda, LambdaConfig } from "../lambda";
+import { Lambda, type LambdaConfig } from "../lambda.ts";
 import { Construct } from "constructs";
-import { StackReference, StackReferenceConfig } from "../stackReference";
-import { Bucket, BucketConfig } from "../bucket";
-import { Api, ApiConfig } from "../api";
-import { Cdn, CdnConfig } from "../cdn";
-import { Table, TableConfig } from "../table";
-import { Certificate, CertificateConfig } from "../certificate";
+import {
+  StackReference,
+  type StackReferenceConfig,
+} from "../stackReference.ts";
+import { Bucket, type BucketConfig } from "../bucket.ts";
+import { Api, type ApiConfig } from "../api.ts";
+import { Cdn, type CdnConfig } from "../cdn.ts";
+import { Table, type TableConfig } from "../table.ts";
+import { Certificate, type CertificateConfig } from "../certificate.ts";
 
 export const bindConstructors = (scope: Construct) => ({
   Api: class extends Api {

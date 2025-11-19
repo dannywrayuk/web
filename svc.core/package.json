@@ -1,4 +1,7 @@
 {
+  "name": "@dannywrayuk/svc.core",
+  "private": true,
+  "type": "module",
   "scripts": {
     "cdk-synth": "cdk synth",
     "cdk-deploy": "cdk deploy",
@@ -13,15 +16,6 @@
   "devDependencies": {
     "@dannywrayuk/cdk": "workspace:*",
     "@dannywrayuk/eslint": "workspace:*",
-    "@dannywrayuk/tsconfig": "workspace:*",
-    "@types/jsonwebtoken": "catalog:",
-    "@types/node": "catalog:",
-    "aws-cdk": "catalog:",
-    "aws-cdk-lib": "catalog:",
-    "constructs": "catalog:",
-    "esbuild": "catalog:",
-    "eslint": "catalog:",
-    "ts-node": "catalog:",
-    "typescript": "catalog:"
+    "@dannywrayuk/tsconfig": "workspace:*"
   }
 }
