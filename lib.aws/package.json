@@ -7,12 +7,10 @@
   },
   "scripts": {},
   "dependencies": {
-    "@dannywrayuk/results": "workspace:*"
-  },
-  "peerDependencies": {
     "@aws-sdk/client-dynamodb": "^3.721.0",
     "@aws-sdk/client-ssm": "^3.699.0",
-    "@aws-sdk/lib-dynamodb": "^3.721.0"
+    "@aws-sdk/lib-dynamodb": "^3.721.0",
+    "@dannywrayuk/results": "workspace:*"
   },
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",

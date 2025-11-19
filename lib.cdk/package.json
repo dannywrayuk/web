@@ -7,8 +7,7 @@
     "./*": "./src/*.ts"
   },
   "scripts": {},
-  "dependencies": {},
-  "peerDependencies": {
+  "dependencies": {
     "@dannywrayuk/casing": "^1.0.4",
     "@dannywrayuk/results": "workspace:*",
     "aws-cdk-lib": "^2.171.1",
@@ -16,8 +15,6 @@
   },
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",
-    "@dannywrayuk/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "eslint": "catalog:"
+    "@dannywrayuk/tsconfig": "workspace:*"
   }
 }
