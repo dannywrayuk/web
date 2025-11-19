@@ -106,10 +106,6 @@ catalogs:
 importers:
 
   .:
-    dependencies:
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
     devDependencies:
       '@types/jsonwebtoken':
         specifier: 'catalog:'
@@ -138,6 +134,9 @@ importers:
       eslint:
         specifier: 'catalog:'
         version: 9.39.1(jiti@2.6.1)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   app.account:
     dependencies:
@@ -181,57 +180,12 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@eslint/js':
-        specifier: 'catalog:'
-        version: 9.39.1
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.1.17(vite@7.2.2(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6))
       '@tanstack/router-plugin':
         specifier: 'catalog:'
         version: 1.136.1(@tanstack/react-router@1.136.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@7.2.2(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6))
-      '@types/jsonwebtoken':
-        specifier: 'catalog:'
-        version: 9.0.10
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      '@types/react':
-        specifier: 'catalog:'
-        version: 19.2.4
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.2.3(@types/react@19.2.4)
-      aws-cdk:
-        specifier: 'catalog:'
-        version: 2.1031.2
-      aws-cdk-lib:
-        specifier: 'catalog:'
-        version: 2.224.0(constructs@10.4.3)
-      constructs:
-        specifier: 'catalog:'
-        version: 10.4.3
-      esbuild:
-        specifier: 'catalog:'
-        version: 0.24.2
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
-      eslint-plugin-react-hooks:
-        specifier: 'catalog:'
-        version: 5.2.0(eslint@9.39.1(jiti@2.6.1))
-      eslint-plugin-react-refresh:
-        specifier: 'catalog:'
-        version: 0.4.24(eslint@9.39.1(jiti@2.6.1))
-      globals:
-        specifier: 'catalog:'
-        version: 15.15.0
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      typescript-eslint:
-        specifier: 'catalog:'
-        version: 8.46.4(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
       vite:
         specifier: 'catalog:'
         version: 7.2.2(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6)
@@ -278,68 +232,17 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@eslint/js':
-        specifier: 'catalog:'
-        version: 9.39.1
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.1.17(vite@7.2.2(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6))
       '@tanstack/router-plugin':
         specifier: 'catalog:'
         version: 1.136.1(@tanstack/react-router@1.136.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@7.2.2(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6))
-      '@types/jsonwebtoken':
-        specifier: 'catalog:'
-        version: 9.0.10
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      '@types/react':
-        specifier: 'catalog:'
-        version: 19.2.4
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.2.3(@types/react@19.2.4)
-      aws-cdk:
-        specifier: 'catalog:'
-        version: 2.1031.2
-      aws-cdk-lib:
-        specifier: 'catalog:'
-        version: 2.224.0(constructs@10.4.3)
-      constructs:
-        specifier: 'catalog:'
-        version: 10.4.3
-      esbuild:
-        specifier: 'catalog:'
-        version: 0.24.2
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
-      eslint-plugin-react-hooks:
-        specifier: 'catalog:'
-        version: 5.2.0(eslint@9.39.1(jiti@2.6.1))
-      eslint-plugin-react-refresh:
-        specifier: 'catalog:'
-        version: 0.4.24(eslint@9.39.1(jiti@2.6.1))
-      globals:
-        specifier: 'catalog:'
-        version: 15.15.0
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      typescript-eslint:
-        specifier: 'catalog:'
-        version: 8.46.4(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
       vite:
         specifier: 'catalog:'
         version: 7.2.2(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6)
 
-  bin.test-script: {}
-
-  lib.api:
-    dependencies:
-      zod:
-        specifier: ^4.1.12
-        version: 4.1.12
+  bin.test-script:
     devDependencies:
       '@dannywrayuk/eslint':
         specifier: workspace:*
@@ -347,12 +250,15 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
+
+  lib.api:
+    devDependencies:
+      '@dannywrayuk/eslint':
+        specifier: workspace:*
+        version: link:../lib.eslint
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
 
   lib.aws:
     dependencies:
@@ -375,12 +281,6 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
 
   lib.cdk:
     dependencies:
@@ -403,12 +303,6 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
 
   lib.eslint:
     dependencies:
@@ -439,12 +333,6 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
 
   lib.responses:
     dependencies:
@@ -458,12 +346,6 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
 
   lib.results:
     devDependencies:
@@ -473,12 +355,6 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
 
   lib.schema:
     dependencies:
@@ -488,9 +364,6 @@ importers:
       '@dannywrayuk/results':
         specifier: workspace:*
         version: link:../lib.results
-      zod:
-        specifier: ^4.1.12
-        version: 4.1.12
     devDependencies:
       '@dannywrayuk/eslint':
         specifier: workspace:*
@@ -498,12 +371,6 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
 
   lib.tsconfig: {}
 
@@ -590,33 +457,6 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@types/jsonwebtoken':
-        specifier: 'catalog:'
-        version: 9.0.10
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      aws-cdk:
-        specifier: 'catalog:'
-        version: 2.1031.2
-      aws-cdk-lib:
-        specifier: 'catalog:'
-        version: 2.224.0(constructs@10.4.3)
-      constructs:
-        specifier: 'catalog:'
-        version: 10.4.3
-      esbuild:
-        specifier: 'catalog:'
-        version: 0.24.2
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
-      ts-node:
-        specifier: 'catalog:'
-        version: 10.9.2(@swc/core@1.15.1)(@types/node@22.19.1)(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   svc.icebreaker:
     dependencies:

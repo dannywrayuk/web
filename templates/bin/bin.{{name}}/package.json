@@ -1,0 +1,11 @@
+{
+  "name": "@dannywrayuk/{{name}}",
+  "type": "module",
+  "bin": {
+    "{{name}}": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@dannywrayuk/eslint": "workspace:*",
+    "@dannywrayuk/tsconfig": "workspace:*"
+  }
+}
