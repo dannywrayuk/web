@@ -177,6 +177,9 @@ importers:
       '@dannywrayuk/eslint':
         specifier: workspace:*
         version: link:../lib.eslint
+      '@dannywrayuk/sync-s3':
+        specifier: workspace:*
+        version: link:../bin.sync-s3
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
@@ -242,7 +245,11 @@ importers:
         specifier: 'catalog:'
         version: 7.2.2(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6)
 
-  bin.test-script:
+  bin.sync-s3:
+    dependencies:
+      '@dannywrayuk/results':
+        specifier: workspace:*
+        version: link:../lib.results
     devDependencies:
       '@dannywrayuk/eslint':
         specifier: workspace:*

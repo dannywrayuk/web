@@ -1,6 +1,9 @@
 {
   "name": "@dannywrayuk/tsconfig",
   "private": true,
+  "exports": {
+    "./*.json": "./*.json"
+  },
   "publishConfig": {
     "access": "public"
   }

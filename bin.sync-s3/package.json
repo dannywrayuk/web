@@ -1,8 +1,11 @@
 {
-  "name": "@dannywrayuk/test-script",
+  "name": "@dannywrayuk/sync-s3",
   "type": "module",
   "bin": {
-    "test-script": "./src/index.ts"
+    "sync-s3": "./src/index.ts"
+  },
+  "dependencies": {
+    "@dannywrayuk/results": "workspace:*"
   },
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",
