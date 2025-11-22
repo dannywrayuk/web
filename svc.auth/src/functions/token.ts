@@ -1,10 +1,10 @@
 import * as response from "@dannywrayuk/responses";
-import { authorizationCode } from "./lib/authorizationCode";
-import { refreshTokens } from "./lib/refreshTokens";
+import { authorizationCode } from "./lib/authorizationCode.ts";
+import { refreshTokens } from "./lib/refreshTokens.ts";
 import { err, ok, unsafeSync } from "@dannywrayuk/results";
-import { env, getSecrets, usersTable } from "./token.gen";
-import * as githubActions from "./lib/actions/githubActions";
-import { generateToken, verifyToken } from "./lib/actions/tokenActions";
+import { env, getSecrets, usersTable } from "./token.gen.ts";
+import * as githubActions from "./lib/actions/githubActions.ts";
+import { generateToken, verifyToken } from "./lib/actions/tokenActions.ts";
 import { logger } from "@dannywrayuk/logger";
 import {
   createUserExternalLink,

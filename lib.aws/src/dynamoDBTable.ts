@@ -11,7 +11,7 @@ import {
   UpdateCommand,
   UpdateCommandInput,
 } from "@aws-sdk/lib-dynamodb";
-import { dynamoDBClient } from "./clients/dynamodb";
+import { dynamoDBClient } from "./clients/dynamodb.ts";
 
 export const table = (tableName: string) => ({
   put: async (

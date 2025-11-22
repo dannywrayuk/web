@@ -1,5 +1,5 @@
 import { ok, error } from "@dannywrayuk/responses";
-import { env, usersTable } from "./meDelete.gen";
+import { env, usersTable } from "./meDelete.gen.ts";
 import { deleteUser } from "@dannywrayuk/schema/database/users";
 import { logger } from "@dannywrayuk/logger";
 

@@ -6,7 +6,9 @@
     "./*": "./src/*.ts"
   },
   "scripts": {},
-  "dependencies": {},
+  "dependencies": {
+    "zod": "catalog:"
+  },
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",
     "@dannywrayuk/tsconfig": "workspace:*"

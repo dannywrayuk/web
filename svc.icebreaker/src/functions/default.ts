@@ -1,7 +1,7 @@
-import { env, stateTable } from "./default.gen";
+import { env, stateTable } from "./default.gen.ts";
 import { logger } from "@dannywrayuk/logger";
-import { createApiClient } from "./lib/apiClient";
-import { replyToConnection } from "./lib/replyToConnection";
+import { createApiClient } from "./lib/apiClient.ts";
+import { replyToConnection } from "./lib/replyToConnection.ts";
 import { randomUUID } from "crypto";
 
 const setParticipant = async (

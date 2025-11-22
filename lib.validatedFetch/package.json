@@ -8,15 +8,11 @@
   },
   "scripts": {},
   "dependencies": {
-    "@dannywrayuk/results": "workspace:*"
+    "@dannywrayuk/results": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",
-    "@dannywrayuk/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "eslint": "catalog:"
-  },
-  "peerDependencies": {
-    "zod": "^4.1.12"
+    "@dannywrayuk/tsconfig": "workspace:*"
   }
 }

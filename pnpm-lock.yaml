@@ -232,6 +232,9 @@ importers:
       '@dannywrayuk/eslint':
         specifier: workspace:*
         version: link:../lib.eslint
+      '@dannywrayuk/sync-s3':
+        specifier: workspace:*
+        version: link:../bin.sync-s3
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
@@ -259,6 +262,10 @@ importers:
         version: link:../lib.tsconfig
 
   lib.api:
+    dependencies:
+      zod:
+        specifier: 'catalog:'
+        version: 4.1.12
     devDependencies:
       '@dannywrayuk/eslint':
         specifier: workspace:*

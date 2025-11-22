@@ -1,8 +1,8 @@
-import { authorizationCode } from "./lib/authorizationCode";
-import { env, getSecrets, usersTable } from "./login.gen";
+import { authorizationCode } from "./lib/authorizationCode.ts";
+import { env, getSecrets, usersTable } from "./login.gen.ts";
 import * as response from "@dannywrayuk/responses";
-import * as githubActions from "./lib/actions/githubActions";
-import { generateToken } from "./lib/actions/tokenActions";
+import * as githubActions from "./lib/actions/githubActions.ts";
+import { generateToken } from "./lib/actions/tokenActions.ts";
 import { logger } from "@dannywrayuk/logger";
 import {
   createUserExternalLink,

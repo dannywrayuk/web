@@ -1,6 +1,6 @@
-import { refreshTokens } from "./lib/refreshTokens";
-import { generateToken, verifyToken } from "./lib/actions/tokenActions";
-import { getSecrets, env, usersTable } from "./refresh.gen";
+import { refreshTokens } from "./lib/refreshTokens.ts";
+import { generateToken, verifyToken } from "./lib/actions/tokenActions.ts";
+import { getSecrets, env, usersTable } from "./refresh.gen.ts";
 import * as response from "@dannywrayuk/responses";
 import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { logger } from "@dannywrayuk/logger";

@@ -1,5 +1,5 @@
 import { GetParametersCommand } from "@aws-sdk/client-ssm";
-import { ssmClient } from "./clients/ssm";
+import { ssmClient } from "./clients/ssm.ts";
 
 type Options = {
   stage: string;

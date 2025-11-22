@@ -1,4 +1,4 @@
-import { env, getSecrets } from "./verifyUser.gen";
+import { env, getSecrets } from "./verifyUser.gen.ts";
 import * as jwt from "jsonwebtoken";
 import { unsafe } from "@dannywrayuk/results";
 import { logger } from "@dannywrayuk/logger";

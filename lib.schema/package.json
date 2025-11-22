@@ -9,7 +9,8 @@
   "scripts": {},
   "dependencies": {
     "@dannywrayuk/results": "workspace:*",
-    "@dannywrayuk/aws": "workspace:*"
+    "@dannywrayuk/aws": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",

@@ -1,4 +1,4 @@
-import { fallback, mocks } from "./mocks";
+import { fallback, mocks } from "./mocks.ts";
 
 export const handler = async (event: any) => {
   const path = event.pathParameters?.mockName;

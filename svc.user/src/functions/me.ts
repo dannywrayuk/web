@@ -1,6 +1,6 @@
 import { userMeResponse } from "@dannywrayuk/schema/endpoints/user";
 import { ok, notFound, error } from "@dannywrayuk/responses";
-import { env, usersTable } from "./me.gen";
+import { env, usersTable } from "./me.gen.ts";
 import { logger } from "@dannywrayuk/logger";
 import { z } from "zod";
 import { readUserRecord } from "@dannywrayuk/schema/database/users";
