@@ -1,25 +1,25 @@
 import * as crypto from "node:crypto";
 
-const hash = (key: any) => {
+const hash = (key: unknown) => {
   const str = JSON.stringify(key);
   return crypto.createHash("md5").update(str).digest("hex");
 };
-export type HashMap = ReturnType<typeof hashMap>;
+export type HashMap<T = unknown> = ReturnType<typeof hashMap<T>>;
 
-export const hashMap = () => {
-  const map = {} as Record<string, any>;
+export const hashMap = <T = unknown>() => {
+  const map = {} as Record<string, T>;
 
-  const get = (key: any) => {
+  const get = (key: unknown) => {
     const hashKey = hash(key);
     return map[hashKey];
   };
 
-  const set = (key: any, value: any) => {
+  const set = (key: unknown, value: T) => {
     const hashKey = hash(key);
     map[hashKey] = value;
   };
 
-  const asCache = (key: any, getValue: () => any) => {
+  const asCache = (key: unknown, getValue: () => T) => {
     const hashKey = hash(key);
     const value = map[hashKey];
     if (value) return value;

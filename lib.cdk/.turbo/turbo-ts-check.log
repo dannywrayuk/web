@@ -1,0 +1,5 @@
+
+
+> @dannywrayuk/cdk@ ts-check /Users/danny/project/web/lib.cdk
+> tsc --noEmit
+

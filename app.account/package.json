@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite --mode ${STAGE:-dev}",
     "ts-check": "tsc --noEmit",
+    "lint": "eslint .",
     "build": "tsc -b && vite build --mode ${STAGE:-dev}",
     "lint": "eslint .",
     "preview": "vite preview",

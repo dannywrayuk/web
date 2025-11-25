@@ -104,7 +104,14 @@ const getQuestions = async (sessionId: string) => {
   return rsp.Items[0].questions as string[];
 };
 
-export const handler = async (event: any) => {
+export const handler = async (event: {
+  requestContext: {
+    connectionId: string;
+    domainName: string;
+    stage: string;
+  };
+  body: string | null;
+}) => {
   const { connectionId } = event.requestContext;
   const body = event.body ? JSON.parse(event.body) : {};
   logger

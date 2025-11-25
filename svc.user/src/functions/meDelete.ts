@@ -3,7 +3,18 @@ import { env, usersTable } from "./meDelete.gen.ts";
 import { deleteUser } from "@dannywrayuk/schema/database/users";
 import { logger } from "@dannywrayuk/logger";
 
-export const handler = async (event: any) => {
+export const handler = async (event: {
+  requestContext: {
+    authorizer: {
+      lambda: {
+        tokenPayload: {
+          sub: string;
+          sessionStarted: number;
+        };
+      };
+    };
+  };
+}) => {
   const tokenPayload = event.requestContext.authorizer.lambda.tokenPayload;
   logger
     .setDebug(env.stage === "dev")

@@ -1,0 +1,5 @@
+
+
+> @dannywrayuk/app.account@ ts-check /Users/danny/project/web/app.account
+> tsc --noEmit
+

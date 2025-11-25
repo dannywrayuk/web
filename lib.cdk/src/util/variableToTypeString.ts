@@ -52,7 +52,7 @@ export const variableToTypeString = (
           ? "true"
           : "false"
         : "boolean";
-    case "object":
+    case "object": {
       const entries = Object.entries(thing);
 
       if (entries.length === 0) {
@@ -71,6 +71,7 @@ export const variableToTypeString = (
         ) +
         `${nl}}`
       );
+    }
     default:
       return typeof thing;
   }

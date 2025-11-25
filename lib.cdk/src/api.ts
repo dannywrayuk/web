@@ -89,7 +89,7 @@ export class Api {
   }
 
   addEndpoints(endpoints: Endpoint[]) {
-    const integrationCache = hashMap();
+    const integrationCache = hashMap<apiGw.HttpRouteIntegration>();
     endpoints.forEach((endpoint) => {
       endpoint.methods.forEach((method) => {
         new apiGw.HttpRoute(

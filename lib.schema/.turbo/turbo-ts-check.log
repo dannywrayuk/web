@@ -1,0 +1,5 @@
+
+
+> @dannywrayuk/schema@ ts-check /Users/danny/project/web/lib.schema
+> tsc --noEmit
+

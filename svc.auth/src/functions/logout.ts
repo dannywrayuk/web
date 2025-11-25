@@ -2,7 +2,7 @@ import { ok } from "@dannywrayuk/responses";
 import { env } from "./logout.gen.ts";
 import { logger } from "@dannywrayuk/logger";
 
-export const handler = async (event: any) => {
+export const handler = async (event: { headers: Record<string, string> }) => {
   logger
     .setDebug(env.stage === "dev")
     .attach({

@@ -7,6 +7,7 @@
     "./*": "./src/*"
   },
   "scripts": {
+    "lint": "eslint .",
     "ts-check": "tsc --noEmit"
   },
   "dependencies": {

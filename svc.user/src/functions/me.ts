@@ -5,7 +5,17 @@ import { logger } from "@dannywrayuk/logger";
 import { z } from "zod";
 import { readUserRecord } from "@dannywrayuk/schema/database/users";
 
-export const handler = async (event: any) => {
+export const handler = async (event: {
+  requestContext: {
+    authorizer: {
+      lambda: {
+        tokenPayload: {
+          sub: string;
+        };
+      };
+    };
+  };
+}) => {
   const tokenPayload = event.requestContext.authorizer.lambda.tokenPayload;
   logger
     .setDebug(env.stage === "dev")

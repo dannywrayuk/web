@@ -3,7 +3,7 @@ import { Construct } from "constructs";
 import { Config } from "./config.ts";
 
 export class Stack extends AwsStack {
-  constructor(scope: Construct, config: Config<{ name: string }, any>) {
+  constructor(scope: Construct, config: Config<{ name: string }>) {
     scope.node.setContext("stackConfig", config.current);
     super(scope, `${config.current.name}-${config.current.stage}`, {
       env: {

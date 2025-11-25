@@ -3,7 +3,7 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 
 export default defineConfig(
-  { ignores: ["dist"] },
+  { ignores: ["dist", "cdk.out"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

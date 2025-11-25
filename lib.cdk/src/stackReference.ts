@@ -37,6 +37,7 @@ export class StackReference {
 
   import<
     T extends {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       new (...args: any[]): {
         typeName: string;
         fromArn: (

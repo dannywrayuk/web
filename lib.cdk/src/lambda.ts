@@ -25,7 +25,7 @@ import { unsafe } from "@dannywrayuk/results";
 
 export type LambdaConfig = {
   name: string;
-  runtimeConfig?: Config<any, any>;
+  runtimeConfig?: Config;
   constants?: Record<string, string>;
   timeout?: number | Duration;
 } & Omit<nodeLambda.NodejsFunctionProps, "timeout">;

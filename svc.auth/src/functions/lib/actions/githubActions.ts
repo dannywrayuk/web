@@ -91,7 +91,7 @@ export const getPrimaryEmail =
     }
 
     const email = emailResponse.body.find(
-      (email: any) => email.primary && email.verified,
+      (email) => email.primary && email.verified,
     )?.email;
     if (!email) {
       return err("no primary email found");

@@ -1,11 +1,11 @@
 export const getCookies = <
-  E extends { cookies: string[] },
+  E extends { cookies?: string[] },
   C extends readonly string[],
 >(
   event: E,
   cookies: C,
 ): { [K in C[number]]: string | undefined } => {
-  const cookiesArray = event.cookies;
+  const cookiesArray = event.cookies || [];
   return cookies.reduce(
     (acc, key: C[number]) => {
       acc[key] = cookiesArray

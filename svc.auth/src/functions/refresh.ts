@@ -6,7 +6,10 @@ import { getCookies } from "@dannywrayuk/aws/getCookies";
 import { logger } from "@dannywrayuk/logger";
 import { readUserRecord } from "@dannywrayuk/schema/database/users";
 
-export const handler = async (event: any) => {
+export const handler = async (event: {
+  headers: Record<string, string>;
+  cookies?: string[];
+}) => {
   logger
     .setDebug(env.stage === "dev")
     .attach({

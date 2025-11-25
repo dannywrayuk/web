@@ -1,6 +1,9 @@
 import { fallback, mocks } from "./mocks.ts";
 
-export const handler = async (event: any) => {
+export const handler = async (event: {
+  pathParameters?: { mockName?: string };
+  requestContext?: { http?: { method?: string } };
+}) => {
   const path = event.pathParameters?.mockName;
   const method = event.requestContext?.http?.method;
   console.log({

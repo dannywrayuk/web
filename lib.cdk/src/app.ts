@@ -4,7 +4,7 @@ import { Stack } from "./stack.ts";
 import { bindConstructors } from "./util/bindConstructors.ts";
 
 export const app = (
-  config: Config<any, any>,
+  config: Config<{ name: string } & Record<string, unknown>>,
   appDefinition: (
     constructs: ReturnType<typeof bindConstructors> & { stack: Stack },
   ) => void,

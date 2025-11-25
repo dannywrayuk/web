@@ -1,8 +1,9 @@
 type AwsEnv = { account: string; region: string };
 
 export class Config<
-  CommonConfig extends Record<string, any>,
-  StageConfigs extends Record<string, Record<string, any>>,
+  CommonConfig extends Record<string, unknown> = Record<string, unknown>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  StageConfigs extends Record<any, Record<string, any>> = any,
 > {
   private stageConfigs: StageConfigs;
   stageNames: (keyof typeof this.stageConfigs)[];

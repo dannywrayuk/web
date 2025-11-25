@@ -1,3 +1,4 @@
+import { Config } from "../config.ts";
 import { variableToTypeString } from "./variableToTypeString.ts";
 
 export const generateLambdaTypes = ({
@@ -10,12 +11,12 @@ export const generateLambdaTypes = ({
   stage: string;
   functionName: string;
   serviceName: string;
-  runtimeConfig: any;
+  runtimeConfig?: Config;
   environment?: Record<string, string>;
 }) => {
   return `${
-    runtimeConfig?.stageNames
-      .map((stageName: any) => {
+    (runtimeConfig?.stageNames as string[])
+      .map((stageName) => {
         return `export type LambdaEnv_${stageName} = ${variableToTypeString(
           runtimeConfig?.fromStage(stageName),
           {
@@ -40,8 +41,8 @@ export type CommonEnv = ${variableToTypeString(
   )};
 
 export type LambdaEnv = CommonEnv & (${
-    runtimeConfig?.stageNames
-      .map((stageName: any) => `LambdaEnv_${stageName}`)
+    (runtimeConfig?.stageNames as string[])
+      .map((stageName: string) => `LambdaEnv_${stageName}`)
       .join(" | ") || "{}"
   });
 

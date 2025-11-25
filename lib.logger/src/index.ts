@@ -1,16 +1,19 @@
 class Logger {
-  private logFunctions: Record<string, (...messages: any[]) => void> = {
+  private logFunctions: Record<string, (...messages: unknown[]) => void> = {
     INFO: console.log,
     WARN: console.warn,
     ERROR: console.error,
     DEBUG: console.debug,
   };
-  private logData: Record<string, any> = {};
+  private logData: Record<string, unknown> = {};
   private debugMode: boolean = false;
 
   constructor() {}
 
-  log(level: string, message: string, data?: Record<string, any>) {
+  log(level: string, message: string, data?: Record<string, unknown> | Error) {
+    if (data instanceof Error) {
+      data = { message: data.message, error: data.name };
+    }
     this.logFunctions[level](
       message,
       JSON.stringify(
@@ -27,17 +30,19 @@ class Logger {
     );
   }
 
-  setLogFunctions(logFunctions: Record<string, (...message: any[]) => void>) {
+  setLogFunctions(
+    logFunctions: Record<string, (...message: unknown[]) => void>,
+  ) {
     this.logFunctions = logFunctions;
     return this;
   }
 
-  attach(data: Record<string, any>) {
+  attach(data: Record<string, unknown>) {
     this.logData = { ...this.logData, ...data };
     return this;
   }
 
-  attachDebug(data: Record<string, any>) {
+  attachDebug(data: Record<string, unknown>) {
     if (!this.debugMode) return this;
     this.attach(data);
     return this;
@@ -48,20 +53,20 @@ class Logger {
     return this;
   }
 
-  debug(message: string, data?: Record<string, any>) {
+  debug(message: string, data?: Record<string, unknown> | Error) {
     if (!this.debugMode) return this;
     this.log("DEBUG", message, data);
     return this;
   }
-  info(message: string, data?: Record<string, any>) {
+  info(message: string, data?: Record<string, unknown> | Error) {
     this.log("INFO", message, data);
     return this;
   }
-  warn(message: string, data?: Record<string, any>) {
+  warn(message: string, data?: Record<string, unknown> | Error) {
     this.log("WARN", message, data);
     return this;
   }
-  error(message: string, data?: Record<string, any>) {
+  error(message: string, data?: Record<string, unknown> | Error) {
     this.log("ERROR", message, data);
     return this;
   }

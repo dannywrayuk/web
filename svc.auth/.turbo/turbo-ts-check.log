@@ -1,0 +1,5 @@
+
+
+> @dannywrayuk/svc.auth@ ts-check /Users/danny/project/web/svc.auth
+> tsc --noEmit
+

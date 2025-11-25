@@ -14,7 +14,11 @@ import {
   UserRecord,
 } from "@dannywrayuk/schema/database/users";
 
-export const handler = async (event: any) => {
+export const handler = async (event: {
+  headers: Record<string, string>;
+  body?: string;
+  isBase64Encoded?: boolean;
+}) => {
   logger
     .setDebug(env.stage === "dev")
     .attach({

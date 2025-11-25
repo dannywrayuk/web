@@ -1,7 +1,7 @@
 import { logger } from "@dannywrayuk/logger";
 
 export function ok(
-  data?: any,
+  data?: unknown,
   response?: { headers?: Record<string, string>; cookies?: string[] },
 ) {
   logger.info("success").debug("response data", { data, response });

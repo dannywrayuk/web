@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type Ok<T> = [T, null] | [T];
 export type Err = [null, Error];
 export type Result<T> = Ok<T> | Err;

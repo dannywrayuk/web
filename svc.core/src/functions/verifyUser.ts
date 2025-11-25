@@ -11,7 +11,7 @@ const verifyToken = unsafe((token: string, signingKey: string) => {
   return decoded;
 });
 
-export const handler = async (event: any) => {
+export const handler = async (event: { identitySource?: string[] }) => {
   logger
     .setDebug(env.stage === "dev")
     .attach({

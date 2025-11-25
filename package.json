@@ -2,9 +2,11 @@
   "name": "@dannywrayuk/web",
   "private": true,
   "scripts": {
-    "new": "pnpx @dannywrayuk/cookie-cutter ./templates/ ./"
+    "new": "pnpx @dannywrayuk/cookie-cutter ./templates/ ./",
+    "lint": "turbo lint",
+    "ts-check": "turbo ts-check",
+    "check": "turbo check"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/jsonwebtoken": "catalog:",
     "@types/node": "catalog:",
@@ -15,6 +17,11 @@
     "constructs": "catalog:",
     "esbuild": "catalog:",
     "eslint": "catalog:",
+    "turbo": "^2.6.1",
     "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@10.22.0",
+  "engines": {
+    "node": ">=22"
   }
 }

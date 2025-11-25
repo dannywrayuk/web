@@ -12,7 +12,10 @@ import {
 } from "@dannywrayuk/schema/database/users";
 import { err, ok } from "@dannywrayuk/results";
 
-export const handler = async (event: any) => {
+export const handler = async (event: {
+  queryStringParameters?: { code?: string };
+  headers: { [key: string]: string | undefined };
+}) => {
   logger
     .setDebug(env.stage === "dev")
     .attach({
@@ -28,8 +31,8 @@ export const handler = async (event: any) => {
 
   const secrets = await getSecrets();
   const currentTime = new Date().toISOString();
-
-  if (!event.queryStringParameters?.code) {
+  const code = event.queryStringParameters?.code;
+  if (!code) {
     return response.badRequest("Missing code");
   }
 
@@ -86,7 +89,7 @@ export const handler = async (event: any) => {
           timeout: env.authTokenTimeouts.refreshToken,
         },
       ),
-  })(event.queryStringParameters);
+  })({ code });
 
   if (tokenError) {
     return response.error(tokenError.message);
