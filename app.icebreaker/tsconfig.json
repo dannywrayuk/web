@@ -1,6 +1,6 @@
 {
   "extends": "@dannywrayuk/tsconfig/bundle.json",
-  "include": ["src"]
+  "include": ["src"],
   "compilerOptions": {
     "baseUrl": "."
   }

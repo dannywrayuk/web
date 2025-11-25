@@ -6,7 +6,9 @@
     ".": "./src/index.ts",
     "./*": "./src/*.ts"
   },
-  "scripts": {},
+  "scripts": {
+    "ts-check": "tsc --noEmit"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.721.0",
     "@aws-sdk/client-ssm": "^3.699.0",

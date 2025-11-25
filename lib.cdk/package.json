@@ -6,7 +6,9 @@
     ".": "./src/index.ts",
     "./*": "./src/*"
   },
-  "scripts": {},
+  "scripts": {
+    "ts-check": "tsc --noEmit"
+  },
   "dependencies": {
     "@dannywrayuk/casing": "^1.0.4",
     "@dannywrayuk/results": "workspace:*",

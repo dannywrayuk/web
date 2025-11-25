@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "cdk-synth": "cdk synth",
     "cdk-deploy": "pnpm build && cdk deploy && sync-s3",
-    "cdk-destroy": "cdk destroy"
+    "cdk-destroy": "cdk destroy",
+    "ts-check": "tsc --noEmit"
   },
   "dependencies": {
     "@dannywrayuk/api": "workspace:*",

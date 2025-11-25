@@ -6,7 +6,9 @@
     ".": "./src/index.ts",
     "./*": "./src/*.ts"
   },
-  "scripts": {},
+  "scripts": {
+    "ts-check": "tsc --noEmit"
+  },
   "dependencies": {
     "@dannywrayuk/results": "workspace:*",
     "zod": "catalog:"

@@ -4,6 +4,9 @@
   "bin": {
     "sync-s3": "./src/index.ts"
   },
+  "scripts": {
+    "ts-check": "tsc --noEmit"
+  },
   "dependencies": {
     "@dannywrayuk/results": "workspace:*"
   },

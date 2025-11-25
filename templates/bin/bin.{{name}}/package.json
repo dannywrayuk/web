@@ -4,6 +4,9 @@
   "bin": {
     "{{name}}": "./src/index.ts"
   },
+  "scripts": {
+    "ts-check": "tsc --noEmit"
+  },
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",
     "@dannywrayuk/tsconfig": "workspace:*"

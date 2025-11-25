@@ -378,6 +378,9 @@ importers:
       '@dannywrayuk/results':
         specifier: workspace:*
         version: link:../lib.results
+      zod:
+        specifier: 'catalog:'
+        version: 4.1.12
     devDependencies:
       '@dannywrayuk/eslint':
         specifier: workspace:*
@@ -394,7 +397,7 @@ importers:
         specifier: workspace:*
         version: link:../lib.results
       zod:
-        specifier: ^4.1.12
+        specifier: 'catalog:'
         version: 4.1.12
     devDependencies:
       '@dannywrayuk/eslint':
@@ -403,12 +406,6 @@ importers:
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.1
-      eslint:
-        specifier: 'catalog:'
-        version: 9.39.1(jiti@2.6.1)
 
   svc.auth:
     dependencies:

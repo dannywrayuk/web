@@ -5,7 +5,9 @@
     ".": "./src/index.ts",
     "./*": "./src/*.ts"
   },
-  "scripts": {},
+  "scripts": {
+    "ts-check": "tsc --noEmit"
+  },
   "dependencies": {
     "zod": "catalog:"
   },
