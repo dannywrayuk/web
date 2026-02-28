@@ -1,4 +1,4 @@
 {
   "extends": "@dannywrayuk/tsconfig/node.json",
-  "include": ["src", "cdk"]
+  "include": ["interface.ts", "config.ts","src", "cdk"]
 }

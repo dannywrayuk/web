@@ -1,7 +1,7 @@
 {
   "app": "node cdk/App.ts",
   "watch": {
-    "include": ["cdk/**"],
+    "include": ["cdk/**", ""],
     "exclude": []
   },
   "versionReporting": false,

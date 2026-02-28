@@ -7,12 +7,14 @@ export const generateLambdaTypes = ({
   serviceName,
   runtimeConfig,
   environment,
+  generateHelpers,
 }: {
   stage: string;
   functionName: string;
   serviceName: string;
   runtimeConfig?: Config;
   environment?: Record<string, string>;
+  generateHelpers?: boolean;
 }) => {
   return `${
     (runtimeConfig?.stageNames as string[])
@@ -46,9 +48,14 @@ export type LambdaEnv = CommonEnv & (${
       .join(" | ") || "{}"
   });
 
-export const env = {
+${
+  generateHelpers
+    ? `export const env = {
     ...process.env,
     ...((process.env.constants || {}) as unknown as object),
   } as unknown as LambdaEnv;
+`
+    : ""
+}
 `;
 };

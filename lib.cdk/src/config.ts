@@ -1,23 +1,26 @@
 type AwsEnv = { account: string; region: string };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ConfigInput = Record<any, Record<string, any>>;
+
 export class Config<
-  CommonConfig extends Record<string, unknown> = Record<string, unknown>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  StageConfigs extends Record<any, Record<string, any>> = any,
+  StageConfigs extends ConfigInput = any,
 > {
-  private stageConfigs: StageConfigs;
+  private stageConfigs: Omit<StageConfigs, "*">;
   stageNames: (keyof typeof this.stageConfigs)[];
-  common: CommonConfig & {
+  common: ConfigInput["*"] & {
     awsEnv: AwsEnv;
     stage: keyof StageConfigs;
   };
-  current: CommonConfig &
+  current: ConfigInput["*"] &
     StageConfigs[keyof StageConfigs] & {
       awsEnv: AwsEnv;
       stage: keyof StageConfigs;
     };
-  constructor(commonConfig: CommonConfig, stageConfigs: StageConfigs) {
-    this.stageConfigs = stageConfigs;
+  constructor(config: ConfigInput) {
+    const { "*": commonConfig, ...stageConfigs } = config;
+    this.stageConfigs = stageConfigs as Omit<StageConfigs, "*">;
     const stageVar = process.env.STAGE;
     const stageFallback = commonConfig?.defaultStage || "dev";
     if (!stageVar) {
@@ -26,9 +29,15 @@ export class Config<
       );
     }
 
-    this.stageNames = Object.keys(stageConfigs);
+    this.stageNames = Object.keys(stageConfigs) as Exclude<
+      keyof StageConfigs,
+      "*"
+    >[];
 
-    const stage = (stageVar || stageFallback) as keyof StageConfigs;
+    const stage = (stageVar || stageFallback) as Exclude<
+      keyof StageConfigs,
+      "*"
+    >;
 
     const awsEnv = {
       account: process.env.CDK_DEFAULT_ACCOUNT || "",
@@ -50,7 +59,7 @@ export class Config<
     };
   }
 
-  fromStage(stage: keyof StageConfigs) {
+  fromStage(stage: Exclude<keyof StageConfigs, "*">) {
     if (!this.stageNames.includes(stage)) {
       throw new Error(`[ConfigError] No config for '${String(stage)}'.`);
     }

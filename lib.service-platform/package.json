@@ -1,5 +1,5 @@
 {
-  "name": "@dannywrayuk/aws",
+  "name": "@dannywrayuk/service-platform",
   "private": true,
   "type": "module",
   "exports": {
@@ -11,10 +11,9 @@
     "ts-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.721.0",
-    "@aws-sdk/client-lambda": "^3.985.0",
-    "@aws-sdk/client-ssm": "^3.699.0",
-    "@aws-sdk/lib-dynamodb": "^3.721.0",
+    "@dannywrayuk/aws": "workspace:*",
+    "@dannywrayuk/cdk": "workspace:*",
+    "@dannywrayuk/logger": "workspace:*",
     "@dannywrayuk/results": "workspace:*",
     "zod": "catalog:"
   },

@@ -1,41 +1,8 @@
-import * as response from "@dannywrayuk/responses";
-import { authorizationCode } from "./lib/authorizationCode.ts";
-import { refreshTokens } from "./lib/refreshTokens.ts";
-import { err, ok, unsafeSync } from "@dannywrayuk/results";
-import { env, getSecrets, usersTable } from "./token.gen.ts";
-import * as githubActions from "./lib/actions/githubActions.ts";
-import { generateToken, verifyToken } from "./lib/actions/tokenActions.ts";
-import { logger } from "@dannywrayuk/logger";
-import {
-  createUserExternalLink,
-  createUserRecord,
-  readUserExternalLink,
-  readUserRecord,
-  UserRecord,
-} from "@dannywrayuk/schema/database/users";
+import { ok } from "@dannywrayuk/results";
+import { login } from "../../interface.ts";
+import { handlerFunction } from "@dannywrayuk/service-platform/handlerFunction";
 
-export const handler = async (event: {
-  headers: Record<string, string>;
-  body?: string;
-  isBase64Encoded?: boolean;
-}) => {
-  logger
-    .setDebug(env.stage === "dev")
-    .attach({
-      name: env.functionName,
-      service: env.serviceName,
-      stage: env.stage,
-    })
-    .debug("input", {
-      headers: event.headers,
-      body: event.body,
-    })
-    .info("start");
-
-  const secrets = await getSecrets();
-  const headers = event.headers;
-  const contentType = headers["Content-Type"] || headers["content-type"];
-
+export const handler = handlerFunction(login, async (event, { secrets }) => {
   const [body, bodyError] = (() => {
     if (!event.body) {
       return err("no body");
@@ -181,4 +148,5 @@ export const handler = async (event: {
   }
 
   return response.badRequest("Invalid grant_type");
-};
+  return ok({ output: "Hello from the handler!" });
+});

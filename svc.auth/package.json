@@ -16,6 +16,7 @@
     "@dannywrayuk/validatedFetch": "workspace:*",
     "@dannywrayuk/logger": "workspace:*",
     "@dannywrayuk/schema": "workspace:*",
+    "@dannywrayuk/service-platform": "workspace:*",
     "jsonwebtoken": "catalog:",
     "zod": "catalog:"
   },

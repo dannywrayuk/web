@@ -28,6 +28,8 @@ export type LambdaConfig = {
   runtimeConfig?: Config;
   constants?: Record<string, string>;
   timeout?: number | Duration;
+  generateTypes?: boolean;
+  generateHelpers?: boolean;
 } & Omit<nodeLambda.NodejsFunctionProps, "timeout">;
 
 const findHandler = (handlerName: string) => {
@@ -47,6 +49,8 @@ export class Lambda {
   public name: string;
   public fullName: string;
   public entry: string;
+  public generateTypes: boolean;
+  public generateHelpers: boolean;
 
   constructor();
   constructor(scope: Construct, config: LambdaConfig);
@@ -58,6 +62,7 @@ export class Lambda {
     const stackConfig = getStackConfig(scope);
     this.fullName = `${stackConfig.name}-${config.name}-${stackConfig.stage}`;
     this.entry = config.entry || findHandler(config.name);
+    this.generateTypes = config.generateTypes ?? true;
 
     const constants = {
       stage: stackConfig.stage,
@@ -80,7 +85,7 @@ export class Lambda {
         timeout:
           typeof config.timeout === "number"
             ? Duration.seconds(config.timeout)
-            : config.timeout,
+            : config.timeout || Duration.seconds(10),
         bundling: {
           define: { "process.env.constants": JSON.stringify(constants) },
         },
@@ -93,16 +98,19 @@ export class Lambda {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    this.clearCodeGen();
-    this.appendToCodeGen(
-      generateLambdaTypes({
-        stage: stackConfig.stage,
-        functionName: this.fullName,
-        serviceName: stackConfig.name,
-        runtimeConfig: config.runtimeConfig,
-        environment: config.environment,
-      }),
-    );
+    if (config.generateTypes) {
+      this.clearCodeGen();
+      this.appendToCodeGen(
+        generateLambdaTypes({
+          stage: stackConfig.stage,
+          functionName: this.fullName,
+          serviceName: stackConfig.name,
+          runtimeConfig: config.runtimeConfig,
+          environment: config.environment,
+          generateHelpers: this.generateHelpers,
+        }),
+      );
+    }
   }
 
   export(referenceName?: string) {
@@ -164,8 +172,10 @@ export class Lambda {
         ],
       }),
     );
-    this.appendToCodeGen(generateTableProperties(table));
-    this.appendToCodeGen(generateTableFunctions(table.name));
+    if (this.generateHelpers) {
+      this.appendToCodeGen(generateTableProperties(table));
+      this.appendToCodeGen(generateTableFunctions(table.name));
+    }
     return this;
   }
   grantTableRead(table: Table) {
@@ -179,14 +189,18 @@ export class Lambda {
         ],
       }),
     );
-    this.appendToCodeGen(generateTableProperties(table));
-    this.appendToCodeGen(generateTableFunctions(table.name));
+    if (this.generateHelpers) {
+      this.appendToCodeGen(generateTableProperties(table));
+      this.appendToCodeGen(generateTableFunctions(table.name));
+    }
     return this;
   }
   grantTableWrite(table: Table) {
     table.construct.grantWriteData(this.construct);
-    this.appendToCodeGen(generateTableProperties(table));
-    this.appendToCodeGen(generateTableFunctions(table.name));
+    if (this.generateHelpers) {
+      this.appendToCodeGen(generateTableProperties(table));
+      this.appendToCodeGen(generateTableFunctions(table.name));
+    }
     return this;
   }
 
@@ -201,7 +215,9 @@ export class Lambda {
         ),
       }),
     );
-    this.appendToCodeGen(generateSecretFunctions(secretNames));
+    if (this.generateHelpers) {
+      this.appendToCodeGen(generateSecretFunctions(secretNames));
+    }
     return this;
   }
 }
