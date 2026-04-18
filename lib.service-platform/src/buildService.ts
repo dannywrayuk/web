@@ -2,6 +2,8 @@ import { app, Config } from "@dannywrayuk/cdk";
 import type { Handler } from "./Handler.ts";
 import * as fs from "node:fs";
 import { variableToTypeString } from "@dannywrayuk/cdk/util/variableToTypeString.ts";
+import { generateTable } from "@dannywrayuk/cdk/tablegen.ts";
+import type { TableData } from "@dannywrayuk/cdk/tablegen.ts";
 
 const generateServiceConfigTypes = (config: Config) => {
   const configTypes = `${
@@ -29,18 +31,22 @@ export type Env = CommonEnv & (${
 `;
 
   const fileContent = `// This file is auto-generated. Do not edit.\n\n${configTypes}`;
-  fs.writeFileSync("config.generated.ts", fileContent);
+  fs.mkdirSync("generated");
+  fs.writeFileSync("generated/config.ts", fileContent);
 };
 
 export const buildService = ({
   config,
   handlers,
+  tables,
 }: {
   config: Config;
   handlers: Record<string, Handler>;
+  tables: Record<string, TableData>;
 }) =>
   app(config, ({ Lambda }) => {
     generateServiceConfigTypes(config);
+    Object.values(tables).forEach((table) => generateTable(table));
     Object.entries(handlers).forEach(([handlerName, handlerConfig]) => {
       const l = new Lambda({
         name: handlerName,

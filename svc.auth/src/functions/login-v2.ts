@@ -10,13 +10,11 @@ import {
 import { err, ok } from "@dannywrayuk/results";
 import { handlerFunction } from "@dannywrayuk/service-platform/handlerFunction";
 import { login } from "../../interface.ts";
-import type { Env } from "../../config.generated.ts";
+import type { Env } from "../../generated/config.ts";
 
 export const handler = handlerFunction<Env>()(
   login,
-  async (event, { secrets, env }) => {
-    const currentTime = new Date().toISOString();
-
+  async (event, { secrets, env, timestamp }) => {
     const [tokens, tokenError] = await authorizationCode({
       getExternalAccessToken: githubActions.getAccessToken({
         clientId: secrets.GITHUB_CLIENT_ID,
@@ -56,7 +54,7 @@ export const handler = handlerFunction<Env>()(
       }),
       accessToken: (userId) =>
         generateToken(
-          { sub: userId, iss: env.domainName, sessionStarted: currentTime },
+          { sub: userId, iss: env.domainName, sessionStarted: timestamp },
           {
             signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
             timeout: env.authTokenTimeouts.accessToken,
@@ -64,7 +62,7 @@ export const handler = handlerFunction<Env>()(
         ),
       refreshToken: (userId) =>
         generateToken(
-          { sub: userId, iss: env.domainName, sessionStarted: currentTime },
+          { sub: userId, iss: env.domainName, sessionStarted: timestamp },
           {
             signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
             timeout: env.authTokenTimeouts.refreshToken,

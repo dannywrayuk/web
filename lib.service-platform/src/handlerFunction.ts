@@ -25,6 +25,7 @@ export const handlerFunction =
           ? Record<T["secrets"][number], string>
           : undefined;
         env: Env & { functionName: string; serviceName: string };
+        timestamp: string;
       },
     ) => AsyncResult<z.infer<T["response"]>>,
     maps?: {
@@ -80,6 +81,8 @@ export const handlerFunction =
 
     const { name: _, ...slimEnv } = env;
     logger.info("Handler start");
+
+    const timestamp = new Date().toISOString();
     const [rawResponse, err] = await handler(
       reqCheck.data as z.infer<T["request"]>,
       {
@@ -89,6 +92,7 @@ export const handlerFunction =
           serviceName: handlerConfig.serviceName as string,
           ...(slimEnv as Env),
         },
+        timestamp,
       },
     );
     logger.info("Handler end");

@@ -636,6 +636,9 @@ importers:
       '@dannywrayuk/schema':
         specifier: workspace:*
         version: link:../lib.schema
+      '@dannywrayuk/service-platform':
+        specifier: workspace:*
+        version: link:../lib.service-platform
       jsonwebtoken:
         specifier: 'catalog:'
         version: 9.0.2

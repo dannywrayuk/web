@@ -18,6 +18,7 @@
     "@dannywrayuk/responses": "workspace:*",
     "@dannywrayuk/results": "workspace:*",
     "@dannywrayuk/schema": "workspace:*",
+    "@dannywrayuk/service-platform": "workspace:*",
     "jsonwebtoken": "catalog:",
     "typescript": "catalog:",
     "zod": "catalog:"
