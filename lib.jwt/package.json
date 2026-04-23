@@ -1,0 +1,21 @@
+{
+  "name": "@dannywrayuk/jwt",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "ts-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dannywrayuk/results": "workspace:*",
+    "jsonwebtoken": "catalog:"
+  },
+  "devDependencies": {
+    "@dannywrayuk/eslint": "workspace:*",
+    "@dannywrayuk/tsconfig": "workspace:*"
+  }
+}

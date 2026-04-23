@@ -4,7 +4,6 @@ import { z } from "zod";
 
 export const login = callable(serviceName, {
   name: "login",
-  method: "GET",
   request: z.object({ code: z.string() }),
   response: z.object({ accessToken: z.string(), refreshToken: z.string() }),
   secrets: [
@@ -14,11 +13,11 @@ export const login = callable(serviceName, {
     "AUTH_REFRESH_TOKEN_SIGNING_KEY",
   ] as const,
   callers: ["auth-token"],
-} as const);
+  hasApi: true,
+});
 
 export const refresh = callable(serviceName, {
   name: "refresh",
-  method: "GET",
   request: z.object({ code: z.string() }),
   secrets: [
     "GITHUB_CLIENT_ID",
@@ -30,5 +29,4 @@ export const refresh = callable(serviceName, {
 
 export const logout = callable(serviceName, {
   name: "logout",
-  method: "GET",
 });

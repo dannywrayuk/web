@@ -1,0 +1,24 @@
+{
+  "name": "@dannywrayuk/github",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "ts-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dannywrayuk/results": "workspace:*",
+    "@dannywrayuk/validatedFetch": "workspace:*"
+  },
+  "devDependencies": {
+    "@dannywrayuk/eslint": "workspace:*",
+    "@dannywrayuk/tsconfig": "workspace:*"
+  },
+  "peerDependencies": {
+    "zod": "catalog:"
+  }
+}

@@ -1,5 +1,5 @@
 import z from "zod";
-import type { AsyncResult } from "@dannywrayuk/results";
+import { err, ok, type AsyncResult } from "@dannywrayuk/results";
 import { readSecret } from "@dannywrayuk/aws/readSecret";
 import { Handler } from "./Handler.ts";
 import { logger } from "@dannywrayuk/logger";
@@ -9,12 +9,7 @@ const env = {
   ...((process.env.constants || {}) as unknown as object),
 } as Record<string, string>;
 
-const invocationSource = (event: unknown) => {
-  console.log("Event received:", event);
-  return null;
-};
-
-export const handlerFunction =
+export const serviceFunction =
   <Env extends { stage: string }>() =>
   <T extends Handler>(
     handlerConfig: T,
@@ -28,10 +23,6 @@ export const handlerFunction =
         timestamp: string;
       },
     ) => AsyncResult<z.infer<T["response"]>>,
-    maps?: {
-      requestMap?: (event: unknown) => z.infer<T["request"]>;
-      responseMap?: (res: z.infer<T["response"]>) => Record<string, unknown>;
-    },
   ) =>
   async (event: unknown) => {
     logger
@@ -43,30 +34,13 @@ export const handlerFunction =
       })
       .debug("Event received", { event });
 
-    const source = invocationSource(event);
-    logger.debug("Invocation source", { source });
-    const mappedEvent = (() => {
-      if (source === "apiGateway" && maps?.requestMap) {
-        return maps.requestMap(event);
-      }
-      return event;
-    })() as z.infer<T["request"]>;
-
-    const reqCheck = handlerConfig.request?.safeParse(mappedEvent) || {
+    const reqCheck = handlerConfig.request?.safeParse(event) || {
       data: undefined,
       success: true,
     };
     if (!reqCheck.success) {
       logger.error("Invalid request:", reqCheck.error);
-      return (() => {
-        if (source === "apiGateway") {
-          return {
-            statusCode: 400,
-            body: JSON.stringify(reqCheck.error),
-          };
-        }
-        return reqCheck.error;
-      })();
+      return err(reqCheck.error);
     }
 
     const secrets = (
@@ -83,7 +57,7 @@ export const handlerFunction =
     logger.info("Handler start");
 
     const timestamp = new Date().toISOString();
-    const [rawResponse, err] = await handler(
+    const [response, handlerError] = await handler(
       reqCheck.data as z.infer<T["request"]>,
       {
         secrets,
@@ -96,28 +70,10 @@ export const handlerFunction =
       },
     );
     logger.info("Handler end");
-    if (err) {
-      logger.error("Handler error:", err);
-      return (() => {
-        if (source === "apiGateway") {
-          return {
-            statusCode: 500,
-            body: JSON.stringify(err),
-          };
-        }
-        return err;
-      })();
+    if (handlerError) {
+      logger.error("Handler error:", handlerError);
+      return err(handlerError);
     }
-    const mappedResponse = (() => {
-      if (source === "apiGateway") {
-        return {
-          statusCode: 200,
-          body: JSON.stringify(rawResponse),
-          ...maps?.responseMap?.(rawResponse),
-        };
-      }
-      return rawResponse;
-    })();
 
-    return mappedResponse;
+    return ok(response);
   };

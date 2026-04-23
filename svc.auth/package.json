@@ -11,13 +11,14 @@
   },
   "dependencies": {
     "@dannywrayuk/aws": "workspace:*",
+    "@dannywrayuk/github": "workspace:*",
     "@dannywrayuk/responses": "workspace:*",
     "@dannywrayuk/results": "workspace:*",
     "@dannywrayuk/validatedFetch": "workspace:*",
     "@dannywrayuk/logger": "workspace:*",
     "@dannywrayuk/schema": "workspace:*",
     "@dannywrayuk/service-platform": "workspace:*",
-    "jsonwebtoken": "catalog:",
+    "@dannywrayuk/jwt": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

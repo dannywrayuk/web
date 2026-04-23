@@ -1,0 +1,42 @@
+import { validatedFetch } from "@dannywrayuk/validatedFetch";
+import { err, ok } from "@dannywrayuk/results";
+import { z } from "zod";
+
+export const githubUserResponse = z.object({
+  id: z.number(),
+  login: z.string(),
+  name: z.string(),
+  avatar_url: z.string(),
+});
+
+export type GithubUserResponse = z.infer<typeof githubUserResponse>;
+
+export const getUserInfo = async ({
+  accessToken,
+  githubApiUrl,
+}: {
+  accessToken: string;
+  githubApiUrl: string;
+}) => {
+  const [userResponse, userResponseError] = await validatedFetch(
+    z.object({
+      status: z.literal(200),
+      body: githubUserResponse,
+    }),
+  )(`${githubApiUrl}/user`, {
+    headers: {
+      Authorization: `token ${accessToken}`,
+    },
+  });
+
+  if (userResponseError) {
+    return err(userResponseError, "fetching user info");
+  }
+
+  return ok({
+    EXTERNAL_ID: String(userResponse.body.id),
+    USERNAME: userResponse.body.login,
+    AVATAR_URL: userResponse.body.avatar_url,
+    NAME: userResponse.body.name,
+  });
+};

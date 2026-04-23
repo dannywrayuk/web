@@ -348,6 +348,41 @@ importers:
         specifier: 'catalog:'
         version: 8.46.4(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
 
+  lib.github:
+    dependencies:
+      '@dannywrayuk/results':
+        specifier: workspace:*
+        version: link:../lib.results
+      '@dannywrayuk/validatedFetch':
+        specifier: workspace:*
+        version: link:../lib.validatedFetch
+      zod:
+        specifier: 'catalog:'
+        version: 4.1.12
+    devDependencies:
+      '@dannywrayuk/eslint':
+        specifier: workspace:*
+        version: link:../lib.eslint
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
+
+  lib.jwt:
+    dependencies:
+      '@dannywrayuk/results':
+        specifier: workspace:*
+        version: link:../lib.results
+      jsonwebtoken:
+        specifier: 'catalog:'
+        version: 9.0.2
+    devDependencies:
+      '@dannywrayuk/eslint':
+        specifier: workspace:*
+        version: link:../lib.eslint
+      '@dannywrayuk/tsconfig':
+        specifier: workspace:*
+        version: link:../lib.tsconfig
+
   lib.logger:
     devDependencies:
       '@dannywrayuk/eslint':
@@ -446,6 +481,12 @@ importers:
       '@dannywrayuk/aws':
         specifier: workspace:*
         version: link:../lib.aws
+      '@dannywrayuk/github':
+        specifier: workspace:*
+        version: link:../lib.github
+      '@dannywrayuk/jwt':
+        specifier: workspace:*
+        version: link:../lib.jwt
       '@dannywrayuk/logger':
         specifier: workspace:*
         version: link:../lib.logger
@@ -464,9 +505,6 @@ importers:
       '@dannywrayuk/validatedFetch':
         specifier: workspace:*
         version: link:../lib.validatedFetch
-      jsonwebtoken:
-        specifier: 'catalog:'
-        version: 9.0.2
       zod:
         specifier: 'catalog:'
         version: 4.1.12

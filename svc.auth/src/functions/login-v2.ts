@@ -1,82 +1,86 @@
-import { authorizationCode } from "./lib/authorizationCode.ts";
-import * as githubActions from "./lib/actions/githubActions.ts";
-import { generateToken } from "./lib/actions/tokenActions.ts";
-import {
-  createUserExternalLink,
-  createUserRecord,
-  readUserExternalLink,
-  UserRecord,
-} from "@dannywrayuk/schema/database/users";
-import { err, ok } from "@dannywrayuk/results";
-import { handlerFunction } from "@dannywrayuk/service-platform/handlerFunction";
-import { login } from "../../interface.ts";
+import { serviceFunction } from "@dannywrayuk/service-platform/serviceFunction";
+import { login } from "../../service.ts";
 import type { Env } from "../../generated/config.ts";
+import { getAccessToken } from "@dannywrayuk/github/getAccessToken";
+import { err, ok } from "@dannywrayuk/results";
+import { getUserInfo } from "@dannywrayuk/github/getUserInfo";
+import { usersListBy_githubId } from "../../generated/users-table.ts";
+import { signToken } from "@dannywrayuk/jwt";
 
-export const handler = handlerFunction<Env>()(
+export const handler = serviceFunction<Env>()(
   login,
   async (event, { secrets, env, timestamp }) => {
-    const [tokens, tokenError] = await authorizationCode({
-      getExternalAccessToken: githubActions.getAccessToken({
+    const [accessTokenResponse, accessTokenResponseError] =
+      await getAccessToken({
+        code: event.code,
         clientId: secrets.GITHUB_CLIENT_ID,
         clientSecret: secrets.GITHUB_CLIENT_SECRET,
         githubOAuthUrl: env.githubUrl,
-        requiredScopes: ["read:user", "user:email"],
-      }),
-      findUserByExternalLink: (id: string) =>
-        readUserExternalLink(usersTable)({
-          externalName: "GITHUB",
-          externalId: id,
-        }),
-      createUser: async (userRecord: UserRecord & { EXTERNAL_ID: string }) => {
-        const { EXTERNAL_ID, ...userData } = userRecord;
-        const [, createUserError] = await createUserRecord(usersTable)({
-          ...userData,
-          GITHUB_ID: EXTERNAL_ID,
-        });
-        if (createUserError) {
-          return err(createUserError);
-        }
-        const [, createLinkError] = await createUserExternalLink(usersTable)({
-          externalName: "GITHUB",
-          userId: userData.USER_ID,
-          externalId: EXTERNAL_ID,
-        });
-        if (createLinkError) {
-          return err(createLinkError);
-        }
-        return ok(userData.USER_ID);
-      },
-      getUserInfo: githubActions.getUserInfo({
-        githubApiUrl: env.githubApiUrl,
-      }),
-      getPrimaryEmail: githubActions.getPrimaryEmail({
-        githubApiUrl: env.githubApiUrl,
-      }),
-      accessToken: (userId) =>
-        generateToken(
-          { sub: userId, iss: env.domainName, sessionStarted: timestamp },
-          {
-            signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
-            timeout: env.authTokenTimeouts.accessToken,
-          },
-        ),
-      refreshToken: (userId) =>
-        generateToken(
-          { sub: userId, iss: env.domainName, sessionStarted: timestamp },
-          {
-            signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
-            timeout: env.authTokenTimeouts.refreshToken,
-          },
-        ),
-    })({ code: event.code });
+      });
 
-    if (tokenError) {
-      return err(tokenError.message, "Error generating tokens");
+    if (accessTokenResponseError) {
+      return err(accessTokenResponseError, "getting access token");
+    }
+
+    const [userInfoResponse, userInfoResponseError] = await getUserInfo({
+      accessToken: accessTokenResponse.access_token,
+      githubApiUrl: env.githubApiUrl,
+    });
+
+    if (userInfoResponseError) {
+      return err(userInfoResponseError, "getting user info");
+    }
+
+    const [userIds, userIdError] = await usersListBy_githubId(
+      userInfoResponse.EXTERNAL_ID,
+    );
+
+    if (userIdError) {
+      return err(userIdError, "getting user id from github id");
+    }
+    if (userIds.length === 0) {
+      return err("no user found with github id", "not found");
+    }
+    if (userIds.length > 1) {
+      return err("multiple users found with github id", "data integrity error");
+    }
+    const userId = userIds[0].userId;
+
+    const [accessToken, accessTokenError] = signToken(
+      {
+        sub: userId,
+        iss: env.domainName,
+        started: timestamp,
+      },
+      {
+        signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
+        timeout: env.authTokenTimeouts.accessToken,
+      },
+    );
+
+    if (accessTokenError) {
+      return err(accessTokenError, "signing access token");
+    }
+
+    const [refreshToken, refreshTokenError] = signToken(
+      {
+        sub: userId,
+        iss: env.domainName,
+        started: timestamp,
+      },
+      {
+        signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
+        timeout: env.authTokenTimeouts.refreshToken,
+      },
+    );
+
+    if (refreshTokenError) {
+      return err(refreshTokenError, "signing refresh token");
     }
 
     return ok({
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
+      accessToken,
+      refreshToken,
     });
   },
 );
