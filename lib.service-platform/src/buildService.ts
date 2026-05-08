@@ -31,7 +31,9 @@ export type Env = CommonEnv & (${
 `;
 
   const fileContent = `// This file is auto-generated. Do not edit.\n\n${configTypes}`;
-  fs.mkdirSync("generated");
+  if (!fs.existsSync("generated")) {
+    fs.mkdirSync("generated");
+  }
   fs.writeFileSync("generated/config.ts", fileContent);
 };
 
@@ -48,13 +50,23 @@ export const buildService = ({
     generateServiceConfigTypes(config);
     Object.values(tables).forEach((table) => generateTable(table));
     Object.entries(handlers).forEach(([handlerName, handlerConfig]) => {
-      const l = new Lambda({
-        name: handlerName,
-        runtimeConfig: config,
-      });
+      if (handlerConfig.callers?.includes("function")) {
+        const l = new Lambda({
+          name: handlerName,
+          runtimeConfig: config,
+        });
 
-      if (handlerConfig.secrets) {
-        l.grantSecretRead(handlerConfig.secrets as string[]);
+        if (handlerConfig.secrets) {
+          l.grantSecretRead(handlerConfig.secrets as string[]);
+        }
+      }
+
+      if (handlerConfig.callers?.includes("api")) {
+        const lapi = new Lambda({
+          name: `${handlerName}-api`,
+          runtimeConfig: config,
+        });
+        lapi.grantSecretRead(handlerConfig.secrets as string[]);
       }
     });
   });

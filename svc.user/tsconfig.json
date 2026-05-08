@@ -1,4 +1,4 @@
 {
   "extends": "@dannywrayuk/tsconfig/node.json",
-  "include": ["src", "cdk"]
+  "include": ["src", "cdk", "generated", "handlers.ts"]
 }

@@ -12,8 +12,7 @@ export const login = callable(serviceName, {
     "AUTH_ACCESS_TOKEN_SIGNING_KEY",
     "AUTH_REFRESH_TOKEN_SIGNING_KEY",
   ] as const,
-  callers: ["auth-token"],
-  hasApi: true,
+  callers: ["function", "api"],
 });
 
 export const refresh = callable(serviceName, {

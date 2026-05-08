@@ -29,7 +29,10 @@ export const query = async <I>(input: {
   }
 
   if (response.$metadata.httpStatusCode !== 200) {
-    return err("query returned non-200 status code");
+    return err(null, "query returned non-200 status code");
+  }
+  if (!response.Items || response?.Items?.length === 0) {
+    return ok(null);
   }
   return ok(response.Items as I[]);
 };
@@ -56,7 +59,7 @@ export const put = async (input: {
   }
 
   if (response.$metadata.httpStatusCode !== 200) {
-    return err("put returned non-200 status code");
+    return err(null, "put returned non-200 status code");
   }
   return ok(response);
 };
@@ -81,7 +84,7 @@ export const deleter = async (input: {
   }
 
   if (response.$metadata.httpStatusCode !== 200) {
-    return err("delete returned non-200 status code");
+    return err(null, "delete returned non-200 status code");
   }
   return ok(response);
 };
@@ -113,7 +116,7 @@ export const update = async (input: {
   }
 
   if (response.$metadata.httpStatusCode !== 200) {
-    return err("update returned non-200 status code");
+    return err(null, "update returned non-200 status code");
   }
   return ok(response);
 };
@@ -138,7 +141,7 @@ export const read = async <I>(input: {
   }
 
   if (response.$metadata.httpStatusCode !== 200) {
-    return err("read returned non-200 status code");
+    return err(null, "read returned non-200 status code");
   }
   return ok((response.Items?.[0] as I) || null);
 };

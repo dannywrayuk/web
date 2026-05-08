@@ -2,6 +2,7 @@ export const userTable = {
   name: "users",
   entries: [
     {
+      name: "UserRecord",
       index: ["$userId", "RECORD"],
       columns: [
         "userId",
@@ -13,8 +14,9 @@ export const userTable = {
       ],
     },
     {
+      name: "GithubLink",
       index: ["$githubId", "$userId"],
       columns: ["userId", "githubId"],
     },
   ],
-};
+} as const;

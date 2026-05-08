@@ -26,14 +26,14 @@ export const signToken = (data: TokenPayload, tokenSettings: TokenSettings) => {
 
 export const readToken = (token: string | undefined) => {
   if (!token) {
-    return err("no token provided");
+    return err(null, "no token provided");
   }
   const [decoded, decodeError] = unsafe(jwt.decode)(token);
   if (decodeError) {
     return err(decodeError, "decoding token");
   }
   if (typeof decoded === "string") {
-    return err("token decoded but returned string");
+    return err(null, "token decoded but returned string");
   }
   return ok(decoded);
 };
@@ -44,7 +44,7 @@ export const verifyToken = (token: string, signingKey: string) => {
     return err(decodeError, "verifying token");
   }
   if (typeof decoded === "string") {
-    return err("token verified but returned string");
+    return err(null, "token verified but returned string");
   }
   return ok(decoded as unknown as TokenPayload);
 };

@@ -1,39 +1,26 @@
-import z from "zod";
-import { Handler } from "./Handler.ts";
-import { AsyncResult, Result } from "@dannywrayuk/results";
+import { AsyncResult } from "@dannywrayuk/results";
+
+// I think having an any here is more simple than trying to type the event accurately
+// eslint-disable-next-line
+type Event = Record<string, any> | undefined;
 
 export const apiFunction =
-  <Env>() =>
-  <T extends Handler>(
-    handler: T,
-    serviceFunctionInstance: (
-      event: unknown,
-    ) => AsyncResult<z.infer<T["response"]>>,
-    apiFunctionOptions: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      request: (event: any) => Result<z.infer<T["request"]>>;
-      response: (
-        output: z.infer<T["response"]>,
-        context: { env: Env },
-      ) => Result<unknown>;
-      error: (error: Error) => unknown;
-    },
-  ) => {
-    return async (event: unknown) => {
-      const [input, inputError] = apiFunctionOptions.request(event);
-      if (inputError) {
-        return apiFunctionOptions.error(inputError);
-      }
-      const [output, processingError] = await serviceFunctionInstance(input);
-      if (processingError) {
-        return apiFunctionOptions.error(processingError);
-      }
-      const [response, outputError] = apiFunctionOptions.response(output, {
-        env: {} as Env,
-      });
-      if (outputError) {
-        return apiFunctionOptions.error(outputError);
-      }
-      return response;
-    };
+  <Env>(
+    apiHandler: (
+      request: Event,
+      context: {
+        env: Env;
+      },
+    ) => AsyncResult<unknown>,
+  ) =>
+  async (event: unknown) => {
+    const [response, error] = await apiHandler(event as Event, {
+      env: {} as Env,
+    });
+    if (error) {
+      return {
+        statusCode: 500,
+      };
+    }
+    return response;
   };

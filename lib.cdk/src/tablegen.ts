@@ -43,7 +43,7 @@ ${entry.columns
 
 // List by PK
 export const ${tableName}ListBy_${PK} = (${PK}: string) =>
-  query<Record<string,string>>({ 
+  query<${ref}>({ 
     PK: \`${namedKey(PK, `\${${PK}}`)}\`,
     tableName: "${tableName}",
   });

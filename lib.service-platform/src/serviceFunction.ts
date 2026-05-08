@@ -24,7 +24,7 @@ export const serviceFunction =
       },
     ) => AsyncResult<z.infer<T["response"]>>,
   ) =>
-  async (event: unknown) => {
+  async (event: z.infer<T["request"]>) => {
     logger
       .setDebug(!!env.debugLog)
       .attach({
@@ -40,7 +40,7 @@ export const serviceFunction =
     };
     if (!reqCheck.success) {
       logger.error("Invalid request:", reqCheck.error);
-      return err(reqCheck.error);
+      return err(reqCheck.error, "validating input", "bad-request");
     }
 
     const secrets = (

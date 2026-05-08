@@ -1,5 +1,5 @@
 import { ok } from "@dannywrayuk/results";
-import { login } from "../../interface.ts";
+import { login } from "../../handlers.ts";
 import { handlerFunction } from "@dannywrayuk/service-platform/handlerFunction";
 
 export const handler = handlerFunction(login, async (event, { secrets }) => {

@@ -5,16 +5,21 @@ export type Result<T> = Ok<T> | Err;
 export type AsyncResult<T> = Promise<Result<T>>;
 
 export const ok = <T>(data: T): Ok<T> => [data, null];
-export const err = (error?: Error | string, message?: string): Err => [
-  null,
-  error
-    ? typeof error === "string"
-      ? new Error(error)
-      : message
-        ? new Error([error.message, message].join("\n"))
-        : error
-    : new Error("Unknown error"),
-];
+export const err = (
+  error?: Error | null,
+  message?: string,
+  name?: string,
+): Err => {
+  const e = new Error(error?.message || "Unknown error");
+
+  if (message) {
+    e.message = [e.message, message].join("\n");
+  }
+  if (name) {
+    e.name = name;
+  }
+  return [null, e];
+};
 
 export function unsafe<T extends () => Promise<any>>(
   fn: T,

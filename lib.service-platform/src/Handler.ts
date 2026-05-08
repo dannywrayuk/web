@@ -7,4 +7,5 @@ export type Handler = {
   request?: z.ZodType;
   response?: z.ZodType;
   callers?: string[];
+  hasApi?: boolean;
 };
