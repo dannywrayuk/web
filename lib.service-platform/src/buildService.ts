@@ -6,28 +6,26 @@ import { generateTable } from "@dannywrayuk/cdk/tablegen.ts";
 import type { TableData } from "@dannywrayuk/cdk/tablegen.ts";
 
 const generateServiceConfigTypes = (config: Config) => {
-  const configTypes = `${
-    (config?.stageNames as string[])
-      .map((stageName) => {
-        return `export type Env_${stageName} = ${variableToTypeString(
-          config?.fromStage(stageName),
-          {
-            humanReadable: true,
-          },
-        )} & { stage: "${stageName}" };`;
-      })
-      .join("\n\n") || ""
-  }
+  const configTypes = `${(config?.stageNames as string[])
+    .map((stageName) => {
+      return `export type Env_${stageName} = ${variableToTypeString(
+        config?.fromStage(stageName),
+        {
+          humanReadable: true,
+        },
+      )} & { stage: "${stageName}" };`;
+    })
+    .join("\n\n") || ""
+    }
 
 export type CommonEnv = ${variableToTypeString(config?.common || {}, {
-    humanReadable: true,
-  })};
+      humanReadable: true,
+    })};
 
-export type Env = CommonEnv & (${
-    (config?.stageNames as string[])
+export type Env = CommonEnv & (${(config?.stageNames as string[])
       .map((stageName: string) => `Env_${stageName}`)
       .join(" | ") || "{}"
-  });
+    });
 `;
 
   const fileContent = `// This file is auto-generated. Do not edit.\n\n${configTypes}`;
@@ -43,30 +41,39 @@ export const buildService = ({
   tables,
 }: {
   config: Config;
-  handlers: Record<string, Handler>;
-  tables: Record<string, TableData>;
+  handlers?: Record<string, Handler>;
+  tables?: Record<string, TableData>;
 }) =>
-  app(config, ({ Lambda }) => {
+  app(config, ({ Lambda, Table }) => {
     generateServiceConfigTypes(config);
-    Object.values(tables).forEach((table) => generateTable(table));
-    Object.entries(handlers).forEach(([handlerName, handlerConfig]) => {
-      if (handlerConfig.callers?.includes("function")) {
-        const l = new Lambda({
-          name: handlerName,
-          runtimeConfig: config,
+    if (tables) {
+      Object.values(tables).forEach((table) => {
+        generateTable(table);
+        new Table({
+          name: table.name,
         });
+      });
+    }
+    if (handlers) {
+      Object.entries(handlers).forEach(([handlerName, handlerConfig]) => {
+        if (handlerConfig.callers?.includes("function")) {
+          const l = new Lambda({
+            name: handlerName,
+            runtimeConfig: config,
+          });
 
-        if (handlerConfig.secrets) {
-          l.grantSecretRead(handlerConfig.secrets as string[]);
+          if (handlerConfig.secrets) {
+            l.grantSecretRead(handlerConfig.secrets as string[]);
+          }
         }
-      }
 
-      if (handlerConfig.callers?.includes("api")) {
-        const lapi = new Lambda({
-          name: `${handlerName}-api`,
-          runtimeConfig: config,
-        });
-        lapi.grantSecretRead(handlerConfig.secrets as string[]);
-      }
-    });
+        if (handlerConfig.callers?.includes("api")) {
+          const lapi = new Lambda({
+            name: `${handlerName}-api`,
+            runtimeConfig: config,
+          });
+          lapi.grantSecretRead(handlerConfig.secrets as string[]);
+        }
+      });
+    }
   });

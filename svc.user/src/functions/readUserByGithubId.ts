@@ -17,7 +17,7 @@ export const handler = serviceFunction<Env>()(
       return err(listError, "retrieving user by github id");
     }
     if (!listResponse) {
-      return err(null, "no user found with github id", "not-found");
+      return ok(null);
     }
     if (listResponse.length > 1) {
       return err(null, "multiple users found with github id");
@@ -30,7 +30,7 @@ export const handler = serviceFunction<Env>()(
       return err(readError, "reading user record");
     }
     if (!readResponse) {
-      return err(null, "user record not found", "not-found");
+      return ok(null);
     }
     return ok(readResponse);
   },

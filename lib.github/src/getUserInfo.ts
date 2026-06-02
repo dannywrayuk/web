@@ -34,9 +34,9 @@ export const getUserInfo = async ({
   }
 
   return ok({
-    EXTERNAL_ID: String(userResponse.body.id),
-    USERNAME: userResponse.body.login,
-    AVATAR_URL: userResponse.body.avatar_url,
-    NAME: userResponse.body.name,
+    githubId: String(userResponse.body.id),
+    username: userResponse.body.login,
+    avatarUrl: userResponse.body.avatar_url,
+    name: userResponse.body.name,
   });
 };

@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 
-export const namedKey = (key: string, value: string) => `${key}:${value}`;
+export const namedKey = (key: string, value: string) => `${key}#${value}`;
 
 export type TableData = {
   name: string;
@@ -33,12 +33,12 @@ export const generateTable = (table: TableData) => {
     return `
 export type ${ref} = {
 ${entry.columns
-  .map((col) =>
-    col === PK || (!constantSK && col === SK)
-      ? `  ${col}: string;`
-      : `  ${col}?: string;`,
-  )
-  .join("\n")}
+        .map((col) =>
+          col === PK || (!constantSK && col === SK)
+            ? `  ${col}: string;`
+            : `  ${col}?: string;`,
+        )
+        .join("\n")}
 }
 
 // List by PK

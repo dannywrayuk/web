@@ -7,7 +7,9 @@
     "cdk-deploy": "cdk deploy",
     "cdk-destroy": "cdk destroy",
     "lint": "eslint .",
-    "ts-check": "tsc --noEmit"
+    "ts-check": "tsc --noEmit",
+    "proto": "protoc --plugin=$(which protoc-gen-ts) --ts_out=. ./servicetest.proto"
+
   },
   "dependencies": {
     "@dannywrayuk/aws": "workspace:*",
@@ -16,9 +18,11 @@
     "@dannywrayuk/results": "workspace:*",
     "@dannywrayuk/validatedFetch": "workspace:*",
     "@dannywrayuk/logger": "workspace:*",
+    "@dannywrayuk/protoc-gen-ts": "workspace:*",
     "@dannywrayuk/schema": "workspace:*",
     "@dannywrayuk/service-platform": "workspace:*",
     "@dannywrayuk/jwt": "workspace:*",
+    "@dannywrayuk/svc.user": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

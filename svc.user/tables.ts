@@ -6,11 +6,12 @@ export const userTable = {
       index: ["$userId", "RECORD"],
       columns: [
         "userId",
-        "email",
-        "username",
         "name",
+        "username",
+        "email",
         "avatarUrl",
         "createdAt",
+        "githubId",
       ],
     },
     {

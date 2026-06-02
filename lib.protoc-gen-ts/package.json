@@ -1,0 +1,24 @@
+{
+  "name": "@dannywrayuk/protoc-gen-ts",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "protoc-gen-ts": "./protoc-gen-ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "ts-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "google-protobuf": "^4.0.2"
+  },
+  "devDependencies": {
+    "@dannywrayuk/eslint": "workspace:*",
+    "@dannywrayuk/tsconfig": "workspace:*",
+    "@types/google-protobuf": "^3.15.12"
+  }
+}

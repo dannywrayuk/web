@@ -19,8 +19,8 @@ export const query = async <I>(input: {
       TableName: input.tableName,
       ExpressionAttributeValues: { ":pk": input.PK, ":sk": input.SK },
       KeyConditionExpression:
-        `${input.PK} = :pk` +
-        (input.SK ? ` AND begins_with(${input.SK}, :sk)` : ""),
+        `PK = :pk` +
+        (input.SK ? ` AND begins_with(SK, :sk)` : ""),
     }),
   );
 
@@ -132,7 +132,7 @@ export const read = async <I>(input: {
     new QueryCommand({
       TableName: input.tableName,
       ExpressionAttributeValues: { ":pk": input.PK, ":sk": input.SK },
-      KeyConditionExpression: `${input.PK} = :pk AND ${input.SK} = :sk`,
+      KeyConditionExpression: `PK = :pk AND SK = :sk`,
     }),
   );
 

@@ -38,7 +38,7 @@ export const getPrimaryEmail = async ({
     (email) => email.primary && email.verified,
   )?.email;
   if (!email) {
-    return err("no primary email found");
+    return err(null, "no primary email found");
   }
 
   return ok(email);

@@ -1,74 +1,67 @@
-import { refreshTokens } from "./lib/refreshTokens.ts";
-import { generateToken, verifyToken } from "./lib/actions/tokenActions.ts";
-import { getSecrets, env, usersTable } from "./refresh.gen.ts";
-import * as response from "@dannywrayuk/responses";
-import { getCookies } from "@dannywrayuk/aws/getCookies";
-import { logger } from "@dannywrayuk/logger";
-import { readUserRecord } from "@dannywrayuk/schema/database/users";
+import { serviceFunction } from "@dannywrayuk/service-platform/serviceFunction";
+import { Env } from "../../generated/config.ts";
+import { refresh } from "../../handlers.ts";
+import { signToken, verifyToken } from "@dannywrayuk/jwt";
+import { err, ok } from "@dannywrayuk/results";
+import { readUserById } from "@dannywrayuk/svc.user/handlers.ts";
 
-export const handler = async (event: {
-  headers: Record<string, string>;
-  cookies?: string[];
-}) => {
-  logger
-    .setDebug(env.stage === "dev")
-    .attach({
-      name: env.functionName,
-      service: env.serviceName,
-      stage: env.stage,
-    })
-    .debug("input", {
-      headers: event.headers,
-    })
-    .info("start");
+export const handler = serviceFunction<Env>()(
+  refresh,
+  async (event, { secrets, env }) => {
 
-  const secrets = await getSecrets();
-  const cookies = getCookies(event, ["refresh_token"] as const);
+    const [verifiedToken, verifyTokenError] = verifyToken(
+      event.refreshToken,
+      secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
+    );
 
-  if (!cookies.refresh_token) {
-    return response.forbidden();
-  }
+    if (verifyTokenError) {
+      return err(verifyTokenError, "verifying refresh token");
+    }
 
-  const [tokens, tokenError] = await refreshTokens({
-    accessToken: (userId, sessionStarted) =>
-      generateToken(
-        { sub: userId, iss: env.domainName, sessionStarted },
-        {
-          signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
-          timeout: env.authTokenTimeouts.accessToken,
-        },
-      ),
-    refreshToken: (userId, sessionStarted) =>
-      generateToken(
-        { sub: userId, iss: env.domainName, sessionStarted },
-        {
-          signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
-          timeout: env.authTokenTimeouts.refreshToken,
-        },
-      ),
-    verifyRefreshToken: (token: string) =>
-      verifyToken(token, secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY),
-    findUserById: readUserRecord(usersTable),
-  })({ refresh_token: cookies.refresh_token });
+    const [userRecord, userRecordError] = await readUserById.call({ userId: verifiedToken.sub });
 
-  if (tokenError) {
-    return response.error(tokenError.message);
-  }
+    if (userRecordError) {
+      return err(userRecordError, "getting user record by id");
+    }
 
-  return response.ok(
-    {
-      access_token: tokens.access_token,
-      token_type: "Bearer",
-      expires_in: env.authTokenTimeouts.accessToken,
-    },
-    {
-      headers: {
-        "Cache-Control": "no-store",
-        Pragma: "no-cache",
+    if (!userRecord) {
+      return err(null, "no user found with id from refresh token", "not-found");
+    }
+
+    const [accessToken, accessTokenError] = signToken(
+      {
+        sub: verifiedToken.sub,
+        iss: verifiedToken.iss,
+        started: verifiedToken.started,
       },
-      cookies: [
-        `refresh_token=${tokens.refresh_token}; Max-Age=${env.authTokenTimeouts.refreshToken}; Path=/refresh; HttpOnly; SameSite=None; Secure; Partitioned;`,
-      ],
-    },
-  );
-};
+      {
+        signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
+        timeout: env.authTokenTimeouts.accessToken,
+      },
+    );
+
+    if (accessTokenError) {
+      return err(accessTokenError, "signing access token");
+    }
+
+    const [refreshToken, refreshTokenError] = signToken(
+      {
+        sub: verifiedToken.sub,
+        iss: verifiedToken.iss,
+        started: verifiedToken.started,
+      },
+      {
+        signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
+        timeout: env.authTokenTimeouts.refreshToken,
+      },
+    );
+
+    if (refreshTokenError) {
+      return err(refreshTokenError, "signing refresh token");
+    }
+
+    return ok({
+      accessToken,
+      refreshToken,
+    });
+  })

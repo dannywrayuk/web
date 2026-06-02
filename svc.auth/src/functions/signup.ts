@@ -1,14 +1,15 @@
 import { serviceFunction } from "@dannywrayuk/service-platform/serviceFunction";
-import { login } from "../../handlers.ts";
+import { signup } from "../../handlers.ts";
 import type { Env } from "../../generated/config.ts";
 import { getAccessToken } from "@dannywrayuk/github/getAccessToken";
 import { err, ok } from "@dannywrayuk/results";
 import { getUserInfo } from "@dannywrayuk/github/getUserInfo";
-import { readUserByGithubId } from "@dannywrayuk/svc.user/handlers.ts";
+import { readUserByGithubId, createUserByGithubId } from "@dannywrayuk/svc.user/handlers.ts";
 import { signToken } from "@dannywrayuk/jwt";
+import { getPrimaryEmail } from "@dannywrayuk/github/getPrimaryEmail";
 
 export const handler = serviceFunction<Env>()(
-  login,
+  signup,
   async (event, { secrets, env, timestamp }) => {
     const [accessTokenResponse, accessTokenResponseError] =
       await getAccessToken({
@@ -31,18 +32,39 @@ export const handler = serviceFunction<Env>()(
       return err(userInfoResponseError, "getting user info");
     }
 
-    const [userRecord, userRecordError] = await readUserByGithubId.call({ githubId: userInfoResponse.githubId });
+    const [existingRecord, existingRecordError] = await readUserByGithubId.call({ githubId: userInfoResponse.githubId });
 
-    if (userRecordError) {
-      return err(userRecordError, "getting user id from github id");
+    if (existingRecordError) {
+      return err(existingRecordError, "getting user id from github id");
     }
-    if (!userRecord) {
-      return err(null, "no user found with github id", "not-found");
+    if (existingRecord) {
+      return err(null, "user already exists with github id", "already-exists");
+    }
+
+    const [primaryEmail, primaryEmailError] = await getPrimaryEmail({
+      accessToken: accessTokenResponse.access_token,
+      githubApiUrl: env.githubApiUrl,
+    });
+
+    if (primaryEmailError) {
+      return err(primaryEmailError, "getting primary email");
+    }
+
+    const [newUserRecord, newUserRecordError] = await createUserByGithubId.call({
+      name: userInfoResponse.name,
+      username: userInfoResponse.username,
+      avatarUrl: userInfoResponse.avatarUrl,
+      email: primaryEmail,
+      githubId: userInfoResponse.githubId
+    });
+
+    if (newUserRecordError) {
+      return err(newUserRecordError, "creating user record");
     }
 
     const [accessToken, accessTokenError] = signToken(
       {
-        sub: userRecord.userId,
+        sub: newUserRecord.userId,
         iss: env.domainName,
         started: timestamp,
       },
@@ -58,7 +80,7 @@ export const handler = serviceFunction<Env>()(
 
     const [refreshToken, refreshTokenError] = signToken(
       {
-        sub: userRecord.userId,
+        sub: newUserRecord.userId,
         iss: env.domainName,
         started: timestamp,
       },
