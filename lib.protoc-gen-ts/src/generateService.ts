@@ -22,7 +22,7 @@ export const generateService = (request: proto.CodeGeneratorRequest) => {
   console.warn("💌 Generating message types");
   const messageTypes = fileContents
     ?.getMessageTypeList()
-    .map(generateMessage)
+    .map((m) => generateMessage(m))
     .join("\n\n");
 
   return [messageTypes].join("\n");

@@ -1,5 +1,6 @@
 import proto from "google-protobuf/google/protobuf/descriptor_pb.js";
 import { typeMap } from "./typeMap.ts";
+import { extensions } from "./registerExtensions.ts";
 
 const typeTemplate = (name: string, fields: string[]) =>
   `export type ${name} = {
@@ -28,9 +29,7 @@ const generateMessageField = (field: proto.FieldDescriptorProto) => {
   }
   const validation = field
     .getOptions()
-    ?.getExtension<
-      string | undefined
-    >(proto.FieldOptions.extensionsBinary[51234].fieldInfo)
+    ?.getExtension<string | undefined>(extensions.FieldOptions?.validation)
     ?.split(",");
   const typeOptions = {
     array: field.getLabel() === proto.FieldDescriptorProto.Label.LABEL_REPEATED,
@@ -50,11 +49,21 @@ const generateMessageField = (field: proto.FieldDescriptorProto) => {
   return typeFieldTemplate(name, typeMap(type), typeOptions);
 };
 
-export const generateMessage = (message: proto.DescriptorProto) => {
+export const generateMessage = (
+  message: proto.DescriptorProto,
+  parentName?: string,
+): string => {
   const name = message.getName();
   if (!name) {
     throw new Error("Message has no name");
   }
+  const fullName = parentName ? parentName + "_" + name : name;
+  const nestedTypes = message
+    .getNestedTypeList()
+    .map((m) => generateMessage(m, fullName));
   const fields = message.getFieldList().map(generateMessageField);
-  return typeTemplate(name, fields);
+  return (
+    (nestedTypes.length ? nestedTypes.join("\n\n") + "\n\n" : "") +
+    typeTemplate(fullName, fields)
+  );
 };

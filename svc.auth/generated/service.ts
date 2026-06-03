@@ -3,6 +3,18 @@ export type Pet = {
 		is_cat?: boolean;
 };
 
+export type Person_Address = {
+  	street?: string;
+		city?: string;
+		country?: string;
+};
+
+export type Person_Pet = {
+  	name?: string;
+		is_cat?: boolean;
+		is_fish?: boolean;
+};
+
 export type Person = {
   	name: string;
 		age?: number;

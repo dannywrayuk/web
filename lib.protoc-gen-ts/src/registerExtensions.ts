@@ -7,6 +7,16 @@ import {
   ExtensionFieldInfo,
 } from "google-protobuf";
 
+export const extensions: Record<
+  "FieldOptions" | "MessageOptions" | "MethodOptions" | "ServiceOptions",
+  Record<string, ExtensionFieldInfo<unknown>>
+> = {
+  FieldOptions: {},
+  MessageOptions: {},
+  MethodOptions: {},
+  ServiceOptions: {},
+};
+
 const binaryReadersByType = {
   8: BinaryReader.prototype.readBool,
   9: BinaryReader.prototype.readString,
@@ -24,7 +34,7 @@ export const extensionPass = (request: proto.CodeGeneratorRequest) => {
   console.warn("✅ Registered extensions\n");
 };
 
-export const registerExtension = (extension: dproto.FieldDescriptorProto) => {
+const registerExtension = (extension: dproto.FieldDescriptorProto) => {
   const name = extension.getName();
   const number = extension.getNumber();
   const typeNum = extension.getType();
@@ -72,7 +82,7 @@ export const registerExtension = (extension: dproto.FieldDescriptorProto) => {
   ) {
     throw new Error("Unknown extension scope: " + scope);
   }
-
+  extensions[scope as keyof typeof extensions][name] = extensionFieldInfo;
   dproto[scope as keyof typeof dproto].extensions[number] = extensionFieldInfo;
   dproto[scope as keyof typeof dproto].extensionsBinary[number] =
     extensionFieldBinaryInfo;
