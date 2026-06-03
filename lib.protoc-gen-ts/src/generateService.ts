@@ -15,7 +15,9 @@ export const generateService = (request: proto.CodeGeneratorRequest) => {
   const fileContents = request
     .getProtoFileList()
     .find((f) => f.getName() === fileName);
-
+  if (!fileContents) {
+    throw new Error("File not found: " + fileName);
+  }
   console.warn("🛠  Generating " + fileName);
   console.warn("💌 Generating message types");
   const messageTypes = fileContents
@@ -25,42 +27,3 @@ export const generateService = (request: proto.CodeGeneratorRequest) => {
 
   return [messageTypes].join("\n");
 };
-
-// const genFiles = request.getFileToGenerateList();
-// console.error(
-//   request
-//     .getProtoFileList()
-//     .map((f) => {
-//       const name = f.getName();
-//       if (genFiles.includes(name)) {
-//         return (
-//           name +
-//           ": \n" +
-//           f
-//             .getMessageTypeList()
-//             .map(
-//               (m) =>
-//                 "  " +
-//                 m.getName() +
-//                 ": " +
-//                 m
-//                   .getFieldList()
-//                   .map(
-//                     (e) =>
-//                       e.getName() +
-//                       "(" +
-//                       (typemap[e.getType()] !== "object"
-//                         ? typemap[e.getType()]
-//                         : e.getTypeName()) +
-//                       ")",
-//                   )
-//                   .join(),
-//             )
-//             .join("\n")
-//         );
-//       }
-//       return null;
-//     })
-//     .filter(Boolean)
-//     .join("\n"),
-// );

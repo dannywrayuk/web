@@ -3,7 +3,7 @@ import "google/protobuf/descriptor.proto";
 import "test.proto";
 
 extend google.protobuf.FieldOptions {
-  optional string validation = 51234;
+  string validation = 51234;
 }
 message Pet {
   string name = 1 [(validation) = "required"];

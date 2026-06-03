@@ -2,5 +2,5 @@ syntax = "proto3";
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.MethodOptions {
-  optional bool network = 51235;
+  bool network = 51235;
 }
