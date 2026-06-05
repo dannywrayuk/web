@@ -1,0 +1,19 @@
+name: auth
+domainName: dannywray.co.uk
+authTokenTimeouts:
+  accessToken: 6h
+  refreshToken: 30d
+env:
+  dev:
+    githubUrl: https://mock.dannywray.co.uk/github.com
+    githubApiUrl: https://mock.dannywray.co.uk/api.github.com
+    allowedOrigins:
+      - http://localhost:5173
+      - https://account.dev.dannywray.co.uk
+  prod:
+    githubUrl: https://github.com
+    githubApiUrl: https://api.github.com
+    removeStageSubdomain: true
+    deletionProtection: true
+    allowedOrigins:
+      - https://account.dannywray.co.uk

@@ -1,7 +1,10 @@
 import proto from "google-protobuf/google/protobuf/compiler/plugin_pb.js";
 import { generateMessage } from "./message.ts";
+import { generateService } from "./service.ts";
 
-export const generateService = (request: proto.CodeGeneratorRequest) => {
+const imports = `import { Result } from "@dannywrayuk/results";`;
+
+export const generate = (request: proto.CodeGeneratorRequest) => {
   const filesToGenerate = request.getFileToGenerateList();
   if (filesToGenerate.length === 0) {
     return null;
@@ -25,5 +28,9 @@ export const generateService = (request: proto.CodeGeneratorRequest) => {
     .map((m) => generateMessage(m))
     .join("\n\n");
 
-  return [messageTypes].join("\n");
+  const serviceTypes = fileContents
+    ?.getServiceList()
+    .map((s) => generateService(s))
+    .join("\n\n");
+  return [imports, messageTypes, serviceTypes].join("\n\n");
 };

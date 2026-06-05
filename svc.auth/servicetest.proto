@@ -5,9 +5,15 @@ import "test.proto";
 extend google.protobuf.FieldOptions {
   string validation = 51234;
 }
+
+extend google.protobuf.MethodOptions {
+  bool network = 51235;
+}
+
 message Pet {
   string name = 1 [(validation) = "required"];
   bool is_cat = 2;
+  Person.Address address = 3;
 }
 
 message Person {
@@ -30,7 +36,7 @@ message Person {
 
 
 service Greeter {
-  rpc SayHello (Person) returns (Person){
+  rpc SayHello (Person) returns (Pet){
     option (network) = true;
   };
 }

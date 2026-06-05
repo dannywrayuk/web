@@ -20,10 +20,12 @@ export const extensions: Record<
 const binaryReadersByType = {
   8: BinaryReader.prototype.readBool,
   9: BinaryReader.prototype.readString,
+  11: BinaryReader.prototype.readBytes,
 };
 const binaryWritersByType = {
   8: BinaryWriter.prototype.writeBool,
   9: BinaryWriter.prototype.writeString,
+  11: BinaryWriter.prototype.writeBytes,
 };
 
 export const extensionPass = (request: proto.CodeGeneratorRequest) => {

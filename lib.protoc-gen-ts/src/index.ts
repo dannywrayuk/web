@@ -1,12 +1,12 @@
 import proto from "google-protobuf/google/protobuf/compiler/plugin_pb.js";
 import * as fs from "fs";
-import { generateService } from "./generateService.ts";
+import { generate } from "./generate.ts";
 import { extensionPass } from "./registerExtensions.ts";
 
 const main = async (request: proto.CodeGeneratorRequest) => {
   const response = new proto.CodeGeneratorResponse();
 
-  const service = generateService(request);
+  const service = generate(request);
   if (!service) {
     return response;
   }

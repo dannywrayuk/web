@@ -1,17 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Ok<T> = [T, null] | [T];
-export type Err = [null, Error];
+type ErrorObject = {
+  name: string;
+  message: string;
+  stack?: string;
+};
+export type Err = [null, ErrorObject];
 export type Result<T> = Ok<T> | Err;
-export type AsyncResult<T> = Promise<Result<T>>;
+
+const errorObject = (error: Error): ErrorObject => ({
+  name: error.name,
+  message: error.message,
+  stack: error.stack,
+});
 
 export const ok = <T>(data: T): Ok<T> => [data, null];
 export const err = (
-  error?: Error | null,
+  error?: ErrorObject | null,
   message?: string,
   name?: string,
 ): Err => {
-  const e = new Error(error?.message || "Unknown error");
-
+  const e: ErrorObject = error
+    ? errorObject(error)
+    : { name: "Error", message: "An unknown error occurred" };
   if (message) {
     e.message = [e.message, message].join("\n");
   }
@@ -23,10 +34,10 @@ export const err = (
 
 export function unsafe<T extends () => Promise<any>>(
   fn: T,
-): () => AsyncResult<Awaited<ReturnType<T>>>;
+): () => Promise<Result<Awaited<ReturnType<T>>>>;
 export function unsafe<T extends (...args: any[]) => Promise<any>>(
   fn: T,
-): (...input: Parameters<T>) => AsyncResult<Awaited<ReturnType<T>>>;
+): (...input: Parameters<T>) => Promise<Result<Awaited<ReturnType<T>>>>;
 
 export function unsafe<T extends () => any>(fn: T): () => Result<ReturnType<T>>;
 export function unsafe<T extends (...args: any[]) => any>(

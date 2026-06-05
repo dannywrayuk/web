@@ -1,11 +1,15 @@
 import proto from "google-protobuf/google/protobuf/descriptor_pb.js";
 import { typeMap } from "./typeMap.ts";
 import { extensions } from "./registerExtensions.ts";
+import { protoNameToTypeName } from "./util.ts";
 
-const typeTemplate = (name: string, fields: string[]) =>
-  `export type ${name} = {
-  ${fields.join("\n\t")}
+const typeTemplate = (name: string, fields: string[]) => {
+  const tsName = protoNameToTypeName(name);
+  const tsFields = fields.join("\n\t");
+  return `export type ${tsName} = {
+  ${tsFields}
 };`;
+};
 
 type TypeFieldOptions = {
   array: boolean;
@@ -15,8 +19,12 @@ const typeFieldTemplate = (
   name: string,
   type: string,
   fieldOptions?: TypeFieldOptions,
-) =>
-  `\t${name}${fieldOptions?.optional ? "?" : ""}: ${type}${fieldOptions?.array ? "[]" : ""};`;
+) => {
+  const optional = fieldOptions?.optional ? "?" : "";
+  const array = fieldOptions?.array ? "[]" : "";
+  const tsTypeName = protoNameToTypeName(type);
+  return `\t${name}${optional}: ${tsTypeName}${array};`;
+};
 
 const generateMessageField = (field: proto.FieldDescriptorProto) => {
   const name = field.getName();
@@ -37,13 +45,10 @@ const generateMessageField = (field: proto.FieldDescriptorProto) => {
   };
 
   if (type === proto.FieldDescriptorProto.Type.TYPE_MESSAGE) {
-    const rawTypeName = field.getTypeName();
-    if (!rawTypeName) {
+    const typeName = field.getTypeName();
+    if (!typeName) {
       throw new Error("Field has no type name");
     }
-    const typeName = (
-      rawTypeName?.startsWith(".") ? rawTypeName.slice(1) : rawTypeName
-    ).replace(/\./g, "_");
     return typeFieldTemplate(name, typeName, typeOptions);
   }
   return typeFieldTemplate(name, typeMap(type), typeOptions);
@@ -57,7 +62,7 @@ export const generateMessage = (
   if (!name) {
     throw new Error("Message has no name");
   }
-  const fullName = parentName ? parentName + "_" + name : name;
+  const fullName = parentName ? parentName + "." + name : name;
   const nestedTypes = message
     .getNestedTypeList()
     .map((m) => generateMessage(m, fullName));

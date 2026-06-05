@@ -1,0 +1,50 @@
+syntax = "proto3";
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.MethodOptions {
+  bool network = 51235;
+}
+extend google.protobuf.FieldOptions {
+  string validation = 51234;
+}
+message None {}
+
+service Auth {
+  rpc Login (LoginRequest) returns (LoginResponse) {
+    option (network) = true;
+  };
+  rpc Logout (None) returns (None) {
+    option (network) = true;
+  };
+  rpc Register (RegisterRequest) returns (RegisterResponse) {
+    option (network) = true;
+  };
+  rpc Refresh (RefreshRequest) returns (RefreshResponse) {
+    option (network) = true;
+  };
+}
+
+message LoginRequest {
+  string code = 1 [(validation) = "required"];
+}
+message LoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message RegisterRequest {
+  string code = 1 [(validation) = "required"];
+}
+message RegisterResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message RefreshRequest {
+  string code = 1 [(validation) = "required"];
+}
+message RefreshResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
