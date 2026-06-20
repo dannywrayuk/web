@@ -2,7 +2,8 @@ import proto from "google-protobuf/google/protobuf/compiler/plugin_pb.js";
 import { generateMessage } from "./message.ts";
 import { generateService } from "./service.ts";
 
-const imports = `import { Result } from "@dannywrayuk/results";`;
+const eslintDisable = `/* eslint-disable @typescript-eslint/no-explicit-any */`;
+const imports = `import { type Result, ok, err } from "@dannywrayuk/results";`;
 
 export const generate = (request: proto.CodeGeneratorRequest) => {
   const filesToGenerate = request.getFileToGenerateList();
@@ -32,5 +33,5 @@ export const generate = (request: proto.CodeGeneratorRequest) => {
     ?.getServiceList()
     .map((s) => generateService(s))
     .join("\n\n");
-  return [imports, messageTypes, serviceTypes].join("\n\n");
+  return [eslintDisable, imports, messageTypes, serviceTypes].join("\n\n");
 };

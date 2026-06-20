@@ -2,10 +2,14 @@ import proto from "google-protobuf/google/protobuf/descriptor_pb.js";
 import { typeMap } from "./typeMap.ts";
 import { extensions } from "./registerExtensions.ts";
 import { protoNameToTypeName } from "./util.ts";
+import { generateTypeValidationFunction } from "./typeValidationFunction.ts";
 
 const typeTemplate = (name: string, fields: string[]) => {
   const tsName = protoNameToTypeName(name);
-  const tsFields = fields.join("\n\t");
+  if (fields.length === 0) {
+    return `export type ${tsName} = Record<string, never>;`;
+  }
+  const tsFields = fields.join("\n  ");
   return `export type ${tsName} = {
   ${tsFields}
 };`;
@@ -23,7 +27,7 @@ const typeFieldTemplate = (
   const optional = fieldOptions?.optional ? "?" : "";
   const array = fieldOptions?.array ? "[]" : "";
   const tsTypeName = protoNameToTypeName(type);
-  return `\t${name}${optional}: ${tsTypeName}${array};`;
+  return `${name}${optional}: ${tsTypeName}${array};`;
 };
 
 const generateMessageField = (field: proto.FieldDescriptorProto) => {
@@ -67,8 +71,14 @@ export const generateMessage = (
     .getNestedTypeList()
     .map((m) => generateMessage(m, fullName));
   const fields = message.getFieldList().map(generateMessageField);
+  const validationFunction = generateTypeValidationFunction(
+    message,
+    parentName,
+  );
   return (
     (nestedTypes.length ? nestedTypes.join("\n\n") + "\n\n" : "") +
-    typeTemplate(fullName, fields)
+    typeTemplate(fullName, fields) +
+    "\n\n" +
+    validationFunction
   );
 };

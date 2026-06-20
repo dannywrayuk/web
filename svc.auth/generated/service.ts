@@ -1,45 +1,97 @@
-import { Result } from "@dannywrayuk/results";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-export type ServiceConfig = {
-  	name?: string;
-		version?: string;
+import { type Result, ok, err } from "@dannywrayuk/results";
+
+export type Pet = {
+  name: string;
+  is_cat?: boolean;
+  address?: Person_Address;
 };
 
-export type None = {
+export const validatePet = (
+  obj?: Record<string, any>
+): Result<Pet> => {
+  if (typeof obj?.name !== "string") {
+  return err(null, "validating name, expected string");
+}
+  if (typeof obj?.is_cat !== "boolean" && typeof obj?.is_cat !== "undefined") {
+  return err(null, "validating is_cat, expected optional boolean");
+}
+  if (validatePerson_Address(obj?.address)[1] && typeof obj?.address !== "undefined") {
+  return err(null, "validating address, expected optional Person_Address");
+}
   
+  return ok(obj as Pet);
 };
 
-export type LoginRequest = {
-  	code: string;
+export type Person_Address = {
+  street?: string;
+  city?: string;
+  country?: string;
 };
 
-export type LoginResponse = {
-  	access_token?: string;
-		refresh_token?: string;
+export const validatePerson_Address = (
+  obj?: Record<string, any>
+): Result<Person_Address> => {
+  if (typeof obj?.street !== "string" && typeof obj?.street !== "undefined") {
+  return err(null, "validating street, expected optional string");
+}
+  if (typeof obj?.city !== "string" && typeof obj?.city !== "undefined") {
+  return err(null, "validating city, expected optional string");
+}
+  if (typeof obj?.country !== "string" && typeof obj?.country !== "undefined") {
+  return err(null, "validating country, expected optional string");
+}
+  
+  return ok(obj as Person_Address);
 };
 
-export type RegisterRequest = {
-  	code: string;
+export type Person_Pet = {
+  name?: string;
+  is_cat?: boolean;
+  is_fish?: boolean;
 };
 
-export type RegisterResponse = {
-  	access_token?: string;
-		refresh_token?: string;
+export const validatePerson_Pet = (
+  obj?: Record<string, any>
+): Result<Person_Pet> => {
+  if (typeof obj?.name !== "string" && typeof obj?.name !== "undefined") {
+  return err(null, "validating name, expected optional string");
+}
+  if (typeof obj?.is_cat !== "boolean" && typeof obj?.is_cat !== "undefined") {
+  return err(null, "validating is_cat, expected optional boolean");
+}
+  if (typeof obj?.is_fish !== "boolean" && typeof obj?.is_fish !== "undefined") {
+  return err(null, "validating is_fish, expected optional boolean");
+}
+  
+  return ok(obj as Person_Pet);
 };
 
-export type RefreshRequest = {
-  	code: string;
+export type Person = {
+  name: string;
+  age?: number;
+  pets?: Person_Pet[];
+  address?: Person_Address;
 };
 
-export type RefreshResponse = {
-  	access_token?: string;
-		refresh_token?: string;
+export const validatePerson = (
+  obj?: Record<string, any>
+): Result<Person> => {
+  if (typeof obj?.name !== "string") {
+  return err(null, "validating name, expected string");
+}
+  if (typeof obj?.age !== "number" && typeof obj?.age !== "undefined") {
+  return err(null, "validating age, expected optional number");
+}
+  if ((!Array.isArray(obj?.pets) || obj?.pets?.some((i) => validatePerson_Pet(i)[1])) && typeof obj?.pets !== "undefined") {
+  return err(null, "validating pets, expected optional Person_Pet[]");
+}
+  if (validatePerson_Address(obj?.address)[1] && typeof obj?.address !== "undefined") {
+  return err(null, "validating address, expected optional Person_Address");
+}
+  
+  return ok(obj as Person);
 };
 
-export type Login = (request: LoginRequest) => Promise<Result<LoginResponse>>;
-
-export type Logout = (request: None) => Promise<Result<None>>;
-
-export type Register = (request: RegisterRequest) => Promise<Result<RegisterResponse>>;
-
-export type Refresh = (request: RefreshRequest) => Promise<Result<RefreshResponse>>;
+export type SayHello = (request: Person) => Promise<Result<Pet>>;

@@ -1,6 +1,5 @@
 syntax = "proto3";
 import "google/protobuf/descriptor.proto";
-import "test.proto";
 
 extend google.protobuf.FieldOptions {
   string validation = 51234;
