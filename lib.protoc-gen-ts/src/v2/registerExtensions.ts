@@ -5,6 +5,7 @@ import {
   BinaryWriter,
   ExtensionFieldBinaryInfo,
   ExtensionFieldInfo,
+  Message,
 } from "google-protobuf";
 
 export const extensions: Record<
@@ -28,10 +29,149 @@ const binaryWritersByType = {
   11: BinaryWriter.prototype.writeBytes,
 };
 
+const scalarReaders: Record<number, (this: BinaryReader) => unknown> = {
+  5: BinaryReader.prototype.readInt32,
+  8: BinaryReader.prototype.readBool,
+  9: BinaryReader.prototype.readString,
+  13: BinaryReader.prototype.readUint32,
+};
+
+const scalarDefaults: Record<number, unknown> = {
+  5: 0,
+  8: false,
+  9: "",
+  13: 0,
+};
+
+function createDynamicMessageClass(
+  descriptor: dproto.DescriptorProto,
+): new () => any {
+  const fields = descriptor.getFieldList();
+  const repeatedFieldNumbers = fields
+    .filter(
+      (f) =>
+        f.getLabel() === dproto.FieldDescriptorProto.Label.LABEL_REPEATED,
+    )
+    .map((f) => f.getNumber()!);
+
+  // @ts-expect-error dynamic class extending Message
+  const DynMsg = class extends Message {
+    constructor() {
+      super();
+      Message.initialize(this, [], 0, -1, repeatedFieldNumbers, null);
+    }
+  };
+
+  (DynMsg as any).toObject = function (_: boolean, msg: Message) {
+    const obj: Record<string, unknown> = {};
+    for (const field of fields) {
+      const name = field.getName()!;
+      const number = field.getNumber()!;
+      const isRepeated =
+        field.getLabel() === dproto.FieldDescriptorProto.Label.LABEL_REPEATED;
+      if (isRepeated) {
+        obj[name] = Message.getField(msg, number) || [];
+      } else {
+        const type = field.getType()!;
+        obj[name] = Message.getFieldWithDefault(
+          msg,
+          number,
+          scalarDefaults[type] ?? "",
+        );
+      }
+    }
+    return obj;
+  };
+
+  (DynMsg as any).deserializeBinaryFromReader = function (
+    msg: Message,
+    reader: BinaryReader,
+  ) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) break;
+      const fieldNum = reader.getFieldNumber();
+      const field = fields.find((f) => f.getNumber() === fieldNum);
+      if (!field) {
+        reader.skipField();
+        continue;
+      }
+      const type = field.getType()!;
+      const readFn = scalarReaders[type];
+      if (!readFn) {
+        reader.skipField();
+        continue;
+      }
+      const value = readFn.call(reader);
+      const isRepeated =
+        field.getLabel() === dproto.FieldDescriptorProto.Label.LABEL_REPEATED;
+      if (isRepeated) {
+        const arr = Message.getField(msg, fieldNum) as unknown[];
+        arr.push(value);
+      } else {
+        Message.setField(msg, fieldNum, value);
+      }
+    }
+    return msg;
+  };
+
+  (DynMsg as any).serializeBinaryToWriter = function (
+    message: Message,
+    writer: BinaryWriter,
+  ) {
+    for (const field of fields) {
+      const number = field.getNumber()!;
+      const type = field.getType()!;
+      const isRepeated =
+        field.getLabel() === dproto.FieldDescriptorProto.Label.LABEL_REPEATED;
+      if (isRepeated) {
+        const values = Message.getField(message, number) as unknown[];
+        if (values && values.length > 0) {
+          for (const v of values) {
+            (
+              binaryWritersByType[type as keyof typeof binaryWritersByType] as (
+                this: BinaryWriter,
+                field: number,
+                value: unknown,
+              ) => void
+            )?.call(writer, number, v);
+          }
+        }
+      } else {
+        const def = scalarDefaults[type] ?? "";
+        const value = Message.getFieldWithDefault(message, number, def);
+        if (value !== def) {
+          (
+            binaryWritersByType[type as keyof typeof binaryWritersByType] as (
+              this: BinaryWriter,
+              field: number,
+              value: unknown,
+            ) => void
+          )?.call(writer, number, value);
+        }
+      }
+    }
+  };
+
+  return DynMsg as unknown as new () => any;
+}
+
 export const extensionPass = (request: proto.CodeGeneratorRequest) => {
+  const messageMap: Record<string, dproto.DescriptorProto> = {};
+  request.getProtoFileList().forEach((file) => {
+    const pkg = file.getPackage() || "";
+    file.getMessageTypeList().forEach((msg) => {
+      const name = msg.getName();
+      if (name) {
+        messageMap[pkg ? `.${pkg}.${name}` : `.${name}`] = msg;
+      }
+    });
+  });
+
   request.getProtoFileList().forEach((file) => {
     console.warn("🔌 Registering extensions " + file.getName());
-    file.getExtensionList().forEach(registerExtension);
+    file
+      .getExtensionList()
+      .forEach((ext) => registerExtension(ext, messageMap));
   });
   console.warn("✅ Registered extensions\n");
 };
@@ -47,7 +187,10 @@ const resolveMessageType = (typeName: string) => {
   return ctor as unknown as (new () => any) | undefined;
 };
 
-const registerExtension = (extension: dproto.FieldDescriptorProto) => {
+const registerExtension = (
+  extension: dproto.FieldDescriptorProto,
+  messageMap: Record<string, dproto.DescriptorProto>,
+) => {
   const name = extension.getName();
   const number = extension.getNumber();
   const typeNum = extension.getType();
@@ -86,9 +229,16 @@ const registerExtension = (extension: dproto.FieldDescriptorProto) => {
     if (!typeName) {
       throw new Error("Message extension missing type name: " + name);
     }
-    const resolved = resolveMessageType(typeName);
+    let resolved = resolveMessageType(typeName);
     if (!resolved) {
-      throw new Error("Could not resolve message type: " + typeName);
+      const descriptor = messageMap[typeName];
+      if (!descriptor) {
+        console.warn(
+          `Skipping extension ${name}: could not resolve message type ${typeName}`,
+        );
+        return;
+      }
+      resolved = createDynamicMessageClass(descriptor);
     }
     ctor = resolved;
     // These live as statics on the generated message class.

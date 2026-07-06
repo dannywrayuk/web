@@ -1,5 +1,6 @@
 import proto from "google-protobuf/google/protobuf/compiler/plugin_pb.js";
 import proto_d from "google-protobuf/google/protobuf/descriptor_pb.js";
+import { extensions } from "./registerExtensions.ts";
 
 type ServiceDefinition = {
   serviceName: string;
@@ -32,7 +33,16 @@ function getMethodOptions(method: proto_d.MethodDescriptorProto) {
   if (!options) {
     return {};
   }
-  return options.toObject();
+  const result: Record<string, unknown> = options.toObject();
+  for (const [name, extensionFieldInfo] of Object.entries(
+    extensions.MethodOptions,
+  )) {
+    const value = options.getExtension(extensionFieldInfo);
+    if (value !== undefined && value !== null) {
+      result[name] = value;
+    }
+  }
+  return result;
 }
 
 function getMessageFieldOptions(field: proto_d.FieldDescriptorProto) {
@@ -40,7 +50,16 @@ function getMessageFieldOptions(field: proto_d.FieldDescriptorProto) {
   if (!options) {
     return {};
   }
-  return options.toObject();
+  const result: Record<string, unknown> = options.toObject();
+  for (const [name, extensionFieldInfo] of Object.entries(
+    extensions.FieldOptions,
+  )) {
+    const value = options.getExtension(extensionFieldInfo);
+    if (value !== undefined && value !== null) {
+      result[name] = value;
+    }
+  }
+  return result;
 }
 
 export const generate = (request: proto.CodeGeneratorRequest) => {
@@ -111,6 +130,26 @@ export const generate = (request: proto.CodeGeneratorRequest) => {
     imports: {},
     helpers: {},
   };
+
+  const serviceOptions = service.getOptions();
+  if (serviceOptions) {
+    for (const [name, extensionFieldInfo] of Object.entries(
+      extensions.ServiceOptions,
+    )) {
+      const value = serviceOptions.getExtension(extensionFieldInfo);
+      if (value === undefined || value === null) continue;
+      if (extensionFieldInfo.isMessageType() && extensionFieldInfo.toObjectFn) {
+        const toObj = extensionFieldInfo.toObjectFn;
+        (serviceDefinition as Record<string, unknown>)[name] = Array.isArray(
+          value,
+        )
+          ? (value as unknown[]).map((v) => toObj(false, v as never))
+          : toObj(false, value as never);
+      } else {
+        (serviceDefinition as Record<string, unknown>)[name] = value;
+      }
+    }
+  }
 
   methods.forEach((method) => {
     const name = method.getName();
