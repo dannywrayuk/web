@@ -1,8 +1,17 @@
 syntax = "proto3";
 import "google/protobuf/descriptor.proto";
 
+
+message Config {
+  string stage = 1;
+  repeated string e = 2;
+}
+extend google.protobuf.ServiceOptions {
+  repeated Config config = 51236;
+}
 extend google.protobuf.MethodOptions {
   bool network = 51235;
+  repeated string secret = 51238;
 }
 extend google.protobuf.FieldOptions {
   string validation = 51234;
@@ -10,17 +19,49 @@ extend google.protobuf.FieldOptions {
 message None {}
 
 service Auth {
+  option (config) = {
+      stage: "*"
+      e: "domain=dannywray.co.uk"
+      e: "accessTokenExpiry=3600"
+      e: "refreshTokenExpiry=25920000"
+  };
+  option (config) = {
+      stage: "dev"
+      e: "githubUrl=https://mock.dannywray.co.uk/github.com"
+      e: "githubApiUrl=https://mock.dannywray.co.uk/api.github.com"
+      e: "allowedOrigins[]=http://localhost:5173"
+      e: "allowedOrigins[]=https://account.dev.dannywray.co.uk"
+  };
+  option (config) = {
+      stage: "prod"
+      e: "githubUrl=https://github.com"
+      e: "githubApiUrl=https://api.github.com"
+      e: "allowedOrigins[]=https://account.dannywray.co.uk"
+      e: "removeStageSubdomain"
+      e: "deletionProtection"
+  };
+
   rpc Login (LoginRequest) returns (LoginResponse) {
     option (network) = true;
+    option (secret) = "GITHUB_CLIENT_ID";
+    option (secret) = "GITHUB_CLIENT_SECRET";
+    option (secret) = "AUTH_ACCESS_TOKEN_SIGNING_KEY";
+    option (secret) = "AUTH_REFRESH_TOKEN_SIGNING_KEY";
   };
   rpc Logout (None) returns (None) {
     option (network) = true;
   };
   rpc Register (RegisterRequest) returns (RegisterResponse) {
     option (network) = true;
+    option (secret) = "GITHUB_CLIENT_ID";
+    option (secret) = "GITHUB_CLIENT_SECRET";
+    option (secret) = "AUTH_ACCESS_TOKEN_SIGNING_KEY";
+    option (secret) = "AUTH_REFRESH_TOKEN_SIGNING_KEY";
   };
   rpc Refresh (RefreshRequest) returns (RefreshResponse) {
     option (network) = true;
+    option (secret) = "AUTH_ACCESS_TOKEN_SIGNING_KEY";
+    option (secret) = "AUTH_REFRESH_TOKEN_SIGNING_KEY";
   };
 }
 
@@ -29,7 +70,12 @@ message LoginRequest {
 }
 message LoginResponse {
   string access_token = 1;
-  string refresh_token = 2;
+  string token_type = 2;
+  string expires_in = 3;
+  message Cookies {
+    string refresh_token = 1 [(validation) = "required"];
+  }
+  Cookies cookies = 4 [(validation) = "cookies"];
 }
 
 message RegisterRequest {
@@ -37,14 +83,27 @@ message RegisterRequest {
 }
 message RegisterResponse {
   string access_token = 1;
-  string refresh_token = 2;
+  string token_type = 2;
+  string expires_in = 3;
+  message Cookies {
+    string refresh_token = 1 [(validation) = "required"];
+  }
+  Cookies cookies = 4 [(validation) = "cookies"];
 }
 
 message RefreshRequest {
-  string code = 1 [(validation) = "required"];
+  message Cookies {
+    string refresh_token = 1 [(validation) = "required"];
+  }
+  Cookies cookies = 2 [(validation) = "cookies"];
 }
 message RefreshResponse {
   string access_token = 1;
-  string refresh_token = 2;
+  string token_type = 2;
+  string expires_in = 3;
+  message Cookies {
+    string refresh_token = 1 [(validation) = "required"];
+  }
+  Cookies cookies = 4 [(validation) = "cookies"];
 }
 

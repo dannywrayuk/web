@@ -1,5 +1,5 @@
 import proto from "google-protobuf/google/protobuf/compiler/plugin_pb.js";
-import { generateMessage } from "./message.ts";
+// import { generateMessage } from "./message.ts";
 import { generateService } from "./service.ts";
 
 const eslintDisable = `/* eslint-disable @typescript-eslint/no-explicit-any */`;
@@ -23,15 +23,20 @@ export const generate = (request: proto.CodeGeneratorRequest) => {
     throw new Error("File not found: " + fileName);
   }
   console.warn("🛠  Generating " + fileName);
-  console.warn("💌 Generating message types");
-  const messageTypes = fileContents
-    ?.getMessageTypeList()
-    .map((m) => generateMessage(m))
-    .join("\n\n");
+  // console.warn("💌 Generating message types");
+  // const messageTypes = fileContents
+  //   ?.getMessageTypeList()
+  //   .map((m) => generateMessage(m))
+  //   .join("\n\n");
 
   const serviceTypes = fileContents
     ?.getServiceList()
-    .map((s) => generateService(s))
+    .map((s) => generateService(fileContents, s))
     .join("\n\n");
-  return [eslintDisable, imports, messageTypes, serviceTypes].join("\n\n");
+  return [
+    eslintDisable,
+    imports,
+    // messageTypes,
+    serviceTypes,
+  ].join("\n\n");
 };

@@ -8,7 +8,7 @@
     "cdk-destroy": "cdk destroy",
     "lint": "eslint .",
     "ts-check": "tsc --noEmit",
-    "proto": "protoc --plugin=$(which protoc-gen-ts) --ts_out=. ./servicetest.proto"
+    "proto": "protoc --plugin=$(which protoc-gen-ts) --ts_out=. ./service.proto"
   },
   "dependencies": {
     "@dannywrayuk/aws": "workspace:*",

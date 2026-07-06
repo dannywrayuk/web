@@ -7,6 +7,7 @@ extend google.protobuf.FieldOptions {
 
 extend google.protobuf.MethodOptions {
   bool network = 51235;
+  repeated string testing = 51236;
 }
 
 message Pet {
@@ -37,5 +38,6 @@ message Person {
 service Greeter {
   rpc SayHello (Person) returns (Pet){
     option (network) = true;
+    option (testing) = ["unit", "integration"];
   };
 }

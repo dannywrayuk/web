@@ -49,7 +49,7 @@ const registerExtension = (extension: dproto.FieldDescriptorProto) => {
     throw new Error("unhandled extension scope: " + scope);
   }
 
-  // These two defintions are really minimal
+  // These two definitions are really minimal
   const extensionFieldInfo = new ExtensionFieldInfo(
     number,
     { [name]: 0 },

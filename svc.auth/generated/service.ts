@@ -2,96 +2,204 @@
 
 import { type Result, ok, err } from "@dannywrayuk/results";
 
-export type Pet = {
-  name: string;
-  is_cat?: boolean;
-  address?: Person_Address;
+export type LoginRequest = {
+  code: string;
 };
 
-export const validatePet = (
+export const validateLoginRequest = (
   obj?: Record<string, any>
-): Result<Pet> => {
-  if (typeof obj?.name !== "string") {
-  return err(null, "validating name, expected string");
-}
-  if (typeof obj?.is_cat !== "boolean" && typeof obj?.is_cat !== "undefined") {
-  return err(null, "validating is_cat, expected optional boolean");
-}
-  if (validatePerson_Address(obj?.address)[1] && typeof obj?.address !== "undefined") {
-  return err(null, "validating address, expected optional Person_Address");
+): Result<LoginRequest> => {
+  if (typeof obj?.code !== "string") {
+  return err(null, "validating code, expected string");
 }
   
-  return ok(obj as Pet);
+  return ok(obj as LoginRequest);
 };
 
-export type Person_Address = {
-  street?: string;
-  city?: string;
-  country?: string;
+export type LoginResponse_Cookies = {
+  refresh_token: string;
 };
 
-export const validatePerson_Address = (
+export const validateLoginResponse_Cookies = (
   obj?: Record<string, any>
-): Result<Person_Address> => {
-  if (typeof obj?.street !== "string" && typeof obj?.street !== "undefined") {
-  return err(null, "validating street, expected optional string");
-}
-  if (typeof obj?.city !== "string" && typeof obj?.city !== "undefined") {
-  return err(null, "validating city, expected optional string");
-}
-  if (typeof obj?.country !== "string" && typeof obj?.country !== "undefined") {
-  return err(null, "validating country, expected optional string");
+): Result<LoginResponse_Cookies> => {
+  if (typeof obj?.refresh_token !== "string") {
+  return err(null, "validating refresh_token, expected string");
 }
   
-  return ok(obj as Person_Address);
+  return ok(obj as LoginResponse_Cookies);
 };
 
-export type Person_Pet = {
-  name?: string;
-  is_cat?: boolean;
-  is_fish?: boolean;
+export type LoginResponse = {
+  access_token?: string;
+  token_type?: string;
+  expires_in?: string;
+  cookies?: LoginResponse_Cookies;
 };
 
-export const validatePerson_Pet = (
+export const validateLoginResponse = (
   obj?: Record<string, any>
-): Result<Person_Pet> => {
-  if (typeof obj?.name !== "string" && typeof obj?.name !== "undefined") {
-  return err(null, "validating name, expected optional string");
+): Result<LoginResponse> => {
+  if (typeof obj?.access_token !== "string" && typeof obj?.access_token !== "undefined") {
+  return err(null, "validating access_token, expected optional string");
 }
-  if (typeof obj?.is_cat !== "boolean" && typeof obj?.is_cat !== "undefined") {
-  return err(null, "validating is_cat, expected optional boolean");
+  if (typeof obj?.token_type !== "string" && typeof obj?.token_type !== "undefined") {
+  return err(null, "validating token_type, expected optional string");
 }
-  if (typeof obj?.is_fish !== "boolean" && typeof obj?.is_fish !== "undefined") {
-  return err(null, "validating is_fish, expected optional boolean");
+  if (typeof obj?.expires_in !== "string" && typeof obj?.expires_in !== "undefined") {
+  return err(null, "validating expires_in, expected optional string");
+}
+  if (validateLoginResponse_Cookies(obj?.cookies)[1] && typeof obj?.cookies !== "undefined") {
+  return err(null, "validating cookies, expected optional LoginResponse_Cookies");
 }
   
-  return ok(obj as Person_Pet);
+  return ok(obj as LoginResponse);
 };
 
-export type Person = {
-  name: string;
-  age?: number;
-  pets?: Person_Pet[];
-  address?: Person_Address;
-};
+export type Login = (request: LoginRequest) => Promise<Result<LoginResponse>>;
 
-export const validatePerson = (
+export type None = Record<string, never>;
+
+export const validateNone = (
   obj?: Record<string, any>
-): Result<Person> => {
-  if (typeof obj?.name !== "string") {
-  return err(null, "validating name, expected string");
-}
-  if (typeof obj?.age !== "number" && typeof obj?.age !== "undefined") {
-  return err(null, "validating age, expected optional number");
-}
-  if ((!Array.isArray(obj?.pets) || obj?.pets?.some((i) => validatePerson_Pet(i)[1])) && typeof obj?.pets !== "undefined") {
-  return err(null, "validating pets, expected optional Person_Pet[]");
-}
-  if (validatePerson_Address(obj?.address)[1] && typeof obj?.address !== "undefined") {
-  return err(null, "validating address, expected optional Person_Address");
+): Result<None> => {
+  
+  return ok(obj as None);
+};
+
+export type None = Record<string, never>;
+
+export const validateNone = (
+  obj?: Record<string, any>
+): Result<None> => {
+  
+  return ok(obj as None);
+};
+
+export type Logout = (request: None) => Promise<Result<None>>;
+
+export type RegisterRequest = {
+  code: string;
+};
+
+export const validateRegisterRequest = (
+  obj?: Record<string, any>
+): Result<RegisterRequest> => {
+  if (typeof obj?.code !== "string") {
+  return err(null, "validating code, expected string");
 }
   
-  return ok(obj as Person);
+  return ok(obj as RegisterRequest);
 };
 
-export type SayHello = (request: Person) => Promise<Result<Pet>>;
+export type RegisterResponse_Cookies = {
+  refresh_token: string;
+};
+
+export const validateRegisterResponse_Cookies = (
+  obj?: Record<string, any>
+): Result<RegisterResponse_Cookies> => {
+  if (typeof obj?.refresh_token !== "string") {
+  return err(null, "validating refresh_token, expected string");
+}
+  
+  return ok(obj as RegisterResponse_Cookies);
+};
+
+export type RegisterResponse = {
+  access_token?: string;
+  token_type?: string;
+  expires_in?: string;
+  cookies?: RegisterResponse_Cookies;
+};
+
+export const validateRegisterResponse = (
+  obj?: Record<string, any>
+): Result<RegisterResponse> => {
+  if (typeof obj?.access_token !== "string" && typeof obj?.access_token !== "undefined") {
+  return err(null, "validating access_token, expected optional string");
+}
+  if (typeof obj?.token_type !== "string" && typeof obj?.token_type !== "undefined") {
+  return err(null, "validating token_type, expected optional string");
+}
+  if (typeof obj?.expires_in !== "string" && typeof obj?.expires_in !== "undefined") {
+  return err(null, "validating expires_in, expected optional string");
+}
+  if (validateRegisterResponse_Cookies(obj?.cookies)[1] && typeof obj?.cookies !== "undefined") {
+  return err(null, "validating cookies, expected optional RegisterResponse_Cookies");
+}
+  
+  return ok(obj as RegisterResponse);
+};
+
+export type Register = (request: RegisterRequest) => Promise<Result<RegisterResponse>>;
+
+export type RefreshRequest_Cookies = {
+  refresh_token: string;
+};
+
+export const validateRefreshRequest_Cookies = (
+  obj?: Record<string, any>
+): Result<RefreshRequest_Cookies> => {
+  if (typeof obj?.refresh_token !== "string") {
+  return err(null, "validating refresh_token, expected string");
+}
+  
+  return ok(obj as RefreshRequest_Cookies);
+};
+
+export type RefreshRequest = {
+  cookies?: RefreshRequest_Cookies;
+};
+
+export const validateRefreshRequest = (
+  obj?: Record<string, any>
+): Result<RefreshRequest> => {
+  if (validateRefreshRequest_Cookies(obj?.cookies)[1] && typeof obj?.cookies !== "undefined") {
+  return err(null, "validating cookies, expected optional RefreshRequest_Cookies");
+}
+  
+  return ok(obj as RefreshRequest);
+};
+
+export type RefreshResponse_Cookies = {
+  refresh_token: string;
+};
+
+export const validateRefreshResponse_Cookies = (
+  obj?: Record<string, any>
+): Result<RefreshResponse_Cookies> => {
+  if (typeof obj?.refresh_token !== "string") {
+  return err(null, "validating refresh_token, expected string");
+}
+  
+  return ok(obj as RefreshResponse_Cookies);
+};
+
+export type RefreshResponse = {
+  access_token?: string;
+  token_type?: string;
+  expires_in?: string;
+  cookies?: RefreshResponse_Cookies;
+};
+
+export const validateRefreshResponse = (
+  obj?: Record<string, any>
+): Result<RefreshResponse> => {
+  if (typeof obj?.access_token !== "string" && typeof obj?.access_token !== "undefined") {
+  return err(null, "validating access_token, expected optional string");
+}
+  if (typeof obj?.token_type !== "string" && typeof obj?.token_type !== "undefined") {
+  return err(null, "validating token_type, expected optional string");
+}
+  if (typeof obj?.expires_in !== "string" && typeof obj?.expires_in !== "undefined") {
+  return err(null, "validating expires_in, expected optional string");
+}
+  if (validateRefreshResponse_Cookies(obj?.cookies)[1] && typeof obj?.cookies !== "undefined") {
+  return err(null, "validating cookies, expected optional RefreshResponse_Cookies");
+}
+  
+  return ok(obj as RefreshResponse);
+};
+
+export type Refresh = (request: RefreshRequest) => Promise<Result<RefreshResponse>>;
