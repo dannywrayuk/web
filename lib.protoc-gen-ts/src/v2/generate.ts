@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import proto from "google-protobuf/google/protobuf/compiler/plugin_pb.js";
 import proto_d from "google-protobuf/google/protobuf/descriptor_pb.js";
-import { extensions } from "./registerExtensions.ts";
 
 type ServiceDefinition = {
   serviceName: string;
-  config: { stage: string; e?: string[] }[];
+  config: Record<string, Record<string, unknown>>;
   methods: Record<
     string,
     {
@@ -28,38 +28,61 @@ type ServiceDefinition = {
   helpers: Record<string, string>;
 };
 
-function getMethodOptions(method: proto_d.MethodDescriptorProto) {
-  const options = method.getOptions();
-  if (!options) {
-    return {};
-  }
-  const result: Record<string, unknown> = options.toObject();
-  for (const [name, extensionFieldInfo] of Object.entries(
-    extensions.MethodOptions,
-  )) {
-    const value = options.getExtension(extensionFieldInfo);
-    if (value !== undefined && value !== null) {
-      result[name] = value;
-    }
-  }
-  return result;
+function formatConfig(service: proto_d.ServiceDescriptorProto) {
+  const options = (service.getOptions()?.toObject() || {}) as {
+    config: { stage: string; e?: string[] }[] | undefined;
+  };
+  const config = options.config?.reduce(
+    (acc, c) => {
+      if (!c.stage) {
+        throw new Error("Config stage is required");
+      }
+      acc[c.stage] = c.e
+        ? c.e?.reduce(
+            (vars, v) => {
+              if (v.includes("[]=")) {
+                const [key, value] = v.split("[]=");
+                if (!vars[key]) {
+                  vars[key] = [];
+                }
+                (vars[key] as unknown[]).push(value);
+              } else if (v.includes("=")) {
+                const [key, value] = v.split("=");
+                vars[key] = value;
+              } else {
+                vars[v] = true;
+              }
+              return vars;
+            },
+            {} as Record<string, unknown>,
+          ) || {}
+        : {};
+      return acc;
+    },
+    {} as Record<string, Record<string, unknown>>,
+  );
+  return config || {};
 }
 
-function getMessageFieldOptions(field: proto_d.FieldDescriptorProto) {
-  const options = field.getOptions();
-  if (!options) {
-    return {};
-  }
-  const result: Record<string, unknown> = options.toObject();
-  for (const [name, extensionFieldInfo] of Object.entries(
-    extensions.FieldOptions,
-  )) {
-    const value = options.getExtension(extensionFieldInfo);
-    if (value !== undefined && value !== null) {
-      result[name] = value;
-    }
-  }
-  return result;
+function formatMessageFieldOptions(field: proto_d.FieldDescriptorProto) {
+  const options = (field.getOptions()?.toObject() || {}) as Record<
+    string,
+    unknown
+  >;
+  return {
+    validation: options.validation,
+  };
+}
+
+function formatMethodOptions(method: proto_d.MethodDescriptorProto) {
+  const options = (method.getOptions()?.toObject() || {}) as Record<
+    string,
+    unknown
+  >;
+  return {
+    network: options.network,
+    secrets: options.secret,
+  };
 }
 
 export const generate = (request: proto.CodeGeneratorRequest) => {
@@ -124,32 +147,14 @@ export const generate = (request: proto.CodeGeneratorRequest) => {
 
   const serviceDefinition: ServiceDefinition = {
     serviceName: serviceName,
-    config: [],
+    config: {},
     methods: {},
     messages: {},
     imports: {},
     helpers: {},
   };
 
-  const serviceOptions = service.getOptions();
-  if (serviceOptions) {
-    for (const [name, extensionFieldInfo] of Object.entries(
-      extensions.ServiceOptions,
-    )) {
-      const value = serviceOptions.getExtension(extensionFieldInfo);
-      if (value === undefined || value === null) continue;
-      if (extensionFieldInfo.isMessageType() && extensionFieldInfo.toObjectFn) {
-        const toObj = extensionFieldInfo.toObjectFn;
-        (serviceDefinition as Record<string, unknown>)[name] = Array.isArray(
-          value,
-        )
-          ? (value as unknown[]).map((v) => toObj(false, v as never))
-          : toObj(false, value as never);
-      } else {
-        (serviceDefinition as Record<string, unknown>)[name] = value;
-      }
-    }
-  }
+  serviceDefinition.config = formatConfig(service);
 
   methods.forEach((method) => {
     const name = method.getName();
@@ -168,7 +173,7 @@ export const generate = (request: proto.CodeGeneratorRequest) => {
       name,
       inputType,
       outputType,
-      options: getMethodOptions(method),
+      options: formatMethodOptions(method),
     };
   });
 
@@ -208,7 +213,7 @@ export const generate = (request: proto.CodeGeneratorRequest) => {
       messageDefinition.fields[fieldName] = {
         name: fieldName,
         type: fieldTypeName || fieldType.toString(),
-        options: getMessageFieldOptions(field),
+        options: formatMessageFieldOptions(field),
       };
     });
     serviceDefinition.messages[name] = messageDefinition;
