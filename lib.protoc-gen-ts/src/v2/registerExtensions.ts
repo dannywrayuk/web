@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import proto from "google-protobuf/google/protobuf/compiler/plugin_pb.js";
 import dproto from "google-protobuf/google/protobuf/descriptor_pb.js";
 import {
@@ -49,8 +50,7 @@ function createDynamicMessageClass(
   const fields = descriptor.getFieldList();
   const repeatedFieldNumbers = fields
     .filter(
-      (f) =>
-        f.getLabel() === dproto.FieldDescriptorProto.Label.LABEL_REPEATED,
+      (f) => f.getLabel() === dproto.FieldDescriptorProto.Label.LABEL_REPEATED,
     )
     .map((f) => f.getNumber()!);
 
@@ -108,7 +108,7 @@ function createDynamicMessageClass(
         const arr = Message.getField(msg, fieldNum) as unknown[];
         arr.push(value);
       } else {
-        Message.setField(msg, fieldNum, value);
+        Message.setField(msg, fieldNum, value as any);
       }
     }
     return msg;
@@ -176,9 +176,6 @@ export const extensionPass = (request: proto.CodeGeneratorRequest) => {
   console.warn("✅ Registered extensions\n");
 };
 
-// Maps a fully-qualified protobuf type name (e.g. ".google.protobuf.FeatureSet"
-// or ".mypkg.MyOptions") to its generated JS message constructor.
-// ADJUST THIS to match how your generated code exposes message classes.
 const resolveMessageType = (typeName: string) => {
   // Strip leading dot, then the google.protobuf prefix (same convention you
   // already use for `scope`). The remainder should be the class name on dproto.
@@ -201,25 +198,16 @@ const registerExtension = (
   const isMessage = typeNum === dproto.FieldDescriptorProto.Type.TYPE_MESSAGE;
   const isGroup = typeNum === dproto.FieldDescriptorProto.Type.TYPE_GROUP;
 
-  console.warn(
-    `Registering extension ${name} (number: ${number}, type: ${repeated ? "repeated" : ""}  ${typeNum}${isMessage ? ` -> ${typeName}` : ""}) for scope ${scope}`,
-  );
-
-  // NOTE: `!number`/`!typeNum` reject 0, but neither field numbers nor TYPE_*
-  // enum values are ever 0, so this is safe.
   if (!name || !number || !typeNum) {
     throw new Error("Extension is missing info: " + extension.toObject());
   }
   if (!scope || scope.includes(".")) {
     throw new Error("unhandled extension scope: " + scope);
   }
-  // Groups use a deprecated wire format that jspb's extension machinery does
-  // not support via a simple reader/writer pair. Reject them explicitly.
   if (isGroup) {
     throw new Error("Group extensions are not supported: " + name);
   }
 
-  // -- Resolve the message constructor for message-typed extensions ---------
   let ctor: (new () => any) | null = null;
   let toObjectFn: (() => object) | null = null;
   let messageSerializeFn: unknown = undefined;
@@ -262,9 +250,6 @@ const registerExtension = (
     repeated ? 1 : 0, // isRepeated
   );
 
-  // -- Pick the reader/writer -----------------------------------------------
-  // For messages, jspb always uses readMessage + write(Repeated)Message, which
-  // take a serialize/deserialize callback. For scalars, use the per-type maps.
   let reader: unknown;
   let writer: unknown;
 
@@ -281,8 +266,6 @@ const registerExtension = (
     }
   }
 
-  // Messages are never packed. Scalars: pass false to use the unpacked
-  // (per-element) read path, which matches singular reader/writer functions.
   const isPacked = false;
 
   const extensionFieldBinaryInfo = new ExtensionFieldBinaryInfo(

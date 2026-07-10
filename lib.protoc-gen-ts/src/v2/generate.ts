@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import proto from "google-protobuf/google/protobuf/compiler/plugin_pb.js";
 import proto_d from "google-protobuf/google/protobuf/descriptor_pb.js";
+import { asFile } from "./asFile.ts";
+import { typeMap } from "./typeMap.ts";
 
-type ServiceDefinition = {
+export type ServiceDefinition = {
   serviceName: string;
   config: Record<string, Record<string, unknown>>;
   methods: Record<
@@ -25,7 +26,11 @@ type ServiceDefinition = {
     }
   >;
   imports: Record<string, string>;
-  helpers: Record<string, string>;
+  helpers: Record<string, string | boolean>;
+};
+
+const helperMessages: Record<string, boolean> = {
+  ".Empty": true,
 };
 
 function formatConfig(service: proto_d.ServiceDescriptorProto) {
@@ -71,6 +76,9 @@ function formatMessageFieldOptions(field: proto_d.FieldDescriptorProto) {
   >;
   return {
     validation: options.validation,
+    repeated:
+      field.getLabel() === proto_d.FieldDescriptorProto.Label.LABEL_REPEATED ||
+      undefined,
   };
 }
 
@@ -186,6 +194,10 @@ export const generate = (request: proto.CodeGeneratorRequest) => {
     if (serviceDefinition.messages[name]) {
       return;
     }
+    if (helperMessages[name]) {
+      serviceDefinition.helpers[`message${name}`] = true;
+      return;
+    }
     const message = messages[name.slice(1)];
     if (!message) {
       throw new Error("Message not found: " + name);
@@ -212,13 +224,12 @@ export const generate = (request: proto.CodeGeneratorRequest) => {
 
       messageDefinition.fields[fieldName] = {
         name: fieldName,
-        type: fieldTypeName || fieldType.toString(),
+        type: fieldTypeName || typeMap(fieldType),
         options: formatMessageFieldOptions(field),
       };
     });
     serviceDefinition.messages[name] = messageDefinition;
   }
-  console.warn(JSON.stringify(serviceDefinition, null, 2));
-  // return serviceDefinition;
-  return "";
+  // console.warn(JSON.stringify(serviceDefinition, null, 2));
+  return asFile(serviceDefinition);
 };

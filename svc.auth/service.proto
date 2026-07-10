@@ -1,22 +1,5 @@
 syntax = "proto3";
-import "google/protobuf/descriptor.proto";
-
-
-message Config {
-  string stage = 1;
-  repeated string e = 2;
-}
-extend google.protobuf.ServiceOptions {
-  repeated Config config = 51236;
-}
-extend google.protobuf.MethodOptions {
-  bool network = 51235;
-  repeated string secret = 51238;
-}
-extend google.protobuf.FieldOptions {
-  string validation = 51234;
-}
-message None {}
+import "builtin.proto";
 
 service Auth {
   option (config) = {
@@ -48,7 +31,7 @@ service Auth {
     option (secret) = "AUTH_ACCESS_TOKEN_SIGNING_KEY";
     option (secret) = "AUTH_REFRESH_TOKEN_SIGNING_KEY";
   };
-  rpc Logout (None) returns (None) {
+  rpc Logout (Empty) returns (Empty) {
     option (network) = true;
   };
   rpc Register (RegisterRequest) returns (RegisterResponse) {
