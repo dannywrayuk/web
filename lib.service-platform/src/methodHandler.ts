@@ -1,17 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const methodHandler = (
-  handler: (event: any, context: any) => any,
-  validateInput: (o: any) => any,
-  validateOutput: (o: any) => any,
-) => {
-  return validateOutput({});
-};
+export const methodHandler =
+  <HandlerRequest, HandlerResponse>(
+    handler: (event: HandlerRequest, context: any) => Promise<HandlerResponse>,
+    validateInput: (o: any) => any,
+    validateOutput: (o: any) => any,
+  ) =>
+  async (event: HandlerRequest): Promise<HandlerResponse> => {
+    const [validatedInput, inputError] = validateInput(event);
+    if (inputError) {
+      return inputError;
+    }
+    const output = await handler(validatedInput, {});
+    const [validatedOutput, outputError] = validateOutput(output);
+    if (outputError) {
+      return outputError;
+    }
+    return validatedOutput;
+  };
 
 export type HandlerContext<
-  Env extends Record<string, unknown>,
-  S extends Record<string, string>,
+  E extends Record<string, unknown>,
+  S extends readonly string[],
 > = {
-  secrets: S;
-  env: Env;
+  secrets: Record<S[number], string>;
+  env: E;
   timestamp: string;
 };

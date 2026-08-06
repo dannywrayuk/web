@@ -6,11 +6,12 @@ message Config {
   string stage = 1;
   repeated string e = 2;
 }
-extend google.protobuf.ServiceOptions {
-  repeated Config config = 51236;
+extend google.protobuf.FileOptions {
+  repeated Config config = 51237;
 }
 extend google.protobuf.MethodOptions {
-  bool network = 51235;
+  string api = 51236;
+  string using = 51235;
   repeated string secret = 51238;
 }
 extend google.protobuf.FieldOptions {

@@ -10,9 +10,14 @@ import {
 } from "google-protobuf";
 
 export const extensions: Record<
-  "FieldOptions" | "MessageOptions" | "MethodOptions" | "ServiceOptions",
+  | "FieldOptions"
+  | "MessageOptions"
+  | "MethodOptions"
+  | "ServiceOptions"
+  | "FileOptions",
   Record<string, ExtensionFieldInfo<unknown>>
 > = {
+  FileOptions: {},
   FieldOptions: {},
   MessageOptions: {},
   MethodOptions: {},

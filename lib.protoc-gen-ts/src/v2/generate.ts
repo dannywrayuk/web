@@ -13,6 +13,8 @@ export type ServiceDefinition = {
       inputType: string;
       outputType: string;
       options: Record<string, unknown>;
+      httpMarshal?: Record<string, string>;
+      httpUnmarshal?: Record<string, string>;
     }
   >;
   messages: Record<
@@ -33,8 +35,8 @@ const helperMessages: Record<string, boolean> = {
   ".Empty": true,
 };
 
-function formatConfig(service: proto_d.ServiceDescriptorProto) {
-  const options = (service.getOptions()?.toObject() || {}) as {
+function formatConfig(file: proto_d.FileDescriptorProto) {
+  const options = (file.getOptions()?.toObject() || {}) as {
     config: { stage: string; e?: string[] }[] | undefined;
   };
   const config = options.config?.reduce(
@@ -88,7 +90,8 @@ function formatMethodOptions(method: proto_d.MethodDescriptorProto) {
     unknown
   >;
   return {
-    network: options.network,
+    api: options.api,
+    using: options.using,
     secrets: options.secret,
   };
 }
@@ -162,7 +165,7 @@ export const generate = (request: proto.CodeGeneratorRequest) => {
     helpers: {},
   };
 
-  serviceDefinition.config = formatConfig(service);
+  serviceDefinition.config = formatConfig(fileContents);
 
   methods.forEach((method) => {
     const name = method.getName();

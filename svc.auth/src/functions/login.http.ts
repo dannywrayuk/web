@@ -1,9 +1,7 @@
 import { err, ok } from "@dannywrayuk/results";
-import { handler as login } from "./login.ts";
-import { apiFunction } from "@dannywrayuk/service-platform/apiFunction";
-import { Env } from "../../generated/config.ts";
+import login from "./login.ts";
 
-export const handler = apiFunction<Env>(async (request, { env }) => {
+export default loginHttpMethod(async (request, { env }) => {
   const [response, error] = await login({
     code: request?.queryStringParameters?.code,
   });

@@ -1,23 +1,23 @@
-import { getAccessToken } from "@dannywrayuk/github/getAccessToken";
+import * as github from "@dannywrayuk/github";
 import { err, ok } from "@dannywrayuk/results";
-import { getUserInfo } from "@dannywrayuk/github/getUserInfo";
 import { readUserByGithubId } from "@dannywrayuk/svc.user/handlers.ts";
 import { signToken } from "@dannywrayuk/jwt";
 import { loginMethod } from "../../generated/service.ts";
 
 export default loginMethod(async (event, { secrets, env, timestamp }) => {
-  const [accessTokenResponse, accessTokenResponseError] = await getAccessToken({
-    code: event.code,
-    clientId: secrets.GITHUB_CLIENT_ID,
-    clientSecret: secrets.GITHUB_CLIENT_SECRET,
-    githubOAuthUrl: env.githubUrl,
-  });
+  const [accessTokenResponse, accessTokenResponseError] =
+    await github.getAccessToken({
+      code: event.code,
+      clientId: secrets.GITHUB_CLIENT_ID,
+      clientSecret: secrets.GITHUB_CLIENT_SECRET,
+      githubOAuthUrl: env.githubUrl,
+    });
 
   if (accessTokenResponseError) {
     return err(accessTokenResponseError, "getting access token");
   }
 
-  const [userInfoResponse, userInfoResponseError] = await getUserInfo({
+  const [userInfoResponse, userInfoResponseError] = await github.getUserInfo({
     accessToken: accessTokenResponse.access_token,
     githubApiUrl: env.githubApiUrl,
   });
@@ -40,12 +40,12 @@ export default loginMethod(async (event, { secrets, env, timestamp }) => {
   const [accessToken, accessTokenError] = signToken(
     {
       sub: userRecord.userId,
-      iss: env.domainName,
+      iss: env.domain,
       started: timestamp,
     },
     {
       signingKey: secrets.AUTH_ACCESS_TOKEN_SIGNING_KEY,
-      timeout: env.authTokenTimeouts.accessToken,
+      timeout: Number(env.accessTokenExpiry),
     },
   );
 
@@ -56,12 +56,12 @@ export default loginMethod(async (event, { secrets, env, timestamp }) => {
   const [refreshToken, refreshTokenError] = signToken(
     {
       sub: userRecord.userId,
-      iss: env.domainName,
+      iss: env.domain,
       started: timestamp,
     },
     {
       signingKey: secrets.AUTH_REFRESH_TOKEN_SIGNING_KEY,
-      timeout: env.authTokenTimeouts.refreshToken,
+      timeout: Number(env.refreshTokenExpiry),
     },
   );
 

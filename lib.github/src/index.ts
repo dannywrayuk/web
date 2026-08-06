@@ -1,3 +1,3 @@
-export const hello = () => {
-  console.log("Hello from lib.github!");
-};
+export { getAccessToken } from "./getAccessToken.ts";
+export { getUserInfo } from "./getUserInfo.ts";
+export { getPrimaryEmail } from "./getPrimaryEmail.ts";

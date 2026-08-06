@@ -4,6 +4,7 @@ import {
   methodHandler,
   type HandlerContext,
 } from "@dannywrayuk/service-platform/methodHandler";
+import { methodHttpHandler } from "@dannywrayuk/service-platform/methodHttpHandler";
 type Empty = Record<string, never>;
 const validateEmpty = (o: Record<string, any>): Result<Empty> => {
   if (typeof o !== "object" || o === null) {
@@ -12,15 +13,89 @@ const validateEmpty = (o: Record<string, any>): Result<Empty> => {
   return ok(o as Empty);
 };
 
-export type LoginRequest = { code: string };
+export type CommonEnv = {
+  domain: "dannywray.co.uk";
+  accessTokenExpiry: "3600";
+  refreshTokenExpiry: "25920000";
+} & { stage: string };
+export type Env_dev = {
+  githubUrl: "https://mock.dannywray.co.uk/github.com";
+  githubApiUrl: "https://mock.dannywray.co.uk/api.github.com";
+  allowedOrigins: [
+    "http://localhost:5173",
+    "https://account.dev.dannywray.co.uk",
+  ];
+} & { stage: "dev" };
+export type Env_prod = {
+  githubUrl: "https://github.com";
+  githubApiUrl: "https://api.github.com";
+  allowedOrigins: ["https://account.dannywray.co.uk"];
+  removeStageSubdomain: true;
+  deletionProtection: true;
+} & { stage: "prod" };
+export type Env = CommonEnv & (Env_dev | Env_prod);
+
+export type TokenRequest = { code: string };
+export const validateTokenRequest = (
+  o: Record<string, any>,
+): Result<TokenRequest> => {
+  if (typeof o !== "object" || o === null) {
+    return err(null, "TokenRequest is not an object");
+  }
+  if (typeof o.code !== "string") {
+    return err(null, "code is not a string");
+  }
+  return ok(o as TokenRequest);
+};
+export type TokenResponse = {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: string;
+};
+export const validateTokenResponse = (
+  o: Record<string, any>,
+): Result<TokenResponse> => {
+  if (typeof o !== "object" || o === null) {
+    return err(null, "TokenResponse is not an object");
+  }
+  if (typeof o.access_token !== "string") {
+    return err(null, "access_token is not a string");
+  }
+  if (typeof o.refresh_token !== "string") {
+    return err(null, "refresh_token is not a string");
+  }
+  if (typeof o.token_type !== "string") {
+    return err(null, "token_type is not a string");
+  }
+  if (typeof o.expires_in !== "string") {
+    return err(null, "expires_in is not a string");
+  }
+  return ok(o as TokenResponse);
+};
+export type LoginRequest_Query = { code: string };
+export const validateLoginRequest_Query = (
+  o: Record<string, any>,
+): Result<LoginRequest_Query> => {
+  if (typeof o !== "object" || o === null) {
+    return err(null, "LoginRequest_Query is not an object");
+  }
+  if (typeof o.code !== "string") {
+    return err(null, "code is not a string");
+  }
+  return ok(o as LoginRequest_Query);
+};
+export type LoginRequest = { queryz: LoginRequest_Query };
 export const validateLoginRequest = (
   o: Record<string, any>,
 ): Result<LoginRequest> => {
   if (typeof o !== "object" || o === null) {
     return err(null, "LoginRequest is not an object");
   }
-  if (typeof o.code !== "string") {
-    return err(null, "code is not a string");
+
+  const [, queryzError] = validateLoginRequest_Query(o.queryz);
+  if (queryzError) {
+    return err(queryzError, "queryz is not valid");
   }
   return ok(o as LoginRequest);
 };
@@ -37,10 +112,10 @@ export const validateLoginResponse_Cookies = (
   return ok(o as LoginResponse_Cookies);
 };
 export type LoginResponse = {
-  access_token: string | undefined;
-  token_type: string | undefined;
-  expires_in: string | undefined;
-  cookies: LoginResponse_Cookies | undefined;
+  access_token: string;
+  token_type: string;
+  expires_in: string;
+  cookies: LoginResponse_Cookies;
 };
 export const validateLoginResponse = (
   o: Record<string, any>,
@@ -48,95 +123,21 @@ export const validateLoginResponse = (
   if (typeof o !== "object" || o === null) {
     return err(null, "LoginResponse is not an object");
   }
-
-  if (o.access_token !== undefined) {
-    if (typeof o.access_token !== "string") {
-      return err(null, "access_token is not a string");
-    }
+  if (typeof o.access_token !== "string") {
+    return err(null, "access_token is not a string");
+  }
+  if (typeof o.token_type !== "string") {
+    return err(null, "token_type is not a string");
+  }
+  if (typeof o.expires_in !== "string") {
+    return err(null, "expires_in is not a string");
   }
 
-  if (o.token_type !== undefined) {
-    if (typeof o.token_type !== "string") {
-      return err(null, "token_type is not a string");
-    }
-  }
-
-  if (o.expires_in !== undefined) {
-    if (typeof o.expires_in !== "string") {
-      return err(null, "expires_in is not a string");
-    }
-  }
-
-  if (o.cookies !== undefined) {
-    const [, cookiesError] = validateLoginResponse_Cookies(o.cookies);
-    if (cookiesError) {
-      return err(cookiesError, "cookies is not valid");
-    }
+  const [, cookiesError] = validateLoginResponse_Cookies(o.cookies);
+  if (cookiesError) {
+    return err(cookiesError, "cookies is not valid");
   }
   return ok(o as LoginResponse);
-};
-export type RegisterRequest = { code: string };
-export const validateRegisterRequest = (
-  o: Record<string, any>,
-): Result<RegisterRequest> => {
-  if (typeof o !== "object" || o === null) {
-    return err(null, "RegisterRequest is not an object");
-  }
-  if (typeof o.code !== "string") {
-    return err(null, "code is not a string");
-  }
-  return ok(o as RegisterRequest);
-};
-export type RegisterResponse_Cookies = { refresh_token: string };
-export const validateRegisterResponse_Cookies = (
-  o: Record<string, any>,
-): Result<RegisterResponse_Cookies> => {
-  if (typeof o !== "object" || o === null) {
-    return err(null, "RegisterResponse_Cookies is not an object");
-  }
-  if (typeof o.refresh_token !== "string") {
-    return err(null, "refresh_token is not a string");
-  }
-  return ok(o as RegisterResponse_Cookies);
-};
-export type RegisterResponse = {
-  access_token: string | undefined;
-  token_type: string | undefined;
-  expires_in: string | undefined;
-  cookies: RegisterResponse_Cookies | undefined;
-};
-export const validateRegisterResponse = (
-  o: Record<string, any>,
-): Result<RegisterResponse> => {
-  if (typeof o !== "object" || o === null) {
-    return err(null, "RegisterResponse is not an object");
-  }
-
-  if (o.access_token !== undefined) {
-    if (typeof o.access_token !== "string") {
-      return err(null, "access_token is not a string");
-    }
-  }
-
-  if (o.token_type !== undefined) {
-    if (typeof o.token_type !== "string") {
-      return err(null, "token_type is not a string");
-    }
-  }
-
-  if (o.expires_in !== undefined) {
-    if (typeof o.expires_in !== "string") {
-      return err(null, "expires_in is not a string");
-    }
-  }
-
-  if (o.cookies !== undefined) {
-    const [, cookiesError] = validateRegisterResponse_Cookies(o.cookies);
-    if (cookiesError) {
-      return err(cookiesError, "cookies is not valid");
-    }
-  }
-  return ok(o as RegisterResponse);
 };
 export type RefreshRequest_Cookies = { refresh_token: string };
 export const validateRefreshRequest_Cookies = (
@@ -150,7 +151,7 @@ export const validateRefreshRequest_Cookies = (
   }
   return ok(o as RefreshRequest_Cookies);
 };
-export type RefreshRequest = { cookies: RefreshRequest_Cookies | undefined };
+export type RefreshRequest = { cookies: RefreshRequest_Cookies };
 export const validateRefreshRequest = (
   o: Record<string, any>,
 ): Result<RefreshRequest> => {
@@ -158,101 +159,97 @@ export const validateRefreshRequest = (
     return err(null, "RefreshRequest is not an object");
   }
 
-  if (o.cookies !== undefined) {
-    const [, cookiesError] = validateRefreshRequest_Cookies(o.cookies);
-    if (cookiesError) {
-      return err(cookiesError, "cookies is not valid");
-    }
+  const [, cookiesError] = validateRefreshRequest_Cookies(o.cookies);
+  if (cookiesError) {
+    return err(cookiesError, "cookies is not valid");
   }
   return ok(o as RefreshRequest);
 };
-export type RefreshResponse_Cookies = { refresh_token: string };
-export const validateRefreshResponse_Cookies = (
-  o: Record<string, any>,
-): Result<RefreshResponse_Cookies> => {
-  if (typeof o !== "object" || o === null) {
-    return err(null, "RefreshResponse_Cookies is not an object");
-  }
-  if (typeof o.refresh_token !== "string") {
-    return err(null, "refresh_token is not a string");
-  }
-  return ok(o as RefreshResponse_Cookies);
+export const marshalHttpToLoginRequest = (event: any) => {
+  return {
+    ...event.body,
+    queryz: fromHttpQuery(event.query),
+  };
 };
-export type RefreshResponse = {
-  access_token: string | undefined;
-  token_type: string | undefined;
-  expires_in: string | undefined;
-  cookies: RefreshResponse_Cookies | undefined;
+export const unmarshalLoginResponseToHttp = (response: any) => {
+  const { cookies: cookies, ...body } = response;
+  return {
+    body,
+    cookies: toHttpCookies(cookies),
+  };
 };
-export const validateRefreshResponse = (
-  o: Record<string, any>,
-): Result<RefreshResponse> => {
-  if (typeof o !== "object" || o === null) {
-    return err(null, "RefreshResponse is not an object");
-  }
-
-  if (o.access_token !== undefined) {
-    if (typeof o.access_token !== "string") {
-      return err(null, "access_token is not a string");
-    }
-  }
-
-  if (o.token_type !== undefined) {
-    if (typeof o.token_type !== "string") {
-      return err(null, "token_type is not a string");
-    }
-  }
-
-  if (o.expires_in !== undefined) {
-    if (typeof o.expires_in !== "string") {
-      return err(null, "expires_in is not a string");
-    }
-  }
-
-  if (o.cookies !== undefined) {
-    const [, cookiesError] = validateRefreshResponse_Cookies(o.cookies);
-    if (cookiesError) {
-      return err(cookiesError, "cookies is not valid");
-    }
-  }
-  return ok(o as RefreshResponse);
+export const marshalHttpToRefreshRequest = (event: any) => {
+  return {
+    ...event.body,
+    cookies: fromHttpCookies(event.cookies),
+  };
+};
+export const tokenMethodSecrets = [
+  "GITHUB_CLIENT_ID",
+  "GITHUB_CLIENT_SECRET",
+  "AUTH_ACCESS_TOKEN_SIGNING_KEY",
+  "AUTH_REFRESH_TOKEN_SIGNING_KEY",
+] as const;
+export const tokenMethod = (
+  handler: (
+    event: TokenRequest,
+    context: HandlerContext<Env, typeof tokenMethodSecrets>,
+  ) => Promise<Result<TokenResponse>>,
+) => {
+  return methodHandler(handler, validateTokenRequest, validateTokenResponse);
 };
 
-export const loginMethod = async (
+export const loginMethod = (
   handler: (
     event: LoginRequest,
-    context: HandlerContext,
+    context: HandlerContext<Env, []>,
   ) => Promise<Result<LoginResponse>>,
 ) => {
-  return methodHandler(handler, validateLoginRequest, validateLoginResponse);
-};
-export const logoutMethod = async (
-  handler: (event: Empty, context: HandlerContext) => Promise<Result<Empty>>,
-) => {
-  return methodHandler(handler, validateEmpty, validateEmpty);
-};
-export const registerMethod = async (
-  handler: (
-    event: RegisterRequest,
-    context: HandlerContext,
-  ) => Promise<Result<RegisterResponse>>,
-) => {
-  return methodHandler(
+  return methodHttpHandler(
     handler,
-    validateRegisterRequest,
-    validateRegisterResponse,
+    validateLoginRequest,
+    validateLoginResponse,
+    marshalHttpToLoginRequest,
+    unmarshalLoginResponseToHttp,
   );
 };
-export const refreshMethod = async (
+
+export const registerMethod = (
+  handler: (
+    event: LoginRequest,
+    context: HandlerContext<Env, []>,
+  ) => Promise<Result<LoginResponse>>,
+) => {
+  return methodHttpHandler(
+    handler,
+    validateLoginRequest,
+    validateLoginResponse,
+    marshalHttpToLoginRequest,
+    unmarshalLoginResponseToHttp,
+  );
+};
+
+export const refreshMethod = (
   handler: (
     event: RefreshRequest,
-    context: HandlerContext,
-  ) => Promise<Result<RefreshResponse>>,
+    context: HandlerContext<Env, []>,
+  ) => Promise<Result<LoginResponse>>,
 ) => {
-  return methodHandler(
+  return methodHttpHandler(
     handler,
     validateRefreshRequest,
-    validateRefreshResponse,
+    validateLoginResponse,
+    marshalHttpToRefreshRequest,
+    unmarshalLoginResponseToHttp,
   );
+};
+
+export const logoutMethod = (
+  handler: (
+    event: Empty,
+    context: HandlerContext<Env, []>,
+  ) => Promise<Result<Empty>>,
+) => {
+  return methodHttpHandler(handler, validateEmpty, validateEmpty, null, null);
 };
 
