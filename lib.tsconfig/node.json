@@ -1,6 +1,7 @@
 {
   "extends": "./base.json",
   "compilerOptions": {
-    "module": "nodenext"
+    "module": "nodenext",
+    "types": ["node"]
   }
 }

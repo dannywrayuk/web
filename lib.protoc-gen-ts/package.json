@@ -19,6 +19,7 @@
   "devDependencies": {
     "@dannywrayuk/eslint": "workspace:*",
     "@dannywrayuk/tsconfig": "workspace:*",
-    "@types/google-protobuf": "^3.15.12"
+    "@types/google-protobuf": "^3.15.12",
+    "@types/node": "catalog:"
   }
 }

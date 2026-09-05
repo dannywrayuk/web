@@ -1,4 +1,6 @@
 import { type ServiceDefinition } from "./generate.ts";
+import { variableToTypeString } from "./variableToTypeString.ts";
+import * as fs from "node:fs";
 
 const helperMap: Record<string, string> = {
   results: 'import { ok, err, type Result } from "@dannywrayuk/results";',
@@ -9,8 +11,17 @@ const helperMap: Record<string, string> = {
   }
     `,
   allowAny: "/* eslint-disable @typescript-eslint/no-explicit-any */",
-  methodHandler: `import { methodHandler, type HandlerContext } from "@dannywrayuk/service-platform/methodHandler";`,
+  methodHandler: `import { methodHandler } from "@dannywrayuk/service-platform/methodHandler";`,
   methodHttpHandler: `import { methodHttpHandler } from "@dannywrayuk/service-platform/methodHttpHandler";`,
+  handlerContext: `import { HandlerContext } from "@dannywrayuk/service-platform/HandlerContext";`,
+  toHttpCookies: `import { toHttpCookies } from "@dannywrayuk/service-platform/toHttpCookies";`,
+  fromHttpCookies: `import { fromHttpCookies } from "@dannywrayuk/service-platform/fromHttpCookies";`,
+  toHttpHeaders: `import { toHttpHeaders } from "@dannywrayuk/service-platform/toHttpHeaders";`,
+  fromHttpHeaders: `import { fromHttpHeaders } from "@dannywrayuk/service-platform/fromHttpHeaders";`,
+  toHttpQuery: `import { toHttpQuery } from "@dannywrayuk/service-platform/toHttpQuery";`,
+  fromHttpQuery: `import { fromHttpQuery } from "@dannywrayuk/service-platform/fromHttpQuery";`,
+  toHttpStatus: `import { toHttpStatus } from "@dannywrayuk/service-platform/toHttpStatus";`,
+  fromHttpStatus: `import { fromHttpStatus } from "@dannywrayuk/service-platform/fromHttpStatus";`,
 };
 
 const toOptional = (type: string, isOptional: boolean) =>
@@ -35,7 +46,7 @@ const fieldsToType = (
     .map((field) => {
       const type = toOptional(
         toArray(protoNameToTypeName(field.type), !!field.options.repeated),
-        !["required", "query", "cookies", "headers"].some((r) =>
+        !["required", "query", "cookies", "headers", "status"].some((r) =>
           (field.options.validation as string)?.includes(r),
         ),
       );
@@ -54,8 +65,8 @@ const fieldToValidationStatement = (
 ) => {
   const fieldName = protoNameToTypeName(field.name);
   const fieldType = protoNameToTypeName(field.type);
-  const isRequired = ["required", "query", "cookies", "headers"].some((r) =>
-    (field.options.validation as string)?.includes(r),
+  const isRequired = ["required", "query", "cookies", "headers", "status"].some(
+    (r) => (field.options.validation as string)?.includes(r),
   );
   const isRepeated = !!field.options.repeated;
   const isMessageType = field.type.startsWith(".");
@@ -118,8 +129,7 @@ const messageToValidationFunction = (
 };
 
 const methodToFunction = (method: ServiceDefinition["methods"][string]) => {
-  const methodName =
-    method.name[0].toLowerCase() + method.name.slice(1) + "Method";
+  const methodName = method.name[0].toLowerCase() + method.name.slice(1);
   const inputType = protoNameToTypeName(method.inputType);
   const outputType = protoNameToTypeName(method.outputType);
 
@@ -135,6 +145,10 @@ const methodToFunction = (method: ServiceDefinition["methods"][string]) => {
     !implementationHelpers.includes("methodHttpHandler")
   ) {
     implementationHelpers.push("methodHttpHandler");
+  }
+
+  if (!implementationHelpers.includes("handlerContext")) {
+    implementationHelpers.push("handlerContext");
   }
 
   const secretsConst = method.options.secrets
@@ -157,6 +171,7 @@ const methodToFunction = (method: ServiceDefinition["methods"][string]) => {
   export const ${methodName} = (handler: (event: ${inputType}, context: HandlerContext<Env, ${secretsType}>) => Promise<Result<${outputType}>>) => {
     return ${handlerType}(
       handler,
+      ${secretsConst ? `${methodName}Secrets` : "[]"},
       ${handlerInputs}
     );
   }`;
@@ -195,119 +210,22 @@ const findMarshalingMessages = (serviceDefinition: ServiceDefinition) => {
 
 const configToEnvironment = (config: ServiceDefinition["config"]) => {
   return `
-export type CommonEnv = ${JSON.stringify(config["*"])} & { stage: string };
+export type CommonEnv = ${variableToTypeString(config["*"])} & { stage: string };
 ${Object.keys(config)
   .filter((key) => key !== "*")
   .map(
     (key) =>
-      `export type Env_${key} = ${JSON.stringify(config[key])} & { stage: "${key}" };`,
+      `export type Env_${key} = ${variableToTypeString(config[key])} & { stage: "${key}" };`,
   )
   .join("\n")}
 export type Env = CommonEnv & (Env_dev | Env_prod);
 `;
 };
 
-// const marshalMessage = (message?: ServiceDefinition["messages"][string]) => {
-//   if (!message) {
-//     return "";
-//   }
-//   if (
-//     !Object.values(message.fields).some((field) =>
-//       ["query", "headers", "cookies"].some((v) =>
-//         (field.options.validation as string)?.includes(v),
-//       ),
-//     )
-//   ) {
-//     if (!implementationHelpers.includes("marshalHttpEvent")) {
-//       implementationHelpers.push("marshalHttpEvent");
-//     }
-//     return `export const marshalHttp${protoNameToTypeName(message.name)} = marshalHttpEventBody;`;
-//   }
-//   const marshalCookiesName = Object.values(message.fields).find((field) =>
-//     (field.options.validation as string)?.includes("cookies"),
-//   )?.name;
-//   const marshalQueryName = Object.values(message.fields).find((field) =>
-//     (field.options.validation as string)?.includes("query"),
-//   )?.name;
-//   const marshalHeadersName = Object.values(message.fields).find((field) =>
-//     (field.options.validation as string)?.includes("headers"),
-//   )?.name;
-//   if (
-//     (marshalCookiesName || "cookies") === "cookies" &&
-//     (marshalQueryName || "query") === "query" &&
-//     (marshalHeadersName || "headers") === "headers"
-//   ) {
-//     return `export const marshalHttp${protoNameToTypeName(message.name)} = marshalHttpEvent;`;
-//   }
-//   const namedParams = marshalCookiesName
-//     ? `["${marshalCookiesName}"]: marshalHttpEventCookies(event),`
-//     : "" + marshalQueryName
-//       ? `["${marshalQueryName}"]: marshalHttpEventQuery(event),`
-//       : "" + marshalHeadersName
-//         ? `["${marshalHeadersName}"]: marshalHttpEventHeaders(event),`
-//         : "";
-//   return `export const marshalHttp${protoNameToTypeName(message.name)} = (event: any) => {
-//     return {
-//       ...marshalHttpEventBody(event),
-//       ${namedParams}
-//     }
-//   };`;
-// };
-
-// const unmarshalMessage = (message?: ServiceDefinition["messages"][string]) => {
-//   if (!message) {
-//     return "";
-//   }
-//   if (
-//     !Object.values(message.fields).some((field) =>
-//       ["headers", "cookies"].some((v) =>
-//         (field.options.validation as string)?.includes(v),
-//       ),
-//     )
-//   ) {
-//     if (!implementationHelpers.includes("unmarshalHttpResponse")) {
-//       implementationHelpers.push("unmarshalHttpResponse");
-//     }
-//     return `export const unmarshalHttp${protoNameToTypeName(message.name)} = unmarshalHttpResponse;`;
-//   }
-//   const unmarshalCookiesName = Object.values(message.fields).find((field) =>
-//     (field.options.validation as string)?.includes("cookies"),
-//   )?.name;
-//   const unmarshalHeadersName = Object.values(message.fields).find((field) =>
-//     (field.options.validation as string)?.includes("headers"),
-//   )?.name;
-//   if (
-//     (unmarshalCookiesName || "cookies") === "cookies" &&
-//     (unmarshalHeadersName || "headers") === "headers"
-//   ) {
-//     return `export const unmarshalHttp${protoNameToTypeName(message.name)} = unmarshalHttpResponse;`;
-//   }
-//   const namedParams = unmarshalCookiesName
-//     ? `cookies: unmarshalHttpResponseCookies(${unmarshalCookiesName}),`
-//     : "" + unmarshalHeadersName
-//       ? `headers: unmarshalHttpResponseHeaders(${unmarshalHeadersName}),`
-//       : "";
-//   return `export const unmarshalHttp${protoNameToTypeName(message.name)} = (response: any) => {
-//     const input = typeof response === "object" ? response : {};
-//     const {${[unmarshalCookiesName, unmarshalHeadersName].filter(Boolean).join(", ")}, ...body} = input;
-//     return {
-//       body: unmarshalHttpResponseBody(body),
-//       ${namedParams}
-//     }
-//   };`;
-// };
-
-// const generateMarshalFunctions = (serviceDefinition: ServiceDefinition) => {
-//   return Object.values(serviceDefinition.methods)
-//     .filter((m) => m.options.api === "http")
-//     .map(
-//       (method) =>
-//         marshalMessage(serviceDefinition.messages[method.inputType]) +
-//         unmarshalMessage(serviceDefinition.messages[method.outputType]),
-//     );
-// };
-
-const httpEventToMessage = (message: ServiceDefinition["messages"][string]) => {
+const httpEventToMessage = (
+  message: ServiceDefinition["messages"][string],
+  serviceDefinition: ServiceDefinition,
+) => {
   const cookieParam = Object.values(message.fields).find((field) =>
     (field.options.validation as string)?.includes("cookies"),
   )?.name;
@@ -319,12 +237,28 @@ const httpEventToMessage = (message: ServiceDefinition["messages"][string]) => {
   )?.name;
 
   const cookies = cookieParam
-    ? `${cookieParam}: fromHttpCookies(event.cookies),`
+    ? `${cookieParam}: fromHttpCookies(event.cookies,[${Object.keys(
+        serviceDefinition.messages[message.fields[cookieParam].type].fields,
+      )
+        .map((f) => `"${f}"`)
+        .join()}]),`
     : "";
   const headers = headersParam
     ? `${headersParam}: fromHttpHeaders(event.headers),`
     : "";
-  const query = queryParam ? `${queryParam}:fromHttpQuery(event.query),` : "";
+  const query = queryParam
+    ? `${queryParam}: fromHttpQuery(event.queryStringParameters),`
+    : "";
+
+  if (cookies && !implementationHelpers.includes("fromHttpCookies")) {
+    implementationHelpers.push("fromHttpCookies");
+  }
+  if (headers && !implementationHelpers.includes("fromHttpHeaders")) {
+    implementationHelpers.push("fromHttpHeaders");
+  }
+  if (query && !implementationHelpers.includes("fromHttpQuery")) {
+    implementationHelpers.push("fromHttpQuery");
+  }
 
   return `export const marshalHttpTo${protoNameToTypeName(message.name)} = (event: any) => {
     return {
@@ -350,10 +284,20 @@ const messageToHttpResponse = (
   const headers = headersParam ? `${headersParam}: headers,` : "";
   const status = statusParam ? `${statusParam}: status,` : "";
 
+  if (cookies && !implementationHelpers.includes("toHttpCookies")) {
+    implementationHelpers.push("toHttpCookies");
+  }
+  if (headers && !implementationHelpers.includes("toHttpHeaders")) {
+    implementationHelpers.push("toHttpHeaders");
+  }
+  if (status && !implementationHelpers.includes("toHttpStatus")) {
+    implementationHelpers.push("toHttpStatus");
+  }
+
   return `export const unmarshal${protoNameToTypeName(message.name)}ToHttp = (response: any) => {
     const {${cookies}${headers}${status} ...body} = response;
     return {
-      body,${cookies ? `cookies: toHttpCookies(cookies),` : ""}${headers ? `headers: toHttpHeaders(headers),` : ""}${status ? `status: toHttpStatus(status),` : ""}
+      body,${cookies ? `cookies: toHttpCookies(cookies)` : ""}${headers ? `headers: toHttpHeaders(headers),` : ""}${status ? `statusCode: toHttpStatus(status),` : ""}
     }
   }`;
 };
@@ -364,12 +308,54 @@ const createMarshalingFunctions = (serviceDefinition: ServiceDefinition) => {
     if (!message) {
       throw new Error(`Message not found: ${messageName}`);
     }
+    Object.values(message.fields)
+      .filter((field) =>
+        ["query", "headers", "cookies", "status"].some((v) =>
+          (field.options.validation as string)?.includes(v),
+        ),
+      )
+      .forEach((field) => {
+        if (!field.type.startsWith(".")) {
+          throw new Error(
+            `Field ${field.name} in message ${messageName} is marked for http marshaling but is not a message type`,
+          );
+        }
+        if (
+          Object.values(serviceDefinition.messages[field.type].fields).some(
+            (f) => f.type.startsWith("."),
+          )
+        ) {
+          throw new Error(
+            `Field ${field.name} in message ${messageName} is marked for http marshaling but contains a message`,
+          );
+        }
+      });
     if (direction === "fromHttp") {
-      return httpEventToMessage(message);
+      return httpEventToMessage(message, serviceDefinition);
     } else if (direction === "toHttp") {
       return messageToHttpResponse(message);
     } else {
       throw new Error(`Unknown marshaling direction: ${direction}`);
+    }
+  });
+};
+
+const createHandlers = (serviceDefinition: ServiceDefinition) => {
+  Object.values(serviceDefinition.methods).forEach((method) => {
+    const methodName = method.name[0].toLowerCase() + method.name.slice(1);
+    const fileExists = fs.existsSync(`src/handlers/${method.name}.ts`);
+    if (!fileExists) {
+      const handlerContent = `import { ${methodName} } from "../../generated/service.ts";
+import { err } from "@dannywrayuk/results";
+
+export default ${methodName}(async () => {
+  return err(null, "Not implemented");
+});
+`;
+      if (!fs.existsSync("src/handlers")) {
+        fs.mkdirSync("src/handlers");
+      }
+      fs.writeFileSync(`src/handlers/${methodName}.ts`, handlerContent);
     }
   });
 };
@@ -398,6 +384,8 @@ export const asFile = (serviceDefinition: ServiceDefinition) => {
   ]
     .map((i) => helperMap[i])
     .join("\n");
+
+  createHandlers(serviceDefinition);
 
   return [helpers, environment, messages, marshalingFunctions, methods].join(
     "\n",

@@ -24,45 +24,35 @@ option (config) = {
 };
 
 service Auth {
-  rpc Token (TokenRequest) returns (TokenResponse) {
+  rpc Login (LoginRequest) returns (LoginResponse) {
+    option (api) = "http";
     option (secret) = "GITHUB_CLIENT_ID";
     option (secret) = "GITHUB_CLIENT_SECRET";
     option (secret) = "AUTH_ACCESS_TOKEN_SIGNING_KEY";
     option (secret) = "AUTH_REFRESH_TOKEN_SIGNING_KEY";
   };
-  rpc Login (LoginRequest) returns (LoginResponse) {
-    option (api) = "http";
-    option (using) = "Token";
-  };
   rpc Register (LoginRequest) returns (LoginResponse) {
     option (api) = "http";
-    option (using) = "Token";
+    option (secret) = "GITHUB_CLIENT_ID";
+    option (secret) = "GITHUB_CLIENT_SECRET";
+    option (secret) = "AUTH_ACCESS_TOKEN_SIGNING_KEY";
+    option (secret) = "AUTH_REFRESH_TOKEN_SIGNING_KEY";
   };
   rpc Refresh (RefreshRequest) returns (LoginResponse) {
     option (api) = "http";
-    option (using) = "Token";
+    option (secret) = "AUTH_ACCESS_TOKEN_SIGNING_KEY";
+    option (secret) = "AUTH_REFRESH_TOKEN_SIGNING_KEY";
   };
   rpc Logout (Empty) returns (Empty) {
     option (api) = "http";
   };
 }
 
-message TokenRequest {
-  string code = 1 [(validation) = "required"];
-}
-
-message TokenResponse {
-  string access_token = 1 [(validation) = "required"];
-  string refresh_token = 2 [(validation) = "required"];
-  string token_type = 3 [(validation) = "required"];
-  string expires_in = 4 [(validation) = "required"];
-}
-
 message LoginRequest {
   message Query {
     string code = 1 [(validation) = "required"];
   } 
-  Query queryz = 1 [(validation) = "query"];
+  Query query = 1 [(validation) = "query"];
 }
 
 message LoginResponse {

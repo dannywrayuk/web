@@ -2,6 +2,7 @@
 export const methodHandler =
   <HandlerRequest, HandlerResponse>(
     handler: (event: HandlerRequest, context: any) => Promise<HandlerResponse>,
+    secretKeys: readonly string[],
     validateInput: (o: any) => any,
     validateOutput: (o: any) => any,
   ) =>
@@ -17,12 +18,3 @@ export const methodHandler =
     }
     return validatedOutput;
   };
-
-export type HandlerContext<
-  E extends Record<string, unknown>,
-  S extends readonly string[],
-> = {
-  secrets: Record<S[number], string>;
-  env: E;
-  timestamp: string;
-};

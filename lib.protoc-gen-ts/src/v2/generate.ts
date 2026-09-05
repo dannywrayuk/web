@@ -13,8 +13,6 @@ export type ServiceDefinition = {
       inputType: string;
       outputType: string;
       options: Record<string, unknown>;
-      httpMarshal?: Record<string, string>;
-      httpUnmarshal?: Record<string, string>;
     }
   >;
   messages: Record<

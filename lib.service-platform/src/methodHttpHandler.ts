@@ -18,6 +18,7 @@ type HttpResponse = {
 export const methodHttpHandler =
   <HandlerRequest, HandlerResponse>(
     handler: (event: HandlerRequest, context: any) => Promise<HandlerResponse>,
+    secretKeys: readonly string[],
     validateInput: (o: any) => any,
     validateOutput: (o: any) => any,
     marshalInput: null | ((event: HttpEvent) => HandlerRequest),
@@ -28,6 +29,7 @@ export const methodHttpHandler =
       marshalInput?.(event) || (event.body as unknown as HandlerRequest);
     const output = await methodHandler(
       handler,
+      secretKeys,
       validateInput,
       validateOutput,
     )(marshalledInput);
@@ -35,12 +37,3 @@ export const methodHttpHandler =
       unmarshalOutput?.(output) || ({ body: output } as HttpResponse);
     return unmarshalledOutput;
   };
-
-export type HandlerContext<
-  E extends Record<string, unknown>,
-  S extends readonly string[],
-> = {
-  secrets: Record<S[number], string>;
-  env: E;
-  timestamp: string;
-};

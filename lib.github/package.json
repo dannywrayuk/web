@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@dannywrayuk/results": "workspace:*",
+    "@dannywrayuk/service-platform": "workspace:*",
     "@dannywrayuk/validatedFetch": "workspace:*"
   },
   "devDependencies": {
