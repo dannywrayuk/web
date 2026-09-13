@@ -360,11 +360,17 @@ export default ${methodName}(async () => {
   });
 };
 
+const createTableFunctions = (tables: ServiceDefinition["tables"]) => {
+  console.warn(tables);
+  return "";
+};
+
 const implementationHelpers = ["allowAny", "results"];
 const needsMarshaling = {} as Record<string, "fromHttp" | "toHttp">;
 export const asFile = (serviceDefinition: ServiceDefinition) => {
   findMarshalingMessages(serviceDefinition);
   const environment = configToEnvironment(serviceDefinition.config);
+  const tableFunctions = createTableFunctions(serviceDefinition.tables);
   const messages = Object.values(serviceDefinition.messages)
     .map((message) =>
       [messageToType(message), messageToValidationFunction(message)].join("\n"),
@@ -387,7 +393,12 @@ export const asFile = (serviceDefinition: ServiceDefinition) => {
 
   createHandlers(serviceDefinition);
 
-  return [helpers, environment, messages, marshalingFunctions, methods].join(
-    "\n",
-  );
+  return [
+    helpers,
+    environment,
+    messages,
+    marshalingFunctions,
+    methods,
+    tableFunctions,
+  ].join("\n");
 };

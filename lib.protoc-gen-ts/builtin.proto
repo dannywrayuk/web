@@ -6,8 +6,16 @@ message Config {
   string stage = 1;
   repeated string e = 2;
 }
+message Table {
+  string table = 1;
+  string entry = 2;
+  string PK = 3;
+  string SK = 4;
+  repeated string column = 5;
+}
 extend google.protobuf.FileOptions {
   repeated Config config = 51237;
+  repeated Table table = 51239;
 }
 extend google.protobuf.MethodOptions {
   string api = 51236;

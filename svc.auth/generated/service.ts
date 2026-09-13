@@ -14,7 +14,7 @@ type Empty = Record<string, never>;
 
 export type CommonEnv = {domain:string;accessTokenExpiry:string;refreshTokenExpiry:string;} & { stage: string };
 export type Env_dev = {githubUrl:string;githubApiUrl:string;allowedOrigins:(string)[];} & { stage: "dev" };
-export type Env_prod = {githubUrl:string;githubApiUrl:string;allowedOrigins:(string)[];removeStageSubdomain:boolean;deletionProtection:boolean;} & { stage: "prod" };
+export type Env_prod = {githubUrl:string;githubApiUrl:string;allowedOrigins:(string)[];deletionProtection:boolean;} & { stage: "prod" };
 export type Env = CommonEnv & (Env_dev | Env_prod);
 
 export type LoginRequest_Query = {code: string;};

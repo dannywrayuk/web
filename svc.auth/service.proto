@@ -19,7 +19,6 @@ option (config) = {
   e: "githubUrl=https://github.com"
   e: "githubApiUrl=https://api.github.com"
   e: "allowedOrigins[]=https://account.dannywray.co.uk"
-  e: "removeStageSubdomain"
   e: "deletionProtection"
 };
 

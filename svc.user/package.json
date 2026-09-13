@@ -7,7 +7,8 @@
     "cdk-deploy": "cdk deploy",
     "cdk-destroy": "cdk destroy",
     "lint": "eslint .",
-    "ts-check": "tsc --noEmit"
+    "ts-check": "tsc --noEmit",
+    "proto": "protoc --plugin=../lib.protoc-gen-ts/protoc-gen-ts -I../lib.protoc-gen-ts --proto_path=. --ts_out=. ./service.proto"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "catalog:",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@dannywrayuk/cdk": "workspace:*",
     "@dannywrayuk/eslint": "workspace:*",
+    "@dannywrayuk/protoc-gen-ts": "workspace:*",
     "@dannywrayuk/tsconfig": "workspace:*",
     "@types/jsonwebtoken": "catalog:",
     "@types/node": "catalog:",

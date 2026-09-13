@@ -22,9 +22,8 @@ const main = async (request: proto.CodeGeneratorRequest) => {
 (async () => {
   const input = fs.readFileSync(0);
   extensionPass(proto.CodeGeneratorRequest.deserializeBinary(input));
-  const output = await main(
-    proto.CodeGeneratorRequest.deserializeBinary(input),
-  );
+  const request = proto.CodeGeneratorRequest.deserializeBinary(input);
+  const output = await main(request);
   process.stdout.write(Buffer.from(output.serializeBinary().buffer));
   console.warn("✅ Done.");
 })().catch((e) => {

@@ -1,0 +1,81 @@
+syntax = "proto3";
+import "builtin.proto";
+
+option (config) = {
+  stage: "*"
+  e: "domain=dannywray.co.uk"
+};
+option (config) = {
+  stage: "dev"
+};
+option (config) = {
+  stage: "prod"
+  e: "deletionProtection"
+};
+
+option (table) = {
+  table: "users"
+  entry: "UserRecord"
+
+  PK: "$userId"
+
+  column: "userId"
+  column: "name"
+  column: "username"
+  column: "avatarUrl"
+  column: "createdAt"
+  column: "email"
+  column: "githubId"
+};
+
+option (table) = {
+  table: "users"
+  entry: "GithubLink"
+
+  PK: "$userId"
+  SK: "$githubId"
+
+  column: "userId"
+  column: "githubId"
+};
+
+service User {
+  rpc ReadUser (ReadUserRequest) returns (ReadUserResponse) {};
+  rpc ReadUserFromGithub (ReadUserFromGithubRequest) returns (ReadUserResponse) {};
+  rpc CreateUserFromGithub (CreateUserFromGithubRequest) returns (ReadUserResponse) {};
+}
+
+message ReadUserRequest {
+  string userId = 1 [(validation) = "required"];
+}
+
+message ReadUserFromGithubRequest {
+  string githubId = 1 [(validation) = "required"];
+}
+
+message UserStarter {
+  string name = 1 [(validation) = "required"];
+  string username = 2 [(validation) = "required"];
+  string avatarUrl = 3 [(validation) = "required"];
+  string email = 4 [(validation) = "required"];
+}
+
+message CreateUserFromGithubRequest {
+  string githubId = 1 [(validation) = "required"];
+  UserStarter user = 2 [(validation) = "required"];
+}
+
+message UserDetails {
+  string userId = 1 [(validation) = "required"];
+  string name = 2 [(validation) = "required"];
+  string username = 3 [(validation) = "required"];
+  string avatarUrl = 4 [(validation) = "required"];
+  string createdAt = 5 [(validation) = "required"];
+  string email = 6 [(validation) = "required"];
+  string githubId = 7;
+}
+
+message ReadUserResponse {
+  UserDetails user = 1 [(validation) = "required"];
+}
+
