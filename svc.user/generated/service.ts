@@ -14,7 +14,7 @@ export const validateReadUserRequest = (o: Record<string, any>): Result<ReadUser
     if(typeof o.userId !== "string") { return err(null, "userId is not a string") }
       return ok(o as ReadUserRequest);
   }
-export type UserDetails = {userId: string; name: string; username: string; avatarUrl: string; createdAt: string; email: string; githubId: string | undefined;};
+export type UserDetails = {userId: string; name: string; username: string; avatarUrl: string; createdAt: string; email: string; githubId?: string | undefined;};
 export const validateUserDetails = (o: Record<string, any>): Result<UserDetails> => {
     if (typeof o !== "object" || o === null) { return err(null, "UserDetails is not an object") }
     if(typeof o.userId !== "string") { return err(null, "userId is not a string") }
@@ -29,12 +29,15 @@ if(typeof o.email !== "string") { return err(null, "email is not a string") }
     }
       return ok(o as UserDetails);
   }
-export type ReadUserResponse = {user: UserDetails;};
+export type ReadUserResponse = {user?: UserDetails | undefined;};
 export const validateReadUserResponse = (o: Record<string, any>): Result<ReadUserResponse> => {
     if (typeof o !== "object" || o === null) { return err(null, "ReadUserResponse is not an object") }
     
+      if (o.user !== undefined) {
+      
     const [, userError] = validateUserDetails(o.user);
     if (userError) { return err(userError, "user is not valid") }
+      }
       return ok(o as ReadUserResponse);
   }
 export type ReadUserFromGithubRequest = {githubId: string;};
@@ -89,3 +92,130 @@ export const validateCreateUserFromGithubRequest = (o: Record<string, any>): Res
       validateReadUserResponse
     );
   }
+
+import {
+  query,
+  put,
+  read,
+  update,
+  remove,
+} from "@dannywrayuk/aws/dynamodb";
+
+export const tableInformation = {
+  tables: {
+  "user": {
+    "Record": {
+      "PK": "$userId",
+      "SK": "",
+      "columns": [
+        "userId",
+        "name",
+        "username",
+        "avatarUrl",
+        "createdAt",
+        "email",
+        "githubId"
+      ]
+    },
+    "GithubMap": {
+      "PK": "$userId",
+      "SK": "$githubId",
+      "columns": [
+        "userId",
+        "githubId"
+      ]
+    }
+  }
+},
+};
+  
+export type UserRecord = {
+  userId: string;
+  name?: string;
+  username?: string;
+  avatarUrl?: string;
+  createdAt?: string;
+  email?: string;
+  githubId?: string;
+}
+
+
+export const createUserRecord = (ctx: HandlerContext, data: UserRecord) =>
+  put({
+    PK: `RECORD#userId#${data.userId}`,
+    SK: "RECORD",
+    data,
+    tableName: `user-user-${ctx.env.stage}`,
+  });
+
+export const updateUserRecord = (ctx: HandlerContext, data: UserRecord) =>
+  update({
+    PK: `RECORD#userId#${data.userId}`,
+    SK: "RECORD",
+    data,
+    tableName: `user-user-${ctx.env.stage}`,
+  });
+
+export const readUserRecord = (ctx: HandlerContext, params: { userId: string }) =>
+  read<UserRecord>({
+    PK: `RECORD#userId#${params.userId}`,
+    SK: "RECORD",
+    tableName: `user-user-${ctx.env.stage}`,
+  });
+
+export const deleteUserRecord = (ctx: HandlerContext, params: { userId: string }) =>
+  remove({
+    PK: `RECORD#userId#${params.userId}`,
+    SK: "RECORD",
+    tableName: `user-user-${ctx.env.stage}`,
+  });
+
+
+export type UserGithubMap = {
+  userId: string;
+  githubId: string;
+}
+
+export const listUserGithubMapByUserId = (ctx: HandlerContext, params: { userId: string }) =>
+  query<UserGithubMap>({ 
+    PK: `GITHUB_MAP#userId#${params.userId}`,
+    tableName: `user-user-${ctx.env.stage}`,
+  });
+
+
+export const listUserGithubMapByGithubId = (ctx: HandlerContext, params: { githubId: string }) =>
+query<UserGithubMap>({ 
+  PK: `GITHUB_MAP#githubId#${params.githubId}`,
+    tableName: `user-user-${ctx.env.stage}`,
+  inverse: true,
+});
+
+export const createUserGithubMap = (ctx: HandlerContext, data: UserGithubMap) =>
+  put({
+    PK: `GITHUB_MAP#userId#${data.userId}`,
+    SK: `GITHUB_MAP#githubId#${data.githubId}`,
+    data,
+    tableName: `user-user-${ctx.env.stage}`,
+  });
+
+export const updateUserGithubMap = (ctx: HandlerContext, data: UserGithubMap) =>
+  update({
+    PK: `GITHUB_MAP#userId#${data.userId}`,
+    SK: `GITHUB_MAP#githubId#${data.githubId}`,
+    data,
+    tableName: `user-user-${ctx.env.stage}`,
+  });
+
+export const readUserGithubMap = (ctx: HandlerContext, params: { userId: string, githubId: string }) =>
+  read<UserGithubMap>({
+    PK: `GITHUB_MAP#userId#${params.userId}`,
+    SK: `GITHUB_MAP#githubId#${params.githubId}`,
+    tableName: `user-user-${ctx.env.stage}`,
+  });
+
+export const deleteUserGithubMap = (ctx: HandlerContext, params: { userId: string, githubId: string }) =>
+  remove({
+    PK: `GITHUB_MAP#userId#${params.userId}`,
+    SK: `GITHUB_MAP#githubId#${params.githubId}`,
+    tableName: `user-user-${ctx.env.stage}`,
+  });

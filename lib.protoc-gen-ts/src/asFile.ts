@@ -1,4 +1,5 @@
 import { type ServiceDefinition } from "./generate.ts";
+import { generateTable } from "./tablegen.ts";
 import { variableToTypeString } from "./variableToTypeString.ts";
 import * as fs from "node:fs";
 
@@ -44,13 +45,18 @@ const fieldsToType = (
 ) => {
   return Object.values(fields)
     .map((field) => {
+      const isOptional = ![
+        "required",
+        "query",
+        "cookies",
+        "headers",
+        "status",
+      ].some((r) => (field.options.validation as string)?.includes(r));
       const type = toOptional(
         toArray(protoNameToTypeName(field.type), !!field.options.repeated),
-        !["required", "query", "cookies", "headers", "status"].some((r) =>
-          (field.options.validation as string)?.includes(r),
-        ),
+        isOptional,
       );
-      return `${protoNameToTypeName(field.name)}: ${type};`;
+      return `${protoNameToTypeName(field.name)}${isOptional ? "?" : ""}: ${type};`;
     })
     .join(" ");
 };
@@ -360,17 +366,15 @@ export default ${methodName}(async () => {
   });
 };
 
-const createTableFunctions = (tables: ServiceDefinition["tables"]) => {
-  console.warn(tables);
-  return "";
-};
-
 const implementationHelpers = ["allowAny", "results"];
 const needsMarshaling = {} as Record<string, "fromHttp" | "toHttp">;
 export const asFile = (serviceDefinition: ServiceDefinition) => {
   findMarshalingMessages(serviceDefinition);
   const environment = configToEnvironment(serviceDefinition.config);
-  const tableFunctions = createTableFunctions(serviceDefinition.tables);
+  const tableFunctions = generateTable({
+    serviceName: serviceDefinition.serviceName,
+    tables: serviceDefinition.tables,
+  });
   const messages = Object.values(serviceDefinition.messages)
     .map((message) =>
       [messageToType(message), messageToValidationFunction(message)].join("\n"),

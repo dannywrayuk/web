@@ -15,7 +15,7 @@ export default refresh(async (event, ctx) => {
     return err(tokenValidationError, "verifying refresh token");
   }
 
-  const [user, findUserError] = await users.readUserById({
+  const [user, findUserError] = await users.readUser(ctx, {
     userId: tokenData.sub,
   });
 

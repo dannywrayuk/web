@@ -8,9 +8,11 @@ import { HandlerContext } from "@dannywrayuk/service-platform/HandlerContext";
 
 const getOrCreateUser = async (
   ctx: HandlerContext,
-  profile: { id: string; email: string; name: string },
+  record: { id: string; email: string; name: string; avatarUrl: string },
 ) => {
-  const [userResponse, userError] = await users.readByGithubId(ctx, profile.id);
+  const [userResponse, userError] = await users.readFromGithub(ctx, {
+    githubId: record.id,
+  });
 
   if (userError) {
     return err(userError, "reading user by github id");
@@ -20,7 +22,16 @@ const getOrCreateUser = async (
     return ok(userResponse);
   }
 
-  const [createUserResponse, createUserError] = await users.create(profile);
+  const [createUserResponse, createUserError] =
+    await users.createUserFromGithub(ctx, {
+      githubId: record.id,
+      user: {
+        name: record.name,
+        email: record.email,
+        username: record.name,
+        avatarUrl: record.avatarUrl,
+      },
+    });
 
   if (createUserError) {
     return err(createUserError, "creating user");

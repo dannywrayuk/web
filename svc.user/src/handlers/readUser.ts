@@ -1,20 +1,18 @@
-import { readUser } from "../../generated/service.ts";
+import { readUser, readUserRecord } from "../../generated/service.ts";
 import { ok, err } from "@dannywrayuk/results";
 
-export default readUser(async (event) => {
-  const [listResponse, listError] = await usersListBy_userId(event.userId);
+export default readUser(async (event, ctx) => {
+  const [listResponse, listError] = await readUserRecord(ctx, {
+    userId: event.userId,
+  });
 
   if (listError) {
     return err(listError, "retrieving user by id");
   }
 
   if (!listResponse) {
-    return ok(null);
+    return ok({});
   }
 
-  if (listResponse.length > 1) {
-    return err(null, "multiple users found with id");
-  }
-
-  return ok(listResponse[0]);
+  return ok({ user: listResponse });
 });

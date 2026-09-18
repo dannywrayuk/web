@@ -62,7 +62,10 @@ function formatTables(file: proto_d.FileDescriptorProto) {
         };
         return acc;
       },
-      {} as Record<string, { PK: string; SK?: string; columns: string[] }>,
+      {} as Record<
+        string,
+        Record<string, { PK: string; SK?: string; columns: string[] }>
+      >,
     ) || {}
   );
 }

@@ -18,6 +18,9 @@ catalogs:
     '@aws-sdk/lib-dynamodb':
       specifier: ^3.721.0
       version: 3.931.0
+    '@dannywrayuk/casing':
+      specifier: ^1.0.4
+      version: 1.0.4
     '@eslint/js':
       specifier: ^9.39.1
       version: 9.39.1
@@ -401,6 +404,9 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
     devDependencies:
+      '@dannywrayuk/casing':
+        specifier: 'catalog:'
+        version: 1.0.4
       '@dannywrayuk/eslint':
         specifier: workspace:*
         version: link:../lib.eslint
@@ -721,6 +727,9 @@ importers:
       '@dannywrayuk/eslint':
         specifier: workspace:*
         version: link:../lib.eslint
+      '@dannywrayuk/protoc-gen-ts':
+        specifier: workspace:*
+        version: link:../lib.protoc-gen-ts
       '@dannywrayuk/tsconfig':
         specifier: workspace:*
         version: link:../lib.tsconfig

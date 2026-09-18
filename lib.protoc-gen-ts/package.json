@@ -17,6 +17,7 @@
     "google-protobuf": "^4.0.2"
   },
   "devDependencies": {
+    "@dannywrayuk/casing": "catalog:",
     "@dannywrayuk/eslint": "workspace:*",
     "@dannywrayuk/tsconfig": "workspace:*",
     "@types/google-protobuf": "^3.15.12",

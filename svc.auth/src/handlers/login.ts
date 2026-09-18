@@ -14,7 +14,7 @@ export default login(async (event, ctx) => {
     return err(githubError, "reading github id");
   }
 
-  const [userResponse, userError] = await users.readByGithubId(
+  const [userResponse, userError] = await users.readFromGithub(
     ctx,
     githubResponse?.id,
   );

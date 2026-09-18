@@ -1,13 +1,19 @@
-import { readUserFromGithub } from "../../generated/service.ts";
+import {
+  readUserFromGithub,
+  listUserGithubMapByGithubId,
+  readUserRecord,
+} from "../../generated/service.ts";
 import { ok, err } from "@dannywrayuk/results";
 
-export default readUserFromGithub(async (event) => {
-  const [listResponse, listError] = await usersListBy_githubId(event.githubId);
+export default readUserFromGithub(async (event, ctx) => {
+  const [listResponse, listError] = await listUserGithubMapByGithubId(ctx, {
+    githubId: event.githubId,
+  });
   if (listError) {
     return err(listError, "retrieving user by github id");
   }
   if (!listResponse) {
-    return ok(null);
+    return ok({});
   }
   if (listResponse.length > 1) {
     return err(null, "multiple users found with github id");
@@ -15,12 +21,15 @@ export default readUserFromGithub(async (event) => {
 
   const userId = listResponse[0].userId;
 
-  const [readResponse, readError] = await usersReadUserRecord(userId);
+  const [readResponse, readError] = await readUserRecord(ctx, {
+    userId,
+  });
   if (readError) {
     return err(readError, "reading user record");
   }
   if (!readResponse) {
-    return ok(null);
+    // This really is an error state because we have a github link but no user record
+    return ok({});
   }
-  return ok(readResponse);
+  return ok({ user: readResponse });
 });

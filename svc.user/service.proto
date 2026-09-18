@@ -14,8 +14,8 @@ option (config) = {
 };
 
 option (table) = {
-  table: "users"
-  entry: "UserRecord"
+  table: "user"
+  entry: "Record"
 
   PK: "$userId"
 
@@ -29,8 +29,8 @@ option (table) = {
 };
 
 option (table) = {
-  table: "users"
-  entry: "GithubLink"
+  table: "user"
+  entry: "GithubMap"
 
   PK: "$userId"
   SK: "$githubId"
@@ -76,6 +76,6 @@ message UserDetails {
 }
 
 message ReadUserResponse {
-  UserDetails user = 1 [(validation) = "required"];
+  UserDetails user = 1;
 }
 

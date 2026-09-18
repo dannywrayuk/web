@@ -11,6 +11,7 @@ export const query = async <I>(input: {
   PK: string;
   SK?: string;
   tableName: string;
+  inverse?: boolean;
 }) => {
   const [response, responseError] = await unsafe((command: QueryCommand) =>
     dynamoDBClient.send(command),
@@ -18,9 +19,9 @@ export const query = async <I>(input: {
     new QueryCommand({
       TableName: input.tableName,
       ExpressionAttributeValues: { ":pk": input.PK, ":sk": input.SK },
+      IndexName: input.inverse ? "inverse" : undefined,
       KeyConditionExpression:
-        `PK = :pk` +
-        (input.SK ? ` AND begins_with(SK, :sk)` : ""),
+        `PK = :pk` + (input.SK ? ` AND begins_with(SK, :sk)` : ""),
     }),
   );
 
@@ -64,7 +65,7 @@ export const put = async (input: {
   return ok(response);
 };
 
-export const deleter = async (input: {
+export const remove = async (input: {
   PK: string;
   SK: string;
   tableName: string;
